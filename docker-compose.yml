@@ -1,0 +1,74 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: axiovital_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-axiovital}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: axiovital_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: axiovital_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-axiovital}
+      - REDIS_URL=redis://redis:6379/0
+      - AI_SERVICE_URL=http://ai_service:8001
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      ai_service:
+        condition: service_started
+
+  ai_service:
+    build:
+      context: .
+      dockerfile: ai_service/Dockerfile
+    container_name: axiovital_ai_service
+    restart: always
+    ports:
+      - "8001:8001"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: axiovital_frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_started
+
+volumes:
+  postgres_data:
+  redis_data:

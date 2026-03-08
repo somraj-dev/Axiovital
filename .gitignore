@@ -1,0 +1,36 @@
+# User-specific files
+.antigravity/
+brain/
+logs/
+*.log
+build_logs.txt
+build_logs_2.txt
+
+# Environment variables
+.env
+.env.local
+
+# IDE files
+.vscode/
+.idea/
+
+# Backend dependencies
+backend/__pycache__/
+backend/venv/
+backend/.pytest_cache/
+
+# Frontend dependencies
+frontend/.dart_tool/
+frontend/.packages
+frontend/build/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+
+# AI Service dependencies
+ai_service/__pycache__/
+ai_service/venv/
+ai_service/.pytest_cache/
+
+# OS files
+.DS_Store
+Thumbs.db
