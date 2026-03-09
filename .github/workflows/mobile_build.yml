@@ -37,6 +37,18 @@ jobs:
           fi
         working-directory: frontend
 
+      - name: Fix Gradle wrapper version
+        run: |
+          WRAPPER_FILE="frontend/android/gradle/wrapper/gradle-wrapper.properties"
+          if [ -f "$WRAPPER_FILE" ]; then
+            sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.2-all.zip|' "$WRAPPER_FILE"
+            echo "Updated Gradle wrapper to 8.2:"
+            cat "$WRAPPER_FILE"
+          fi
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Build APK
         run: flutter build apk --release
         working-directory: frontend
