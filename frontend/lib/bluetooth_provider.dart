@@ -1,14 +1,17 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import 'bluetooth_service.dart';
 
 class BluetoothProvider extends ChangeNotifier {
   final BluetoothService _btService = BluetoothService();
+  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://localhost:8000'));
 
   // Connection state
   bool _isConnected = false;
   bool _isConnecting = false;
   String _deviceName = '';
+  final String _userId = 'VS-99283'; // Fixed for now to match seeded user
 
   // Vitals State
   int _heartRate = 0;
@@ -18,6 +21,7 @@ class BluetoothProvider extends ChangeNotifier {
   int _glucose = 0;
 
   StreamSubscription? _vitalsSub;
+  DateTime? _lastSyncTime;
 
   BluetoothProvider() {
     _initVitalsListener();
@@ -46,8 +50,36 @@ class BluetoothProvider extends ChangeNotifier {
         _glucose = data['glucose'];
         changed = true;
       }
-      if (changed) notifyListeners();
+      
+      if (changed) {
+        notifyListeners();
+        _syncIfThrottled();
+      }
     });
+  }
+
+  void _syncIfThrottled() {
+    final now = DateTime.now();
+    if (_lastSyncTime == null || now.difference(_lastSyncTime!).inSeconds >= 5) {
+      _lastSyncTime = now;
+      _syncVitalsToBackend();
+    }
+  }
+
+  Future<void> _syncVitalsToBackend() async {
+    try {
+      await _dio.post('/api/v1/vitals', data: {
+        'user_id': _userId,
+        'heart_rate': _heartRate > 0 ? _heartRate : null,
+        'systolic_bp': _systolicBP > 0 ? _systolicBP : null,
+        'diastolic_bp': _diastolicBP > 0 ? _diastolicBP : null,
+        'spo2': _spo2 > 0 ? _spo2 : null,
+        'glucose': _glucose > 0 ? _glucose : null,
+      });
+      print('Vitals synced to backend');
+    } catch (e) {
+      print('Error syncing vitals: $e');
+    }
   }
 
   // Getters

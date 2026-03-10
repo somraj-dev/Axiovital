@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'device_connectivity_page.dart';
 import 'vitalsync_dashboard.dart';
 import 'update_profile_page.dart';
+import 'medical_history_form_page.dart';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
 import 'bluetooth_provider.dart';
@@ -15,6 +16,16 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  IconData _getIconData(String iconType) {
+    switch (iconType) {
+      case 'monitor_heart': return Icons.monitor_heart;
+      case 'air': return Icons.air;
+      case 'water_drop': return Icons.water_drop;
+      case 'medical_services': return Icons.medical_services;
+      default: return Icons.history;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
@@ -27,13 +38,13 @@ class _ProfilePageState extends State<ProfilePage> {
     final String bloodGroup = userProvider.bloodGroup;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB), // Light greyish background from screenshot
+      backgroundColor: const Color(0xFFF9FAFB),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
         leading: TextButton.icon(
-          onPressed: () {},
+          onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_ios, size: 16, color: Color(0xFF0F52FF)),
           label: const Text('Back', style: TextStyle(color: Color(0xFF0F52FF), fontSize: 16)),
         ),
@@ -81,7 +92,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFF0F52FF), width: 3), // Blue ring
+                        border: Border.all(color: const Color(0xFF0F52FF), width: 3),
                       ),
                       child: ClipOval(
                         child: Image.network(
@@ -123,15 +134,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
             ),
-            const SizedBox(height: 12),
-            
             const SizedBox(height: 32),
             
-            // Personal Metrics section header
+            // Personal Metrics
             _buildSectionHeader('PERSONAL METRICS', hasInfo: true),
             const SizedBox(height: 12),
-            
-            // Metrics Cards
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -168,12 +175,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 4),
                   const Text('Daily health check-ins & adherence', style: TextStyle(color: Colors.grey, fontSize: 12)),
                   const SizedBox(height: 16),
-                  
-                  // Mock Activity grid (GitHub commit style map)
                   _buildActivityGrid(),
                   const SizedBox(height: 16),
-                  
-                  // Legend and Compliance Rate
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -208,7 +211,19 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 32),
             
             // Medical History
-            _buildSectionHeader('MEDICAL HISTORY', suffixAction: '+ Add Record'),
+            _buildSectionHeader(
+              'MEDICAL HISTORY', 
+              suffixAction: '+ Add Record',
+              onSuffixTap: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MedicalHistoryFormPage()),
+                );
+                if (result == true) {
+                  userProvider.fetchConditions();
+                }
+              }
+            ),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(16),
@@ -217,13 +232,29 @@ class _ProfilePageState extends State<ProfilePage> {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4), spreadRadius: -5)],
               ),
-              child: Column(
-                children: [
-                  _buildListTile(icon: Icons.monitor_heart, title: 'Hypertension', subtitle: 'Diagnosed Feb 2022 • Stable'),
-                  const SizedBox(height: 16),
-                  _buildListTile(icon: Icons.air, title: 'Chronic Asthma', subtitle: 'Mild Persistent • Seasonal'),
-                ],
-              ),
+              child: userProvider.isLoadingConditions 
+                ? const Center(child: CircularProgressIndicator())
+                : userProvider.conditions.isEmpty
+                  ? const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Center(child: Text('No medical history records found.', style: TextStyle(color: Colors.grey))),
+                    )
+                  : Column(
+                      children: List.generate(userProvider.conditions.length, (index) {
+                        final condition = userProvider.conditions[index];
+                        return Column(
+                          children: [
+                            _buildListTile(
+                              icon: _getIconData(condition['icon_type']), 
+                              title: condition['title'], 
+                              subtitle: condition['subtitle'] ?? ''
+                            ),
+                            if (index < userProvider.conditions.length - 1)
+                              const SizedBox(height: 16),
+                          ],
+                        );
+                      }),
+                    ),
             ),
             
             const SizedBox(height: 32),
@@ -243,7 +274,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFF131A2A), // Dark navy blue section
+                color: const Color(0xFF131A2A),
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Column(
@@ -316,7 +347,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  // Pair New Device Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
@@ -342,9 +372,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               ),
             ),
-            
-            const SizedBox(height: 32),
-            
             const SizedBox(height: 40),
           ],
         ),
@@ -387,7 +414,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildSectionHeader(String title, {bool hasInfo = false, String? suffixText, String? suffixAction}) {
+  Widget _buildSectionHeader(String title, {bool hasInfo = false, String? suffixText, String? suffixAction, VoidCallback? onSuffixTap}) {
     return Row(
       children: [
         Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF94A3B8), letterSpacing: 0.5)),
@@ -400,7 +427,10 @@ class _ProfilePageState extends State<ProfilePage> {
         if (suffixText != null)
           Text(suffixText, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF94A3B8), fontSize: 11)),
         if (suffixAction != null)
-          Text(suffixAction, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F52FF), fontSize: 12)),
+          GestureDetector(
+            onTap: onSuffixTap,
+            child: Text(suffixAction, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F52FF), fontSize: 12)),
+          ),
       ],
     );
   }
@@ -430,16 +460,14 @@ class _ProfilePageState extends State<ProfilePage> {
               crossAxisSpacing: 3,
               mainAxisSpacing: 3,
             ),
-            itemCount: 88, // 22 cols * 4 rows approx simulation
+            itemCount: 88,
             itemBuilder: (context, index) {
-              // Randomize colors to mock the activity map
               final colors = [
-                const Color(0xFFF1F5F9), // empty
-                const Color(0xFFBBE5CD), // light green
-                const Color(0xFF22C55E), // green
-                const Color(0xFF166534), // dark green
+                const Color(0xFFF1F5F9),
+                const Color(0xFFBBE5CD),
+                const Color(0xFF22C55E),
+                const Color(0xFF166534),
               ];
-              // Make some predictable pattern for visualization
               final colorIntensity = (index * 7 % 4); 
               return _GridSquare(color: colors[colorIntensity]);
             },
@@ -484,7 +512,7 @@ class _ProfilePageState extends State<ProfilePage> {
         borderRadius: BorderRadius.circular(16),
         child: Container(
           decoration: const BoxDecoration(
-            border: Border(left: BorderSide(color: Color(0xFFEF4444), width: 4)), // Red left border
+            border: Border(left: BorderSide(color: Color(0xFFEF4444), width: 4)),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Row(
@@ -575,56 +603,6 @@ class _VerifiedBadge extends StatelessWidget {
           Text(
             'VERIFIED PATIENT',
             style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _EditableMetric extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final String unit;
-  final VoidCallback onTap;
-
-  const _EditableMetric({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.unit,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: const BoxDecoration(
-              color: Color(0xFFF1F5F9),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: const Color(0xFF0F52FF)),
-          ),
-          const SizedBox(height: 12),
-          Text(label, style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              if (unit.isNotEmpty) ...[
-                const SizedBox(width: 2),
-                Text(unit, style: const TextStyle(fontSize: 14, color: Colors.black54, fontWeight: FontWeight.bold)),
-              ],
-            ],
           ),
         ],
       ),

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 
 class UserProvider with ChangeNotifier {
+  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://localhost:8000'));
+  
   String _name = 'Alexander Chen';
   String _avatarUrl = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200';
   String _clinicalId = 'VS-99283';
@@ -13,6 +16,13 @@ class UserProvider with ChangeNotifier {
   String _address = '123 Health Ave, Clinical Park, New York, NY 10001';
   String _height = '182';
   String _gender = 'Male';
+
+  List<dynamic> _conditions = [];
+  bool _isLoadingConditions = false;
+
+  UserProvider() {
+    fetchConditions();
+  }
 
   // Getters
   String get name => _name;
@@ -27,6 +37,22 @@ class UserProvider with ChangeNotifier {
   String get address => _address;
   String get height => _height;
   String get gender => _gender;
+  List<dynamic> get conditions => _conditions;
+  bool get isLoadingConditions => _isLoadingConditions;
+
+  Future<void> fetchConditions() async {
+    _isLoadingConditions = true;
+    notifyListeners();
+    try {
+      final response = await _dio.get('/api/v1/conditions/$_clinicalId');
+      _conditions = response.data;
+    } catch (e) {
+      print('Error fetching conditions: $e');
+    } finally {
+      _isLoadingConditions = false;
+      notifyListeners();
+    }
+  }
 
   // Setters with notifyListeners
   void updateProfile({

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:dio/dio.dart';
 import 'dart:math';
 import 'bluetooth_provider.dart';
 
@@ -13,6 +14,31 @@ class HealthInsightsPage extends StatefulWidget {
 class _HealthInsightsPageState extends State<HealthInsightsPage> {
   int _scanMode = 0;
   int _timeRange = 1;
+  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://localhost:8000'));
+  List<dynamic> _vitalsHistory = [];
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchHistoricalVitals();
+  }
+
+  Future<void> _fetchHistoricalVitals() async {
+    setState(() => _isLoading = true);
+    try {
+      final response = await _dio.get('/api/v1/vitals/VS-99283?limit=5');
+      if (mounted) {
+        setState(() {
+          _vitalsHistory = response.data;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+      print('Error fetching historical vitals: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -221,9 +247,20 @@ class _HealthInsightsPageState extends State<HealthInsightsPage> {
   Widget _metricsRow() {
     return Consumer<BluetoothProvider>(
       builder: (context, btProvider, child) {
-        final hr = (btProvider.isConnected && btProvider.heartRate > 0) ? '${btProvider.heartRate}' : '102';
-        final glucose = (btProvider.isConnected && btProvider.glucose > 0) ? '${btProvider.glucose}' : '142';
-        final spo2 = (btProvider.isConnected && btProvider.spo2 > 0) ? '${btProvider.spo2}' : '98';
+        String hr = '102';
+        String glucose = '142';
+        String spo2 = '98';
+
+        if (btProvider.isConnected) {
+          if (btProvider.heartRate > 0) hr = '${btProvider.heartRate}';
+          if (btProvider.glucose > 0) glucose = '${btProvider.glucose}';
+          if (btProvider.spo2 > 0) spo2 = '${btProvider.spo2}';
+        } else if (_vitalsHistory.isNotEmpty) {
+          final latest = _vitalsHistory.first;
+          if (latest['heart_rate'] != null) hr = '${latest['heart_rate']}';
+          if (latest['glucose'] != null) glucose = '${latest['glucose']}';
+          if (latest['spo2'] != null) spo2 = '${latest['spo2']}';
+        }
 
         return Row(
           children: [
