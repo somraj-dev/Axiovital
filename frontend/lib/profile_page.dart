@@ -4,6 +4,8 @@ import 'vitalsync_dashboard.dart';
 import 'update_profile_page.dart';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
+import 'bluetooth_provider.dart';
+import 'bluetooth_scan_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -302,11 +304,41 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 20),
                   Row(
                     children: [
-                      Expanded(child: _buildDeviceMetric(label: 'HEART RATE', value: '72', unit: 'BPM')),
+                      Expanded(child: _buildDeviceMetric(
+                        label: 'HEART RATE',
+                        value: Provider.of<BluetoothProvider>(context).isConnected && Provider.of<BluetoothProvider>(context).heartRate > 0
+                            ? '${Provider.of<BluetoothProvider>(context).heartRate}'
+                            : '72',
+                        unit: 'BPM',
+                      )),
                       const SizedBox(width: 16),
                       Expanded(child: _buildDeviceMetric(label: 'SLEEP SCORE', value: '88', unit: '/100')),
                     ],
-                  )
+                  ),
+                  const SizedBox(height: 20),
+                  // Pair New Device Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const BluetoothScanPage()),
+                        );
+                      },
+                      icon: const Icon(Icons.bluetooth_searching, color: Colors.white, size: 20),
+                      label: const Text(
+                        'Pair New Device via Bluetooth',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4B89FF),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        elevation: 0,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

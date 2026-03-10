@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'dart:math';
+import 'bluetooth_provider.dart';
 
 class HealthInsightsPage extends StatefulWidget {
   const HealthInsightsPage({super.key});
@@ -217,14 +219,22 @@ class _HealthInsightsPageState extends State<HealthInsightsPage> {
 
   // ─── METRIC CARDS ───
   Widget _metricsRow() {
-    return Row(
-      children: [
-        Expanded(child: _metric(Icons.favorite, 'HEART RATE', '102', 'bpm', const Color(0xFFED4245))),
-        const SizedBox(width: 10),
-        Expanded(child: _metric(Icons.water_drop, 'GLUCOSE', '142', 'mg/dL', const Color(0xFF3B82F6))),
-        const SizedBox(width: 10),
-        Expanded(child: _metric(Icons.air, 'SPO2', '98', '%', const Color(0xFF22C55E))),
-      ],
+    return Consumer<BluetoothProvider>(
+      builder: (context, btProvider, child) {
+        final hr = (btProvider.isConnected && btProvider.heartRate > 0) ? '${btProvider.heartRate}' : '102';
+        final glucose = (btProvider.isConnected && btProvider.glucose > 0) ? '${btProvider.glucose}' : '142';
+        final spo2 = (btProvider.isConnected && btProvider.spo2 > 0) ? '${btProvider.spo2}' : '98';
+
+        return Row(
+          children: [
+            Expanded(child: _metric(Icons.favorite, 'HEART RATE', hr, 'bpm', const Color(0xFFED4245))),
+            const SizedBox(width: 10),
+            Expanded(child: _metric(Icons.water_drop, 'GLUCOSE', glucose, 'mg/dL', const Color(0xFF3B82F6))),
+            const SizedBox(width: 10),
+            Expanded(child: _metric(Icons.air, 'SPO2', spo2, '%', const Color(0xFF22C55E))),
+          ],
+        );
+      },
     );
   }
 

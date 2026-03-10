@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'habit_tracker_page.dart';
 import 'notification_page.dart';
 import 'user_provider.dart';
+import 'bluetooth_provider.dart';
+import 'bluetooth_scan_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -10,7 +12,11 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
+    final btProvider = Provider.of<BluetoothProvider>(context);
     final String firstName = userProvider.name.split(' ').first;
+
+    // Use BLE heart rate if connected, otherwise fallback to mock
+    final int displayHr = (btProvider.isConnected && btProvider.heartRate > 0) ? btProvider.heartRate : 72;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9), // Light grey background
@@ -51,6 +57,11 @@ class HomePage extends StatelessWidget {
                           ],
                         ),
                       ),
+                      if (btProvider.isConnected)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 8.0),
+                          child: Icon(Icons.bluetooth_connected, color: Color(0xFF4B89FF), size: 16),
+                        )
                     ],
                   ),
                   GestureDetector(
@@ -111,9 +122,9 @@ class HomePage extends StatelessWidget {
                               const SizedBox(width: 8),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
-                                  Text('72 bpm', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                                  Text('Heart rate', style: TextStyle(color: Colors.black45, fontSize: 10)),
+                                children: [
+                                  Text('$displayHr bpm', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                  const Text('Heart rate', style: TextStyle(color: Colors.black45, fontSize: 10)),
                                 ],
                               ),
                             ],

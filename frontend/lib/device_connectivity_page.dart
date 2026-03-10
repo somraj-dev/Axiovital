@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+import 'bluetooth_provider.dart';
+import 'bluetooth_scan_page.dart';
 
 class DeviceConnectivityPage extends StatelessWidget {
   const DeviceConnectivityPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final btProvider = Provider.of<BluetoothProvider>(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFF0F1721), // Dark navy background
       appBar: AppBar(
@@ -27,6 +32,14 @@ class DeviceConnectivityPage extends StatelessWidget {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const BluetoothScanPage()));
+        },
+        backgroundColor: const Color(0xFF4B89FF),
+        icon: const Icon(Icons.bluetooth_searching, color: Colors.white),
+        label: const Text('Scan Devices', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -35,6 +48,17 @@ class DeviceConnectivityPage extends StatelessWidget {
             // Model Accuracy Card
             _buildAccuracyCard(),
             const SizedBox(height: 32),
+
+            // Bluetooth Connected Devices
+            if (btProvider.isConnected) ...[
+              const Text(
+                'Connected Health Devices',
+                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 16),
+              _buildConnectedDeviceCard(btProvider, context),
+              const SizedBox(height: 32),
+            ],
 
             // Compatible Platforms
             const Text(
@@ -276,6 +300,74 @@ class DeviceConnectivityPage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildConnectedDeviceCard(BluetoothProvider bt, BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFF4B89FF).withOpacity(0.5), width: 2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.bluetooth_connected, color: Color(0xFF4B89FF)),
+                  const SizedBox(width: 8),
+                  Text(
+                    bt.deviceName.isNotEmpty ? bt.deviceName : 'Unknown Device',
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16),
+                  ),
+                ],
+              ),
+              GestureDetector(
+                onTap: () {
+                  bt.disconnect();
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text('Disconnect', style: TextStyle(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.w600)),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Divider(color: Colors.white.withOpacity(0.1)),
+          const SizedBox(height: 16),
+          const Text('LIVE VITALS', style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildLiveMetric(Icons.favorite, 'HR', bt.heartRate > 0 ? '${bt.heartRate}' : '--', 'bpm', const Color(0xFFED4245)),
+              _buildLiveMetric(Icons.air, 'SpO2', bt.spo2 > 0 ? '${bt.spo2}' : '--', '%', const Color(0xFF22C55E)),
+              _buildLiveMetric(Icons.bloodtype, 'BP', (bt.systolicBP > 0 && bt.diastolicBP > 0) ? '${bt.systolicBP}/${bt.diastolicBP}' : '--', 'mmHg', const Color(0xFFF59E0B)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLiveMetric(IconData icon, String label, String val, String unit, Color c) {
+    return Column(
+      children: [
+        Icon(icon, color: c, size: 20),
+        const SizedBox(height: 8),
+        Text(val, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+        Text(unit, style: const TextStyle(color: Colors.white54, fontSize: 10)),
+      ],
     );
   }
 }
