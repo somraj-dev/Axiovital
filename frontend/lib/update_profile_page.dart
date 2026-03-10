@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'user_provider.dart';
 import 'location_provider.dart';
+import 'package:geocoding/geocoding.dart';
 
 class UpdateProfilePage extends StatefulWidget {
   const UpdateProfilePage({super.key});
@@ -167,10 +168,38 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                 suffix: TextButton.icon(
                   onPressed: () async {
                     final lp = Provider.of<LocationProvider>(context, listen: false);
+                    setState(() {
+                      _addressController.text = "Detecting location...";
+                    });
+                    
                     await lp.updatePositionOnce();
+                    
                     if (lp.currentPosition != null) {
+                      try {
+                        List<Placemark> placemarks = await placemarkFromCoordinates(
+                          lp.currentPosition!.latitude, 
+                          lp.currentPosition!.longitude
+                        );
+                        
+                        if (placemarks.isNotEmpty) {
+                          Placemark place = placemarks[0];
+                          String formattedAddress = "${place.street}, ${place.locality}, ${place.administrativeArea} ${place.postalCode}, ${place.country}";
+                          setState(() {
+                            _addressController.text = formattedAddress;
+                          });
+                        } else {
+                          setState(() {
+                            _addressController.text = "${lp.currentPosition!.latitude.toStringAsFixed(4)}, ${lp.currentPosition!.longitude.toStringAsFixed(4)} (GPS)";
+                          });
+                        }
+                      } catch (e) {
+                        setState(() {
+                          _addressController.text = "${lp.currentPosition!.latitude.toStringAsFixed(4)}, ${lp.currentPosition!.longitude.toStringAsFixed(4)} (GPS)";
+                        });
+                      }
+                    } else {
                       setState(() {
-                        _addressController.text = "${lp.currentPosition!.latitude.toStringAsFixed(4)}, ${lp.currentPosition!.longitude.toStringAsFixed(4)} (GPS)";
+                        _addressController.text = "Location access denied";
                       });
                     }
                   },
