@@ -3,8 +3,8 @@ name: Build & Release APK
 on:
   push:
     branches: ["main"]
-    tags:
-      - "v*"
+  tags:
+    - "v*"
   workflow_dispatch:
 
 jobs:
@@ -43,16 +43,24 @@ jobs:
           fi
         working-directory: frontend
 
-      - name: Fix Kotlin and Gradle wrapper versions
+      - name: Fix Kotlin and Graduate versions
         run: |
-          # Fix Kotlin version
+          # 1. Update Kotlin version in build.gradle (Standard)
           BUILD_GRADLE="android/build.gradle"
           if [ -f "$BUILD_GRADLE" ]; then
-            sed -i "s/ext.kotlin_version = '.*'/ext.kotlin_version = '1.9.10'/" "$BUILD_GRADLE"
-            echo "Updated Kotlin version to 1.9.10"
+            sed -i "s/ext.kotlin_version = .*/ext.kotlin_version = '1.9.22'/" "$BUILD_GRADLE"
+            sed -i "s/kotlin_version = .*/kotlin_version = '1.9.22'/" "$BUILD_GRADLE"
+            echo "Attempted Kotlin update in $BUILD_GRADLE"
           fi
 
-          # Fix Gradle wrapper
+          # 2. Update Kotlin version in settings.gradle (Modern Flutter)
+          SETTINGS_GRADLE="android/settings.gradle"
+          if [ -f "$SETTINGS_GRADLE" ]; then
+            sed -i 's/id "org.jetbrains.kotlin.android" version ".*"/id "org.jetbrains.kotlin.android" version "1.9.22"/' "$SETTINGS_GRADLE"
+            echo "Attempted Kotlin update in $SETTINGS_GRADLE"
+          fi
+
+          # 3. Fix Gradle wrapper
           WRAPPER_FILE="android/gradle/wrapper/gradle-wrapper.properties"
           if [ -f "$WRAPPER_FILE" ]; then
             sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.2-all.zip|' "$WRAPPER_FILE"
