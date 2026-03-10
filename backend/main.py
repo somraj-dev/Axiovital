@@ -10,7 +10,7 @@ from datetime import datetime
 from backend.database import engine, Base, get_db
 from backend.redis_client import redis_client, check_rate_limit
 from backend.websocket import manager
-from backend.models import User, Vitals, MedicalHistoryForm, Condition
+from backend.models import User, Vitals, MedicalHistoryForm, Condition, LocationRecord
 
 # Pydantic Schemas
 class VitalsBase(BaseModel):
@@ -75,6 +75,18 @@ class MedicalHistoryCreate(BaseModel):
     has_high_bp: bool = False
     has_high_cholesterol: bool = False
     has_diabetes: bool = False
+
+class LocationCreate(BaseModel):
+    user_id: str
+    latitude: float
+    longitude: float
+
+class LocationResponse(LocationCreate):
+    id: int
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -184,6 +196,20 @@ async def create_medical_history(form_data: MedicalHistoryCreate, db: AsyncSessi
 
     await db.commit()
     return {"status": "success", "conditions_extracted": extracted_any}
+
+@app.post("/api/v1/location", response_model=LocationResponse)
+async def update_location(location: LocationCreate, db: AsyncSession = Depends(get_db)):
+    db_location = LocationRecord(**location.model_dump())
+    db.add(db_location)
+    await db.commit()
+    await db.refresh(db_location)
+    return db_location
+
+@app.get("/api/v1/location/{user_id}", response_model=List[LocationResponse])
+async def get_location_history(user_id: str, limit: int = 20, db: AsyncSession = Depends(get_db)):
+    query = select(LocationRecord).where(LocationRecord.user_id == user_id).order_by(LocationRecord.timestamp.desc()).limit(limit)
+    result = await db.execute(query)
+    return result.scalars().all()
 
 @app.get("/api/v1/limited", dependencies=[Depends(check_rate_limit)])
 async def rate_limited_endpoint(user_id: str = "anonymous"):

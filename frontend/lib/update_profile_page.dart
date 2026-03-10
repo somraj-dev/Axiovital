@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'user_provider.dart';
+import 'location_provider.dart';
 
 class UpdateProfilePage extends StatefulWidget {
   const UpdateProfilePage({super.key});
@@ -158,7 +159,25 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
               const SizedBox(height: 16),
               _buildTextField('Phone Number', _phoneController, icon: Icons.phone_outlined),
               const SizedBox(height: 16),
-              _buildTextField('Primary Address', _addressController, icon: Icons.location_on_outlined, maxLines: 2),
+              _buildTextField(
+                'Primary Address', 
+                _addressController, 
+                icon: Icons.location_on_outlined, 
+                maxLines: 2,
+                suffix: TextButton.icon(
+                  onPressed: () async {
+                    final lp = Provider.of<LocationProvider>(context, listen: false);
+                    await lp.updatePositionOnce();
+                    if (lp.currentPosition != null) {
+                      setState(() {
+                        _addressController.text = "${lp.currentPosition!.latitude.toStringAsFixed(4)}, ${lp.currentPosition!.longitude.toStringAsFixed(4)} (GPS)";
+                      });
+                    }
+                  },
+                  icon: const Icon(Icons.gps_fixed, size: 14),
+                  label: const Text('Use GPS', style: TextStyle(fontSize: 10)),
+                ),
+              ),
             ]),
 
             const SizedBox(height: 24),
@@ -271,11 +290,17 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, {IconData? icon, int maxLines = 1}) {
+  Widget _buildTextField(String label, TextEditingController controller, {IconData? icon, int maxLines = 1, Widget? suffix}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Color(0xFF667085), fontSize: 12, fontWeight: FontWeight.w500)),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: const TextStyle(color: Color(0xFF667085), fontSize: 12, fontWeight: FontWeight.w500)),
+            if (suffix != null) suffix,
+          ],
+        ),
         const SizedBox(height: 8),
         TextField(
           controller: controller,

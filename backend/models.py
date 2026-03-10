@@ -13,6 +13,8 @@ class User(Base):
     vitals = relationship("Vitals", back_populates="owner")
     medical_records = relationship("MedicalHistoryForm", back_populates="owner")
     conditions = relationship("Condition", back_populates="owner")
+    location_history = relationship("LocationRecord", back_populates="owner")
+
 
 class Vitals(Base):
     __tablename__ = "vitals"
@@ -97,3 +99,15 @@ class MedicalHistoryForm(Base):
     family_high_bp = Column(Boolean, default=False)
 
     owner = relationship("User", back_populates="medical_records")
+
+class LocationRecord(Base):
+    __tablename__ = "location_records"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.id"))
+    latitude = Column(Float)
+    longitude = Column(Float)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+
+    owner = relationship("User", back_populates="location_history")
+

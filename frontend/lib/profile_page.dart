@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'user_provider.dart';
 import 'bluetooth_provider.dart';
 import 'bluetooth_scan_page.dart';
+import 'location_provider.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -265,6 +266,73 @@ class _ProfilePageState extends State<ProfilePage> {
             _buildAlertCard(icon: Icons.warning_amber_rounded, title: 'Penicillin', subtitle: 'Anaphylaxis Risk • High Priority'),
             const SizedBox(height: 12),
             _buildAlertCard(icon: Icons.bug_report, title: 'Peanuts', subtitle: 'Severe reaction reported 2021'),
+            
+            const SizedBox(height: 32),
+
+            // Location Services
+            _buildSectionHeader('LOCATION SERVICES', hasInfo: true),
+            const SizedBox(height: 12),
+            Consumer<LocationProvider>(
+              builder: (context, locationProvider, child) {
+                return Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4), spreadRadius: -5)],
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: locationProvider.isTracking ? const Color(0xFFECFDF3) : const Color(0xFFF1F5F9),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.gps_fixed, 
+                              color: locationProvider.isTracking ? const Color(0xFF16B364) : const Color(0xFF64748B),
+                              size: 20
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Real-time GPS Tracking', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                Text(
+                                  locationProvider.isTracking ? 'Active • Syncing to Clinical Hub' : 'Inactive • Manual sync only',
+                                  style: TextStyle(color: locationProvider.isTracking ? const Color(0xFF16B364) : Colors.grey, fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Switch.adaptive(
+                            value: locationProvider.isTracking,
+                            activeColor: const Color(0xFF0F52FF),
+                            onChanged: (_) => locationProvider.toggleTracking(),
+                          ),
+                        ],
+                      ),
+                      if (locationProvider.currentPosition != null) ...[
+                        const Divider(height: 32),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _buildCoordItem('LATITUDE', locationProvider.currentPosition!.latitude.toStringAsFixed(6)),
+                            _buildCoordItem('LONGITUDE', locationProvider.currentPosition!.longitude.toStringAsFixed(6)),
+                            _buildCoordItem('ACCURACY', '${locationProvider.currentPosition!.accuracy.toStringAsFixed(1)}m'),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                );
+              },
+            ),
             
             const SizedBox(height: 32),
             
@@ -564,6 +632,17 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCoordItem(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 9, color: Colors.grey, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+        const SizedBox(height: 4),
+        Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1D2939))),
+      ],
     );
   }
 }
