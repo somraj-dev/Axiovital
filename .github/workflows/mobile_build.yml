@@ -43,14 +43,22 @@ jobs:
           fi
         working-directory: frontend
 
-      - name: Fix Gradle wrapper version
+      - name: Fix Kotlin and Gradle wrapper versions
         run: |
-          WRAPPER_FILE="frontend/android/gradle/wrapper/gradle-wrapper.properties"
+          # Fix Kotlin version
+          BUILD_GRADLE="android/build.gradle"
+          if [ -f "$BUILD_GRADLE" ]; then
+            sed -i "s/ext.kotlin_version = '.*'/ext.kotlin_version = '1.9.10'/" "$BUILD_GRADLE"
+            echo "Updated Kotlin version to 1.9.10"
+          fi
+
+          # Fix Gradle wrapper
+          WRAPPER_FILE="android/gradle/wrapper/gradle-wrapper.properties"
           if [ -f "$WRAPPER_FILE" ]; then
             sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.2-all.zip|' "$WRAPPER_FILE"
-            echo "Updated Gradle wrapper to 8.2:"
-            cat "$WRAPPER_FILE"
+            echo "Updated Gradle wrapper to 8.2"
           fi
+        working-directory: frontend
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
