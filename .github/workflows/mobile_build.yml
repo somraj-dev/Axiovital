@@ -23,7 +23,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.19.0" # Adjust as needed
+          flutter-version: "3.19.0"
           channel: "stable"
 
       - name: Get dependencies
@@ -43,28 +43,34 @@ jobs:
           fi
         working-directory: frontend
 
-      - name: Fix Kotlin and Graduate versions
+      - name: Fix Kotlin and Gradle Versions
         run: |
-          # 1. Update Kotlin version in build.gradle (Standard)
+          # 1. Update Kotlin version in build.gradle
+          # We use a more aggressive approach: prepend if not clearly updated
           BUILD_GRADLE="android/build.gradle"
           if [ -f "$BUILD_GRADLE" ]; then
-            sed -i "s/ext.kotlin_version = .*/ext.kotlin_version = '1.9.22'/" "$BUILD_GRADLE"
+            # Remove any existing ext.kotlin_version and add it at the top level
+            sed -i "/ext.kotlin_version/d" "$BUILD_GRADLE"
+            echo "buildscript { ext.kotlin_version = '1.9.22' }" | cat - "$BUILD_GRADLE" > temp && mv temp "$BUILD_GRADLE"
+            
+            # Also try to replace any inline versions
             sed -i "s/kotlin_version = .*/kotlin_version = '1.9.22'/" "$BUILD_GRADLE"
-            echo "Attempted Kotlin update in $BUILD_GRADLE"
+            echo "Robust Kotlin update applied to $BUILD_GRADLE"
           fi
 
-          # 2. Update Kotlin version in settings.gradle (Modern Flutter)
+          # 2. Update Kotlin version in settings.gradle (for modern declarative builds)
           SETTINGS_GRADLE="android/settings.gradle"
           if [ -f "$SETTINGS_GRADLE" ]; then
-            sed -i 's/id "org.jetbrains.kotlin.android" version ".*"/id "org.jetbrains.kotlin.android" version "1.9.22"/' "$SETTINGS_GRADLE"
-            echo "Attempted Kotlin update in $SETTINGS_GRADLE"
+            # Use a more flexible regex to catch variants
+            sed -i 's/id "org.jetbrains.kotlin.android" version "[^"]*"/id "org.jetbrains.kotlin.android" version "1.9.22"/' "$SETTINGS_GRADLE"
+            echo "Robust Kotlin update applied to $SETTINGS_GRADLE"
           fi
 
-          # 3. Fix Gradle wrapper
+          # 3. Fix Gradle wrapper to a known compatible version for Flutter 3.19
           WRAPPER_FILE="android/gradle/wrapper/gradle-wrapper.properties"
           if [ -f "$WRAPPER_FILE" ]; then
-            sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.2-all.zip|' "$WRAPPER_FILE"
-            echo "Updated Gradle wrapper to 8.2"
+            sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.2.1-all.zip|' "$WRAPPER_FILE"
+            echo "Updated Gradle wrapper to 8.2.1"
           fi
         working-directory: frontend
 
