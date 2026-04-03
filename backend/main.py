@@ -12,6 +12,27 @@ from backend.redis_client import redis_client, check_rate_limit
 from backend.websocket import manager
 from backend.models import User, Vitals, MedicalHistoryForm, Condition, LocationRecord
 
+import firebase_admin
+from firebase_admin import auth, credentials
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+# Initialize Firebase (requires serviceAccountKey.json locally or env var in prod)
+try:
+    firebase_admin.get_app()
+except ValueError:
+    # Use default credentials (works on Render/GCP) or local file
+    firebase_admin.initialize_app()
+
+security = HTTPBearer()
+
+async def get_current_user(res: HTTPAuthorizationCredentials = Depends(security)):
+    token = res.credentials
+    try:
+        decoded_token = auth.verify_id_token(token)
+        return decoded_token
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=f"Invalid authentication credentials: {str(e)}")
+
 # Pydantic Schemas
 class VitalsBase(BaseModel):
     heart_rate: Optional[int] = None
@@ -42,6 +63,44 @@ class ConditionResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class UserResponse(BaseModel):
+    id: str
+    name: Optional[str] = None
+    email: Optional[str] = None
+    avatar_url: Optional[str] = None
+    age: Optional[str] = None
+    weight: Optional[str] = None
+    blood_group: Optional[str] = None
+    dob: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    height: Optional[str] = None
+    gender: Optional[str] = None
+    membership_type: Optional[str] = None
+    member_since: Optional[str] = None
+    is_two_factor_enabled: Optional[bool] = None
+    digital_twin_status: Optional[str] = None
+    wearable_status: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    avatar_url: Optional[str] = None
+    age: Optional[str] = None
+    weight: Optional[str] = None
+    blood_group: Optional[str] = None
+    dob: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    height: Optional[str] = None
+    gender: Optional[str] = None
+    membership_type: Optional[str] = None
+    is_two_factor_enabled: Optional[bool] = None
+    digital_twin_status: Optional[str] = None
+    wearable_status: Optional[str] = None
 
 class MedicalHistoryCreate(BaseModel):
     user_id: str
@@ -101,8 +160,17 @@ async def lifespan(app: FastAPI):
             if not default_user_query.scalar_one_or_none():
                 new_user = User(
                     id="VS-99283",
-                    name="Alexander Chen",
-                    email="alex.j@vitalsync.ai"
+                    name="Dr. Julian Vance",
+                    email="julian.v@vitalsync.ai",
+                    avatar_url="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=200",
+                    phone="+1 (555) 000-8829",
+                    dob="12/05/1992",
+                    gender="Male",
+                    membership_type="PREMIUM MEMBER",
+                    member_since="Oct 2023",
+                    is_two_factor_enabled=True,
+                    digital_twin_status="Active",
+                    wearable_status="CONNECTED"
                 )
                 session.add(new_user)
                 
@@ -164,6 +232,40 @@ async def get_user_conditions(user_id: str, db: AsyncSession = Depends(get_db)):
     result = await db.execute(query)
     return result.scalars().all()
 
+# User Profile Endpoints
+@app.get("/api/v1/profile/{user_id}", response_model=UserResponse)
+async def get_user_profile(user_id: str, db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    # Simple check for demo: only allow user to see their own data OR if they are admin
+    # In production, current_user['uid'] would be the primary key
+    if user_id != "VS-99283" and user_id != current_user.get('uid'):
+         raise HTTPException(status_code=403, detail="Not authorized to access this profile")
+    
+    query = select(User).where(User.id == user_id)
+    result = await db.execute(query)
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+@app.put("/api/v1/profile/{user_id}", response_model=UserResponse)
+async def update_user_profile(user_id: str, profile_data: UserUpdate, db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    if user_id != "VS-99283" and user_id != current_user.get('uid'):
+         raise HTTPException(status_code=403, detail="Not authorized to update this profile")
+    query = select(User).where(User.id == user_id)
+    result = await db.execute(query)
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Update fields
+    update_data = profile_data.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(user, key, value)
+    
+    await db.commit()
+    await db.refresh(user)
+    return user
+
 # Medical History Form Endpoint
 @app.post("/api/v1/medical-history")
 async def create_medical_history(form_data: MedicalHistoryCreate, db: AsyncSession = Depends(get_db)):
@@ -208,6 +310,16 @@ async def update_location(location: LocationCreate, db: AsyncSession = Depends(g
 @app.get("/api/v1/location/{user_id}", response_model=List[LocationResponse])
 async def get_location_history(user_id: str, limit: int = 20, db: AsyncSession = Depends(get_db)):
     query = select(LocationRecord).where(LocationRecord.user_id == user_id).order_by(LocationRecord.timestamp.desc()).limit(limit)
+    result = await db.execute(query)
+    return result.scalars().all()
+
+@app.get("/api/v1/admin/users", response_model=List[UserResponse])
+async def get_all_users(db: AsyncSession = Depends(get_db)):
+    """
+    Admin endpoint to view all registered users.
+    Useful for local monitoring and debugging.
+    """
+    query = select(User)
     result = await db.execute(query)
     return result.scalars().all()
 

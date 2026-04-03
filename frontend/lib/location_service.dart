@@ -7,42 +7,58 @@ class LocationService {
   LocationService._internal();
 
   /// Checks and requests location permissions.
-  Future<bool> handlePermission() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  /// Returns a status string: 'enabled', 'disabled', 'denied', 'permanently_denied'
+  Future<String> checkLocationStatus() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      return false;
+      return 'disabled';
     }
 
-    permission = await Geolocator.checkPermission();
+    LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        return false;
+        return 'denied';
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      return false;
+      return 'permanently_denied';
     }
 
-    return true;
+    return 'enabled';
   }
 
-  /// Gets the current position once.
+  /// Gets the current position with aggressive optimization.
   Future<Position?> getCurrentPosition() async {
-    final hasPermission = await handlePermission();
-    if (!hasPermission) return null;
+    final status = await checkLocationStatus();
+    if (status != 'enabled') return null;
 
     try {
+      // 1. Try to get last known position first (Instantaneous)
+      Position? lastPosition = await Geolocator.getLastKnownPosition();
+      if (lastPosition != null) {
+        // If last position is recent (within 1 min), return it immediately
+        final diff = DateTime.now().difference(lastPosition.timestamp);
+        if (diff.inMinutes < 1) return lastPosition;
+      }
+
+      // 2. Otherwise get fresh position with a tight timeout
       return await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        desiredAccuracy: LocationAccuracy.medium, // Medium is faster than High
+        timeLimit: const Duration(seconds: 5),
       );
     } catch (e) {
       print('Error getting location: $e');
-      return null;
+      // Final attempt with low accuracy if high/medium failed
+      try {
+        return await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.low,
+          timeLimit: const Duration(seconds: 3),
+        );
+      } catch (_) {
+        return null;
+      }
     }
   }
 

@@ -9,6 +9,22 @@ class User(Base):
     id = Column(String, primary_key=True, index=True) # VS-99283 etc
     name = Column(String)
     email = Column(String, unique=True, index=True)
+    avatar_url = Column(String, nullable=True)
+    age = Column(String, nullable=True)
+    weight = Column(String, nullable=True)
+    blood_group = Column(String, nullable=True)
+    dob = Column(String, nullable=True)
+    phone = Column(String, nullable=True)
+    address = Column(String, nullable=True)
+    height = Column(String, nullable=True)
+    gender = Column(String, nullable=True)
+    
+    # Settings/Membership
+    membership_type = Column(String, default="PREMIUM MEMBER")
+    member_since = Column(String, default="Oct 2023")
+    is_two_factor_enabled = Column(Boolean, default=True)
+    digital_twin_status = Column(String, default="Active")
+    wearable_status = Column(String, default="CONNECTED")
     
     vitals = relationship("Vitals", back_populates="owner")
     medical_records = relationship("MedicalHistoryForm", back_populates="owner")

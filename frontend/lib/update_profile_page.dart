@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'user_provider.dart';
 import 'location_provider.dart';
+import 'permission_service.dart';
 import 'package:geocoding/geocoding.dart';
 
 class UpdateProfilePage extends StatefulWidget {
@@ -100,6 +101,9 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                     right: 4,
                     child: GestureDetector(
                       onTap: () async {
+                        final permissionGranted = await PermissionService().requestFilePermission(context);
+                        if (!permissionGranted) return;
+                        
                         final picker = ImagePicker();
                         final XFile? image = await picker.pickImage(source: ImageSource.gallery);
                         if (image != null) {
@@ -168,6 +172,9 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                 suffix: TextButton.icon(
                   onPressed: () async {
                     final lp = Provider.of<LocationProvider>(context, listen: false);
+                    final permissionGranted = await PermissionService().requestLocationPermission(context);
+                    if (!permissionGranted) return;
+
                     setState(() {
                       _addressController.text = "Detecting location...";
                     });

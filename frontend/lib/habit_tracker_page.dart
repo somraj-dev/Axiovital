@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
+import 'vitalsync_settings_page.dart';
 
 class HabitTrackerPage extends StatelessWidget {
   const HabitTrackerPage({super.key});
@@ -83,7 +84,13 @@ class HabitTrackerPage extends StatelessWidget {
           children: [
             _buildRoundIcon(Icons.calendar_today_outlined),
             const SizedBox(width: 12),
-            _buildRoundIcon(Icons.settings_rounded),
+            _buildRoundIcon(
+              Icons.settings_rounded,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const VitalsyncSettingsPage()),
+              ),
+            ),
             const SizedBox(width: 12),
             _buildRoundIcon(Icons.share_rounded),
           ],
@@ -92,8 +99,10 @@ class HabitTrackerPage extends StatelessWidget {
     );
   }
 
-  Widget _buildRoundIcon(IconData icon) {
-    return Container(
+  Widget _buildRoundIcon(IconData icon, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: const Color(0xFF262626), // Lighter grey for better visibility

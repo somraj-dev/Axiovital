@@ -5,6 +5,8 @@ import 'home_page.dart';
 import 'find_doctor_page.dart';
 import 'health_insights_page.dart';
 import 'user_provider.dart';
+import 'permission_service.dart';
+import 'vitalsync_settings_page.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -16,6 +18,15 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    // Proactively ask for notifications on app launch (Modern UX)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      PermissionService().requestNotificationPermission(context);
+    });
+  }
+
   // Placeholder pages for each tab
   // Placeholder pages for each tab
   final List<Widget> _pages = [
@@ -23,7 +34,7 @@ class _MainScreenState extends State<MainScreen> {
     const FindDoctorPage(key: ValueKey('FindDoctor')), // Attached the Doctor Directory to the 2nd slot
     const Center(key: ValueKey('Messages'), child: Text('Messages', style: TextStyle(color: Colors.white, fontSize: 24))),
     const HealthInsightsPage(key: ValueKey('HealthInsights')), // Attached the new Health Insights Page
-    const ProfilePage(key: ValueKey('ProfilePage')), // Replaced placeholder with the actual Profile Page
+    const VitalsyncSettingsPage(key: ValueKey('SettingsPage')), // Replaced Profile with the comprehensive Settings Page
   ];
 
 

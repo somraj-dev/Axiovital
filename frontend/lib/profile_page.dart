@@ -8,6 +8,8 @@ import 'user_provider.dart';
 import 'bluetooth_provider.dart';
 import 'bluetooth_scan_page.dart';
 import 'location_provider.dart';
+import 'permission_service.dart';
+import 'package:file_picker/file_picker.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -266,6 +268,55 @@ class _ProfilePageState extends State<ProfilePage> {
             _buildAlertCard(icon: Icons.warning_amber_rounded, title: 'Penicillin', subtitle: 'Anaphylaxis Risk • High Priority'),
             const SizedBox(height: 12),
             _buildAlertCard(icon: Icons.bug_report, title: 'Peanuts', subtitle: 'Severe reaction reported 2021'),
+            
+            const SizedBox(height: 32),
+
+            // Health Reports Section
+            _buildSectionHeader('DIGITAL HEALTH REPORTS', hasInfo: true),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4), spreadRadius: -5)],
+              ),
+              child: Column(
+                children: [
+                  _buildReportItem('BloodTest_March.pdf', 'Clinical Lab A', 'March 10, 2026'),
+                  const Divider(height: 24),
+                  _buildReportItem('XRay_Chest_Final.jpg', 'Modern Imaging', 'Feb 15, 2026'),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final granted = await PermissionService().requestFilePermission(context);
+                        if (!granted) return;
+                        
+                        FilePickerResult? result = await FilePicker.platform.pickFiles(
+                          type: FileType.custom,
+                          allowedExtensions: ['pdf', 'jpg', 'png', 'docx'],
+                        );
+                        
+                        if (result != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Report uploaded successfully to clinical hub.')),
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.upload_file, size: 18, color: Color(0xFF2E90FA)),
+                      label: const Text('Upload New Report', style: TextStyle(color: Color(0xFF2E90FA), fontWeight: FontWeight.bold)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFFD1E9FF)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             
             const SizedBox(height: 32),
 
@@ -632,6 +683,29 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildReportItem(String name, String provider, String date) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(color: const Color(0xFFF8F9FE), borderRadius: BorderRadius.circular(12)),
+          child: const Icon(Icons.description, color: Color(0xFF2E90FA), size: 20),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              Text('$provider • $date', style: const TextStyle(color: Colors.grey, fontSize: 11)),
+            ],
+          ),
+        ),
+        const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 12),
+      ],
     );
   }
 
