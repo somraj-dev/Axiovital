@@ -19,11 +19,10 @@ class EssentialsPage extends StatelessWidget {
         titleSpacing: 0,
         actions: const [SizedBox(width: 16)],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
+      body: CustomScrollView(
+        slivers: [
+          const SliverToBoxAdapter(
+            child: Padding(
               padding: EdgeInsets.fromLTRB(16, 24, 16, 16),
               child: Text(
                 'Popular categories',
@@ -35,7 +34,6 @@ class EssentialsPage extends StatelessWidget {
                 ),
               ),
             ),
-
           ),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -44,7 +42,7 @@ class EssentialsPage extends StatelessWidget {
                 crossAxisCount: 4,
                 mainAxisSpacing: 24,
                 crossAxisSpacing: 12,
-                childAspectRatio: 0.75,
+                childAspectRatio: 0.72, // Adjusted for better label visibility
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
@@ -112,22 +110,24 @@ class EssentialsPage extends StatelessWidget {
               Positioned(
                 bottom: 0,
                 child: Container(
-                  width: 50,
-                  height: 16,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF1D2939),
-                    borderRadius: BorderRadius.only(
+                  width: 60,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: category.badgeColor ?? const Color(0xFF1D2939),
+                    borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(20),
                       bottomRight: Radius.circular(20),
                     ),
                   ),
-                  child: Text(
-                    category.badge!,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
+                  child: Center(
+                    child: Text(
+                      category.badge!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
@@ -207,6 +207,4 @@ const categories = [
   _CategoryData(name: 'Supports &\nBraces', icon: Icons.accessible),
   _CategoryData(name: 'Stomach\nCare', icon: Icons.health_and_safety, badge: 'Trending'),
   _CategoryData(name: 'Clean\nEnvironmen...', icon: Icons.sanitizer, badge: 'Must Have', badgeColor: Color(0xFFF79009)),
-];
-
 ];
