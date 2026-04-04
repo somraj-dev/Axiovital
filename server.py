@@ -27,6 +27,16 @@ app.add_middleware(
 # 1. Mount the existing backend API under /api_v1
 app.mount("/api_v1", backend_app)
 
+# Root Landing Page (Removes the 'Not Found' error on Hugging Face preview)
+@app.get("/")
+async def root():
+    return {
+        "status": "online",
+        "service": "Axiovital OpenEnv Agent",
+        "version": "1.0.0",
+        "endpoints": ["/health", "/reset", "/state", "/step", "/api_v1"]
+    }
+
 # 2. OpenEnv specific: Health Check
 @app.get("/health")
 async def health_check():
