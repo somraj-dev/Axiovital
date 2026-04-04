@@ -12,6 +12,18 @@ from inference import run_inference
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# This serves as the top-level app wrapper to satisfy OpenEnv
+# while preserving the existing backend routing unmodified.
+app = FastAPI(title="Axiovital OpenEnv Submission", version="1.0.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # In-memory state for the current evaluation episode
 # (In a real production app, this would be in Redis/Database per session)
 episode_state = {
