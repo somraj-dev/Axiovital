@@ -81,70 +81,78 @@ class EssentialsPage extends StatelessWidget {
   }
 
   Widget _buildCategoryItem(BuildContext context, _CategoryData category) {
-    return Column(
-      children: [
-        Stack(
-          clipBehavior: Clip.none,
-          alignment: Alignment.bottomCenter,
-          children: [
-            Container(
-              height: 85,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFEF4F1),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: category.imagePath != null
-                        ? Image.asset(category.imagePath!, fit: BoxFit.contain)
-                        : Icon(category.icon, size: 50, color: const Color(0xFF1D2939).withOpacity(0.7)),
+    return GestureDetector(
+      onTap: () {
+        if (category.name.contains('Vitamins')) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ProductListPage()),
+          );
+        } else {
+          // Provide visual feedback for other categories if they don't have pages yet
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${category.name.replaceAll('\n', ' ')} page coming soon!'),
+              duration: const Duration(seconds: 1),
+            ),
+          );
+        }
+      },
+      child: Column(
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.bottomCenter,
+            children: [
+              Container(
+                height: 85,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF4F1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: category.imagePath != null
+                          ? Image.asset(category.imagePath!, fit: BoxFit.contain)
+                          : Icon(category.icon, size: 50, color: const Color(0xFF1D2939).withOpacity(0.7)),
+                    ),
                   ),
                 ),
               ),
-            ),
-            if (category.badge != null)
-              Positioned(
-                bottom: 0,
-                child: Container(
-                  width: 60,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    color: category.badgeColor ?? const Color(0xFF1D2939),
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
+              if (category.badge != null)
+                Positioned(
+                  bottom: 0,
+                  child: Container(
+                    width: 60,
+                    height: 18,
+                    decoration: BoxDecoration(
+                      color: category.badgeColor ?? const Color(0xFF1D2939),
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
                     ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      category.badge!,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w700,
+                    child: Center(
+                      child: Text(
+                        category.badge!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        GestureDetector(
-          onTap: () {
-            if (category.name.contains('Vitamins')) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProductListPage()),
-              );
-            }
-          },
-          child: Text(
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
             category.name,
             textAlign: TextAlign.center,
             maxLines: 2,
@@ -156,8 +164,8 @@ class EssentialsPage extends StatelessWidget {
               height: 1.1,
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
