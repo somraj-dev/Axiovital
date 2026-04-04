@@ -395,7 +395,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> with TickerProv
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF8B1A4B), fontSize: 18)),
-        subtitle: Text(subtitle, style: const TextStyle(color: Color(0xFF8B1A4B), fontSize: 12, opacity: 0.7)),
+        subtitle: Text(subtitle, style: TextStyle(color: const Color(0xFF8B1A4B).withOpacity(0.7), fontSize: 12)),
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFF9DCF0))),
