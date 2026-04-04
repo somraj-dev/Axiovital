@@ -55,14 +55,22 @@ async def health_check():
 async def reset_environment(request: Request):
     """
     Resets the episode and sets the target task.
-    Expecting JSON: {"task_name": "..."}
+    Handles empty bodies or missing JSON content-type.
     """
     global episode_state
     try:
-        data = await request.json()
+        # Safely parse JSON or default to empty dict
+        body = await request.body()
+        data = {}
+        if body:
+            try:
+                data = await request.json()
+            except:
+                pass 
+        
         task_name = data.get("task_name", "vitals-check")
         
-        # Reset DB (existing logic)
+        # Reset DB (SQLite safe reset)
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.drop_all)
             await conn.run_sync(Base.metadata.create_all)
@@ -91,10 +99,11 @@ async def reset_environment(request: Request):
             session.add(new_vitals)
             await session.commit()
             
+        logger.info(f"Environment reset successfully for task: {task_name}")
         return {"status": "reset_complete", "task": task_name}
     except Exception as e:
-        logger.error(f"Reset failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to reset environment")
+        logger.error(f"DETAILED RESET ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Reset failed: {str(e)}")
 
 # 4. OpenEnv Specific: State and Step Endpoints
 @app.get("/state")
