@@ -1,12 +1,20 @@
 # OpenEnv Environment Specification
-# Documentation: https://docs.openenv.io/spec
-
 version: "1.0.0"
 metadata:
   name: "axiovital-health-agent"
-  description: "AI-driven personalized healthcare diagnostic and diagnostic support system."
+  description: "AI-driven personalized healthcare diagnostic and support system."
   author: "somraj-dev"
   category: "healthcare"
+  tasks:
+    - name: "vitals-check"
+      difficulty: "easy"
+      description: "Retrieve basic patient vitals."
+    - name: "risk-assessment"
+      difficulty: "medium"
+      description: "Analyze vitals and identify potential health risks."
+    - name: "clinical-remedy"
+      difficulty: "hard"
+      description: "Develop a clinical remedy for a high-risk patient state."
 
 # API Endpoints
 endpoints:
@@ -15,30 +23,27 @@ endpoints:
   step: "/step"
   state: "/state"
 
-# Standard Action Space for Health Diagnosis
+# Standard Action Space
 action_space:
   type: "discrete"
   actions:
     - "GET_VITALS"       # Retrieve latest patient vital signs
     - "ANALYZE_RISK"     # Perform diagnostic risk calculation
     - "PROVIDE_REMEDY"   # Generate medical recommendations
-    - "UPDATE_RECORDS"   # Save consultation state to EHR
 
 # Observation Space (State)
 observation_space:
   type: "dict"
   schema:
-    user_id: "string"
-    vitals:
+    task: "string"
+    instruction: "string"
+    observation:
       heart_rate: "integer"
-      spo2: "integer"
-      blood_pressure: "string"
-    risk_assessment:
-      level: "string"
-      score: "float"
+      systolic_bp: "integer"
+      history: "list"
 
-# Rewarding Criteria (Optional but helpful for evaluators)
+# Rewarding Criteria
 reward:
   type: "float"
   range: [0.0, 1.0]
-  description: "Accuracy of diagnosis vs standard clinical thresholds."
+  description: "Completion progress toward clinical task goals."
