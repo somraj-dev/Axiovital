@@ -10,3 +10,4 @@ websockets
 gradio
 openai
 python-dotenv
+httpx
