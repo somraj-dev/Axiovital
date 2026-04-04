@@ -166,28 +166,22 @@ async def lifespan(app: FastAPI):
                     id="VS-99283",
                     name="Dr. Julian Vance",
                     email="julian.v@vitalsync.ai",
-                    avatar_url="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=200",
+                    avatar_url="https://ui-avatars.com/api/?name=Julian+Vance&background=random",
                     phone="+1 (555) 000-8829",
-                    dob="12/05/1992",
-                    gender="Male",
-                    membership_type="PREMIUM MEMBER",
-                    member_since="Oct 2023",
-                    is_two_factor_enabled=True,
-                    digital_twin_status="Active",
-                    wearable_status="CONNECTED"
+                    membership_type="PREMIUM",
+                    digital_twin_status="Active"
                 )
                 session.add(new_user)
-                
-                # Seed default conditions for demo match
-                session.add(Condition(user_id="VS-99283", title="Hypertension", subtitle="Diagnosed Feb 2022 • Stable", icon_type="monitor_heart"))
-                session.add(Condition(user_id="VS-99283", title="Chronic Asthma", subtitle="Mild Persistent • Seasonal", icon_type="air"))
-                
                 await session.commit()
     
     yield
     
     # Shutdown
-    await redis_client.close()
+    if redis_client:
+        try:
+            await redis_client.close()
+        except:
+            pass
 
 app = FastAPI(title="Axiovital Main API", version="1.0.0", lifespan=lifespan)
 
