@@ -172,3 +172,11 @@ async def step_environment(data: dict):
 @app.post("/predict")
 async def predict_health_risk(data: dict):
     return run_inference(data)
+
+def main():
+    """Main entry point for starting the server."""
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=7860)
+
+if __name__ == "__main__":
+    main()
