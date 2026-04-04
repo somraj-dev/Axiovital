@@ -37,3 +37,8 @@ ai_service/.pytest_cache/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Evaluation Exclusions (Not needed for server-side evaluation)
+frontend/
+assets/
+node_modules/
