@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'upload_report_page.dart';
+import 'widgets/axio_avatar.dart';
 
 class LabTestsPage extends StatelessWidget {
   const LabTestsPage({super.key});
@@ -474,9 +475,10 @@ class LabTestsPage extends StatelessWidget {
       padding: const EdgeInsets.only(right: 24),
       child: Column(
         children: [
-          CircleAvatar(
+          AxioAvatar(
             radius: 40,
-            backgroundImage: NetworkImage(imgUrl),
+            imageUrl: imgUrl,
+            name: label,
             backgroundColor: Colors.grey.shade100,
           ),
           const SizedBox(height: 10),

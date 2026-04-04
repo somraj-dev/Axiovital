@@ -11,6 +11,7 @@ import 'bluetooth_scan_page.dart';
 import 'location_provider.dart';
 import 'permission_service.dart';
 import 'package:file_picker/file_picker.dart';
+import 'widgets/axio_avatar.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -100,12 +101,10 @@ class _ProfilePageState extends State<ProfilePage> {
                         shape: BoxShape.circle,
                         border: Border.all(color: const Color(0xFF0F52FF), width: 3),
                       ),
-                      child: ClipOval(
-                        child: Image.network(
-                          avatarUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, size: 60),
-                        ),
+                      child: AxioAvatar(
+                        radius: 56,
+                        imageUrl: avatarUrl,
+                        name: userName,
                       ),
                     ),
                   ),

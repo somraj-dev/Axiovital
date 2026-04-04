@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'find_doctor_page.dart';
+import 'widgets/axio_avatar.dart';
 
 class DoctorDetailsPage extends StatelessWidget {
   final Doctor doctor;
@@ -128,10 +129,10 @@ class DoctorDetailsPage extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
+              AxioAvatar(
                 radius: 40,
-                backgroundColor: Colors.grey.shade200,
-                backgroundImage: NetworkImage(doctor.imageUrl),
+                imageUrl: doctor.imageUrl,
+                name: doctor.name,
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -329,7 +330,7 @@ class DoctorDetailsPage extends StatelessWidget {
       children: [
         Row(
           children: [
-            const CircleAvatar(backgroundColor: Color(0xFF333333), radius: 18, child: Text('V', style: TextStyle(color: Colors.white))),
+            const AxioAvatar(radius: 18, backgroundColor: Color(0xFF333333), name: 'Verified Patient'),
             const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -559,10 +560,10 @@ class DoctorDetailsPage extends StatelessWidget {
                   ],
                 ),
               ),
-              CircleAvatar(
+              AxioAvatar(
                 radius: 36,
-                backgroundColor: Colors.grey.shade200,
-                backgroundImage: NetworkImage(doctor.imageUrl),
+                imageUrl: doctor.imageUrl,
+                name: doctor.name,
               ),
             ],
           ),

@@ -2,9 +2,12 @@
 .antigravity/
 brain/
 logs/
+# Build and environment files
 *.log
 build_logs.txt
 build_logs_2.txt
+*.db
+__pycache__/
 
 # Environment variables
 .env

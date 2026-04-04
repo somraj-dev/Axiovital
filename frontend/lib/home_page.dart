@@ -7,7 +7,10 @@ import 'bluetooth_provider.dart';
 import 'bluetooth_scan_page.dart';
 import 'profile_page.dart';
 import 'profile_drawer.dart';
+import 'vitalsync_dashboard.dart';
+import 'widgets/axio_avatar.dart';
 import 'essentials_page.dart';
+import 'fitleague_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -58,9 +61,10 @@ class _HomePageState extends State<HomePage> {
                         onTap: () {
                           _scaffoldKey.currentState?.openDrawer();
                         },
-                        child: CircleAvatar(
+                        child: AxioAvatar(
                           radius: 18,
-                          backgroundImage: NetworkImage(Provider.of<UserProvider>(context).avatarUrl),
+                          imageUrl: userProvider.avatarUrl,
+                          name: userProvider.name,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -377,6 +381,7 @@ class _HomePageState extends State<HomePage> {
           _buildPopupItem('My Pocket'),
           _buildPopupItem('Essentials'),
           _buildPopupItem('Communities'),
+          _buildPopupItem('FitLeague'),
           _buildPopupItem('My Fitbit'),
         ],
         onSelected: (value) {
@@ -384,6 +389,20 @@ class _HomePageState extends State<HomePage> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const EssentialsPage()),
+            );
+          } else if (value == 'FitLeague') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const FitLeaguePage()),
+            );
+          } else {
+            // Show Coming Soon for other features
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('$value is coming soon!'),
+                duration: const Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+              ),
             );
           }
         },

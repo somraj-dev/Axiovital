@@ -7,6 +7,7 @@ import 'health_insights_page.dart';
 import 'user_provider.dart';
 import 'permission_service.dart';
 import 'lab_tests_page.dart';
+import 'widgets/axio_avatar.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -114,9 +115,10 @@ class _MainScreenState extends State<MainScreen> {
                               width: 2,
                             ),
                           ),
-                          child: CircleAvatar(
+                          child: AxioAvatar(
                             radius: 14,
-                            backgroundImage: NetworkImage(Provider.of<UserProvider>(context).avatarUrl),
+                            imageUrl: Provider.of<UserProvider>(context).avatarUrl,
+                            name: Provider.of<UserProvider>(context).name,
                           ),
                         ),
                       ),

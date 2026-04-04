@@ -28,7 +28,7 @@ const List<Doctor> mockDoctors = [
     name: 'Dr. Jessica Miller',
     specialty: 'Cardiologist',
     qualifications: 'MBBS, FCPS (Cardiology)',
-    imageUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=400',
+    imageUrl: 'https://ui-avatars.com/api/?name=Jessica+Miller&background=DBE7D6&color=444&size=400',
     sessionPrice: 120,
     cardColor: Color(0xFFDBE7D6), // Soft green
   ),
@@ -37,7 +37,7 @@ const List<Doctor> mockDoctors = [
     name: 'Dr. William Harris',
     specialty: 'ENT Specialist',
     qualifications: 'ENT Specialist',
-    imageUrl: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=400', // Using a suitable doctor image
+    imageUrl: 'https://ui-avatars.com/api/?name=William+Harris&background=E4DDF5&color=444&size=400', 
     sessionPrice: 130,
     cardColor: Color(0xFFE4DDF5), // Soft purple
   ),
@@ -46,7 +46,7 @@ const List<Doctor> mockDoctors = [
     name: 'Dr. Andreaw Jamison',
     specialty: 'Neurologist',
     qualifications: 'MD, PhD',
-    imageUrl: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=400',
+    imageUrl: 'https://ui-avatars.com/api/?name=Andreaw+Jamison&background=E2E8F0&color=444&size=400',
     sessionPrice: 180,
     cardColor: Color(0xFFE2E8F0), 
   ),
@@ -219,6 +219,11 @@ class _DoctorCard extends StatelessWidget {
                     width: 180,
                     fit: BoxFit.cover,
                     alignment: Alignment.topCenter,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 180,
+                      color: Colors.white24,
+                      child: const Center(child: Icon(Icons.person, size: 80, color: Colors.white54)),
+                    ),
                   ),
                 ),
               ),

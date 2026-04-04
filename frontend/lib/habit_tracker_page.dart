@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
+import 'widgets/axio_avatar.dart';
 import 'profile_page.dart';
 
 class HabitTrackerPage extends StatelessWidget {
@@ -69,9 +70,10 @@ class HabitTrackerPage extends StatelessWidget {
       children: [
         Row(
           children: [
-            CircleAvatar(
+            AxioAvatar(
               radius: 18,
-              backgroundImage: NetworkImage(Provider.of<UserProvider>(context).avatarUrl),
+              imageUrl: Provider.of<UserProvider>(context).avatarUrl,
+              name: Provider.of<UserProvider>(context).name,
             ),
             const SizedBox(width: 12),
             const Text(

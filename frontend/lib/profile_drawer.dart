@@ -6,6 +6,7 @@ import 'habit_tracker_page.dart';
 import 'consultations_page.dart';
 import 'test_bookings_page.dart';
 import 'orders_page.dart';
+import 'widgets/axio_avatar.dart';
 
 class ProfileDrawer extends StatelessWidget {
   const ProfileDrawer({super.key});
@@ -15,7 +16,7 @@ class ProfileDrawer extends StatelessWidget {
     final userProvider = Provider.of<UserProvider>(context);
 
     return Drawer(
-      width: MediaQuery.of(context).size.width * 0.85,
+      width: MediaQuery.of(context).size.width * 0.72,
       backgroundColor: Colors.white,
       child: SafeArea(
         child: Column(
@@ -26,30 +27,26 @@ class ProfileDrawer extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CircleAvatar(
+                  AxioAvatar(
                     radius: 36,
-                    backgroundImage: NetworkImage(userProvider.avatarUrl),
+                    imageUrl: userProvider.avatarUrl,
+                    name: userProvider.name,
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              userProvider.name,
-                              style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF1D2939),
-                              ),
-                            ),
-                            const Icon(Icons.chevron_right, color: Color(0xFF98A2B3)),
-                          ],
+                        Text(
+                          userProvider.name,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1D2939),
+                            letterSpacing: -0.5,
+                          ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 2),
                         GestureDetector(
                           onTap: () {
                             Navigator.pop(context); // Close drawer
@@ -63,35 +60,7 @@ class ProfileDrawer extends StatelessWidget {
                             style: TextStyle(
                               color: Color(0xFF2E90FA),
                               fontWeight: FontWeight.w600,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          '9% completed',
-                          style: TextStyle(
-                            color: Color(0xFF667085),
-                            fontSize: 12,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        // Progress Bar
-                        Container(
-                          height: 4,
-                          width: 120,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF2F4F7),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                          child: FractionallySizedBox(
-                            alignment: Alignment.centerLeft,
-                            widthFactor: 0.09,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF2E90FA),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
+                              fontSize: 14,
                             ),
                           ),
                         ),
@@ -104,16 +73,16 @@ class ProfileDrawer extends StatelessWidget {
 
             // Care Plan Card
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2D3282), // Dark blue from screenshot
-                  borderRadius: BorderRadius.circular(16),
+                  color: const Color(0xFF1D2939), // Minimal Slate/Black
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
-                    const Icon(Icons.favorite_border, color: Color(0xFFF9DC5C), size: 28),
+                    const Icon(Icons.stars_rounded, color: Color(0xFFF9DC5C), size: 24),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -121,23 +90,16 @@ class ProfileDrawer extends StatelessWidget {
                         children: const [
                           Text(
                             'Care Plan',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                           ),
                           Text(
-                            '12 FREE Appointments for a Year',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                            ),
+                            '12 FREE Appointments',
+                            style: TextStyle(color: Colors.white70, fontSize: 11),
                           ),
                         ],
                       ),
                     ),
-                    const Icon(Icons.chevron_right, color: Colors.white, size: 20),
+                    const Icon(Icons.chevron_right, color: Colors.white70, size: 16),
                   ],
                 ),
               ),
@@ -152,7 +114,7 @@ class ProfileDrawer extends StatelessWidget {
                 children: [
                   _buildDrawerItem(
                     Icons.add_box, 
-                    'ABHA', 
+                    'Habit Tracker', 
                     const Color(0xFF2E90FA),
                     onTap: () {
                       Navigator.pop(context);
@@ -210,23 +172,16 @@ class ProfileDrawer extends StatelessWidget {
 
   Widget _buildDrawerItem(IconData icon, String title, Color iconColor, {VoidCallback? onTap}) {
     return ListTile(
-      leading: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF0F9FF), // Very pale blue from high-fidelity image
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, color: iconColor, size: 22),
-      ),
+      dense: true,
+      leading: Icon(icon, color: const Color(0xFF475569), size: 22), // No bulky background
       title: Text(
         title,
         style: const TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.w600,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
           color: Color(0xFF344054),
         ),
       ),
-      trailing: const Icon(Icons.chevron_right, size: 18, color: Color(0xFFD0D5DD)),
       onTap: onTap ?? () {},
     );
   }

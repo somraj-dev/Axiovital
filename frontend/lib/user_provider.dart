@@ -8,7 +8,7 @@ class UserProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
   
   String _name = 'Dr. Julian Vance';
-  String _avatarUrl = 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=200';
+  String _avatarUrl = 'https://ui-avatars.com/api/?name=Julian+Vance&background=0D8ABC&color=fff&size=200';
   String _clinicalId = 'VS-99283';
   String _age = '32';
   String _weight = '78';
