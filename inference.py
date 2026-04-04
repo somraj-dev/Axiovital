@@ -106,26 +106,24 @@ def get_model_action(client: OpenAI, step: int, observation: dict, history: List
     except Exception as e:
         return "GET_VITALS"
 
-async def main() -> None:
-    # Use environment URL or default local
-    ENV_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
-    if "api.openai.com" in ENV_URL: # Sanity check for env var confusion
-        ENV_URL = "http://localhost:8000"
+TASKS = ["vitals-check", "risk-assessment", "clinical-remedy"]
 
-    llm_client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
-    env = AxiovitalEnvClient(ENV_URL)
-
+async def run_task(task_name: str, llm_client: OpenAI, env: AxiovitalEnvClient):
     history: List[str] = []
     rewards: List[float] = []
     steps_taken = 0
     score = 0.0
     success = False
 
-    log_start(task=TASK_NAME, env=BENCHMARK, model=MODEL_NAME)
+    log_start(task=task_name, env=BENCHMARK, model=MODEL_NAME)
 
     try:
-        # Reset the environment to start
-        obs = await env.reset()
+        # Reset the environment with the specific task
+        resp = await env.client.post(f"{env.base_url}/reset", json={"task_name": task_name})
+        resp.raise_for_status()
+        state_resp = await env.client.get(f"{env.base_url}/state")
+        obs = state_resp.json()
+        
         done = False
 
         for step in range(1, MAX_STEPS + 1):
@@ -153,18 +151,31 @@ async def main() -> None:
                 break
 
         # Calculate final score (normalized)
+        # Using a simple mean of rewards for the baseline
         score = sum(rewards) / steps_taken if steps_taken > 0 else 0.0
         score = min(max(score, 0.0), 1.0)
         success = score >= SUCCESS_SCORE_THRESHOLD
 
     except Exception as e:
-        print(f"[DEBUG] Runtime Error: {e}", file=sys.stderr)
+        print(f"[DEBUG] Runtime Error in task {task_name}: {e}", file=sys.stderr)
     finally:
-        try:
-            await env.close()
-        except:
-            pass
         log_end(success=success, steps=steps_taken, score=score, rewards=rewards)
+
+async def main() -> None:
+    # Use environment URL or default local
+    ENV_URL = os.getenv("API_BASE_URL", "http://localhost:7860")
+    if "huggingface.co" in ENV_URL: 
+        # Standard HF Space URL logic if needed
+        pass
+
+    llm_client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+    env = AxiovitalEnvClient(ENV_URL)
+
+    try:
+        for task in TASKS:
+            await run_task(task, llm_client, env)
+    finally:
+        await env.close()
 
 def run_inference(data: dict) -> dict:
     """Legacy synchronous wrapper for the predict endpoint in server.py."""
