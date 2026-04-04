@@ -36,27 +36,26 @@ class EssentialsPage extends StatelessWidget {
               ),
             ),
 
-            // Grid of Categories
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 14,
-                  mainAxisExtent: 135,
-                ),
-                itemCount: categories.length,
-                itemBuilder: (context, index) {
-                  return _buildCategoryItem(categories[index]);
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 24,
+                crossAxisSpacing: 12,
+                childAspectRatio: 0.75,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  return _buildCategoryItem(context, categories[index]);
                 },
+                childCount: categories.length,
               ),
             ),
-            const SizedBox(height: 32),
-          ],
-        ),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
+        ],
       ),
     );
   }
@@ -83,7 +82,7 @@ class EssentialsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryItem(_CategoryData category) {
+  Widget _buildCategoryItem(BuildContext context, _CategoryData category) {
     return Column(
       children: [
         Stack(
@@ -94,7 +93,7 @@ class EssentialsPage extends StatelessWidget {
               height: 85,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: const Color(0xFFFEF4F1), // Soft peach from screenshot
+                color: const Color(0xFFFEF4F1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: ClipRRect(
@@ -113,11 +112,11 @@ class EssentialsPage extends StatelessWidget {
               Positioned(
                 bottom: 0,
                 child: Container(
-                  width: 85,
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  decoration: BoxDecoration(
-                    color: category.badgeColor ?? const Color(0xFFF04438),
-                    borderRadius: const BorderRadius.only(
+                  width: 50,
+                  height: 16,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF1D2939),
+                    borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(20),
                       bottomRight: Radius.circular(20),
                     ),
