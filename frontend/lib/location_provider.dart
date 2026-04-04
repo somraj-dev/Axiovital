@@ -40,8 +40,8 @@ class LocationProvider extends ChangeNotifier {
   }
 
   void _startTracking() async {
-    final hasPermission = await _locationService.handlePermission();
-    if (!hasPermission) return;
+    final status = await _locationService.checkLocationStatus();
+    if (status != 'enabled') return;
 
     _isTracking = true;
     notifyListeners();

@@ -5,6 +5,7 @@ import 'home_page.dart';
 import 'user_provider.dart';
 import 'bluetooth_provider.dart';
 import 'location_provider.dart';
+import 'cart_provider.dart';
 
 void main() {
   runApp(
@@ -13,6 +14,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => BluetoothProvider()),
         ChangeNotifierProvider(create: (_) => LocationProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
       ],
       child: const MyApp(),
     ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
-import 'vitalsync_settings_page.dart';
+import 'profile_page.dart';
 
 class HabitTrackerPage extends StatelessWidget {
   const HabitTrackerPage({super.key});
@@ -88,7 +88,7 @@ class HabitTrackerPage extends StatelessWidget {
               Icons.settings_rounded,
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const VitalsyncSettingsPage()),
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
               ),
             ),
             const SizedBox(width: 12),
@@ -103,13 +103,14 @@ class HabitTrackerPage extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: const Color(0xFF262626), // Lighter grey for better visibility
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: const Color(0xFF262626), // Lighter grey for better visibility
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white.withOpacity(0.08)),
+        ),
+        child: Icon(icon, color: Colors.white, size: 20),
       ),
-      child: Icon(icon, color: Colors.white, size: 20),
     );
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'upload_report_page.dart';
 import 'device_connectivity_page.dart';
 import 'vitalsync_dashboard.dart';
 import 'update_profile_page.dart';
@@ -46,14 +47,16 @@ class _ProfilePageState extends State<ProfilePage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        leading: TextButton.icon(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios, size: 16, color: Color(0xFF0F52FF)),
-          label: const Text('Back', style: TextStyle(color: Color(0xFF0F52FF), fontSize: 16)),
-        ),
-        leadingWidth: 100,
+        leading: Navigator.of(context).canPop()
+            ? TextButton.icon(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.arrow_back_ios, size: 16, color: Color(0xFF0F52FF)),
+                label: const Text('Back', style: TextStyle(color: Color(0xFF0F52FF), fontSize: 16)),
+              )
+            : null,
+        leadingWidth: Navigator.of(context).canPop() ? 100 : 0,
         title: const Text(
-          'Health Profile',
+          'Alexander\'s Health Profile',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
         ),
         actions: [
@@ -291,26 +294,19 @@ class _ProfilePageState extends State<ProfilePage> {
                     width: double.infinity,
                     height: 50,
                     child: OutlinedButton.icon(
-                      onPressed: () async {
-                        final granted = await PermissionService().requestFilePermission(context);
-                        if (!granted) return;
-                        
-                        FilePickerResult? result = await FilePicker.platform.pickFiles(
-                          type: FileType.custom,
-                          allowedExtensions: ['pdf', 'jpg', 'png', 'docx'],
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const UploadReportPage()),
                         );
-                        
-                        if (result != null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Report uploaded successfully to clinical hub.')),
-                          );
-                        }
                       },
-                      icon: const Icon(Icons.upload_file, size: 18, color: Color(0xFF2E90FA)),
+                      icon: const Icon(Icons.note_add_outlined, size: 22, color: Color(0xFF2E90FA)),
                       label: const Text('Upload New Report', style: TextStyle(color: Color(0xFF2E90FA), fontWeight: FontWeight.bold)),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFFD1E9FF)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        side: const BorderSide(color: Color(0xFFD1E9FF), width: 1.5),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        backgroundColor: const Color(0xFFF9FAFB),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                     ),
                   ),

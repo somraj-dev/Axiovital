@@ -1,187 +1,161 @@
-time="2026-03-09T20:33:21+05:30" level=warning msg="C:\\Users\\quant\\Axiovital\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
- Image axiovital-frontend Building 
+time="2026-04-03T23:16:01+05:30" level=warning msg="C:\\Users\\quant\\Axiovital\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
  Image axiovital-backend Building 
  Image axiovital-ai_service Building 
+ Image axiovital-frontend Building 
 #1 [internal] load local bake definitions
-#1 reading from stdin 1.46kB done
+#1 reading from stdin 1.39kB done
 #1 DONE 0.0s
 
 #2 [internal] load build definition from Dockerfile
 #2 transferring dockerfile: 600B done
 #2 DONE 0.0s
 
-#3 [internal] load metadata for docker.io/library/nginx:alpine
-#3 ...
+#3 [internal] load metadata for ghcr.io/cirruslabs/flutter:stable
+#3 DONE 0.2s
 
-#4 [internal] load metadata for ghcr.io/cirruslabs/flutter:stable
-#4 DONE 0.2s
-
-#3 [internal] load metadata for docker.io/library/nginx:alpine
-#3 DONE 1.2s
+#4 [internal] load metadata for docker.io/library/nginx:alpine
+#4 DONE 1.9s
 
 #5 [internal] load .dockerignore
 #5 transferring context: 2B done
 #5 DONE 0.0s
 
-#6 [build 1/7] FROM ghcr.io/cirruslabs/flutter:stable@sha256:5dbf59eab362f5e2927908efd162be92ba09d344f227316a0fc3ad959bb5fc88
-#6 resolve ghcr.io/cirruslabs/flutter:stable@sha256:5dbf59eab362f5e2927908efd162be92ba09d344f227316a0fc3ad959bb5fc88 0.1s done
-#6 DONE 0.1s
+#6 [internal] load build context
+#6 DONE 0.0s
 
-#7 [build 2/7] WORKDIR /app
-#7 CACHED
+#7 [stage-1 1/2] FROM docker.io/library/nginx:alpine@sha256:e7257f1ef28ba17cf7c248cb8ccf6f0c6e0228ab9c315c152f9c203cd34cf6d1
+#7 resolve docker.io/library/nginx:alpine@sha256:e7257f1ef28ba17cf7c248cb8ccf6f0c6e0228ab9c315c152f9c203cd34cf6d1 0.1s done
+#7 DONE 0.1s
 
-#8 [stage-1 1/2] FROM docker.io/library/nginx:alpine@sha256:1d13701a5f9f3fb01aaa88cef2344d65b6b5bf6b7d9fa4cf0dca557a8d7702ba
-#8 resolve docker.io/library/nginx:alpine@sha256:1d13701a5f9f3fb01aaa88cef2344d65b6b5bf6b7d9fa4cf0dca557a8d7702ba 0.1s done
+#8 [build 1/7] FROM ghcr.io/cirruslabs/flutter:stable@sha256:5dbf59eab362f5e2927908efd162be92ba09d344f227316a0fc3ad959bb5fc88
+#8 resolve ghcr.io/cirruslabs/flutter:stable@sha256:5dbf59eab362f5e2927908efd162be92ba09d344f227316a0fc3ad959bb5fc88
+#8 resolve ghcr.io/cirruslabs/flutter:stable@sha256:5dbf59eab362f5e2927908efd162be92ba09d344f227316a0fc3ad959bb5fc88 0.1s done
 #8 DONE 0.1s
 
-#9 [internal] load build context
-#9 transferring context: 4.02kB done
-#9 DONE 0.0s
+#7 [stage-1 1/2] FROM docker.io/library/nginx:alpine@sha256:e7257f1ef28ba17cf7c248cb8ccf6f0c6e0228ab9c315c152f9c203cd34cf6d1
+#7 CACHED
 
-#8 [stage-1 1/2] FROM docker.io/library/nginx:alpine@sha256:1d13701a5f9f3fb01aaa88cef2344d65b6b5bf6b7d9fa4cf0dca557a8d7702ba
-#8 CACHED
+#6 [internal] load build context
+#6 transferring context: 1.51kB done
+#6 DONE 0.0s
 
-#10 [build 3/7] COPY . .
-#10 DONE 0.1s
+#9 [build 5/7] RUN cp -r /tmp/dummy_app/web ./web
+#9 CACHED
 
-#11 [build 4/7] RUN flutter create /tmp/dummy_app --platforms=web
-#11 0.309    Woah! You appear to be trying to run flutter as root.
-#11 0.309    We strongly recommend running the flutter tool without superuser privileges.
-#11 0.309   /
-#11 0.309 ≡ƒôÄ
-#11 0.506 Creating project ../tmp/dummy_app...
-#11 0.647 Resolving dependencies in `../tmp/dummy_app`...
-#11 1.594 Downloading packages...
-#11 6.314 Got dependencies in `../tmp/dummy_app`.
-#11 6.478 Wrote 19 files.
-#11 6.478 
-#11 6.478 All done!
-#11 6.479 You can find general documentation for Flutter at: https://docs.flutter.dev/
-#11 6.479 Detailed API documentation is available at: https://api.flutter.dev/
-#11 6.479 If you prefer video documentation, consider: https://www.youtube.com/c/flutterdev
-#11 6.479 
-#11 6.479 In order to run your application, type:
-#11 6.479 
-#11 6.479   $ cd ../tmp/dummy_app
-#11 6.479   $ flutter run
-#11 6.479 
-#11 6.479 Your application code is in ../tmp/dummy_app/lib/main.dart.
-#11 6.479 
-#11 DONE 6.6s
+#10 [build 2/7] WORKDIR /app
+#10 CACHED
 
-#12 [build 5/7] RUN cp -r /tmp/dummy_app/web ./web
-#12 DONE 0.4s
+#11 [build 3/7] COPY . .
+#11 CACHED
+
+#12 [build 4/7] RUN flutter create /tmp/dummy_app --platforms=web
+#12 CACHED
 
 #13 [build 6/7] RUN flutter pub get
-#13 0.330    Woah! You appear to be trying to run flutter as root.
-#13 0.330    We strongly recommend running the flutter tool without superuser privileges.
-#13 0.330   /
-#13 0.330 ≡ƒôÄ
-#13 0.553 Resolving dependencies...
-#13 1.516 Downloading packages...
-#13 13.03 + _flutterfire_internals 1.3.35 (1.3.67 available)
-#13 13.03 + async 2.13.0
-#13 13.03 + boolean_selector 2.1.2
-#13 13.03 + characters 1.4.1
-#13 13.03 + clock 1.1.2
-#13 13.03 + collection 1.19.1
-#13 13.03 + cross_file 0.3.5+2
-#13 13.03 + crypto 3.0.7
-#13 13.03 + cupertino_icons 1.0.8
-#13 13.03 + dio 5.9.2
-#13 13.03 + dio_web_adapter 2.1.2
-#13 13.03 + fake_async 1.3.3
-#13 13.03 + file_selector_linux 0.9.4
-#13 13.03 + file_selector_macos 0.9.5
-#13 13.03 + file_selector_platform_interface 2.7.0
-#13 13.03 + file_selector_windows 0.9.3+5
-#13 13.03 + firebase_core 2.32.0 (4.5.0 available)
-#13 13.03 + firebase_core_platform_interface 5.4.2 (6.0.2 available)
-#13 13.03 + firebase_core_web 2.17.5 (3.5.0 available)
-#13 13.03 + firebase_messaging 14.9.4 (16.1.2 available)
-#13 13.03 + firebase_messaging_platform_interface 4.5.37 (4.7.7 available)
-#13 13.03 + firebase_messaging_web 3.8.7 (4.1.3 available)
-#13 13.03 + flutter 0.0.0 from sdk flutter
-#13 13.03 + flutter_lints 3.0.2 (6.0.0 available)
-#13 13.03 + flutter_plugin_android_lifecycle 2.0.33
-#13 13.03 + flutter_test 0.0.0 from sdk flutter
-#13 13.03 + flutter_web_plugins 0.0.0 from sdk flutter
-#13 13.03 + http 1.6.0
-#13 13.03 + http_parser 4.1.2
-#13 13.03 + image_picker 1.2.1
-#13 13.03 + image_picker_android 0.8.13+14
-#13 13.03 + image_picker_for_web 3.1.1
-#13 13.03 + image_picker_ios 0.8.13+6
-#13 13.03 + image_picker_linux 0.2.2
-#13 13.03 + image_picker_macos 0.2.2+1
-#13 13.03 + image_picker_platform_interface 2.11.1
-#13 13.03 + image_picker_windows 0.2.2
-#13 13.03 + leak_tracker 11.0.2
-#13 13.03 + leak_tracker_flutter_testing 3.0.10
-#13 13.03 + leak_tracker_testing 3.0.2
-#13 13.03 + lints 3.0.0 (6.1.0 available)
-#13 13.03 + matcher 0.12.19
-#13 13.03 + material_color_utilities 0.13.0
-#13 13.03 + meta 1.17.0 (1.18.1 available)
-#13 13.03 + mime 2.0.0
-#13 13.03 + nested 1.0.0
-#13 13.03 + path 1.9.1
-#13 13.03 + plugin_platform_interface 2.1.8
-#13 13.03 + provider 6.1.5+1
-#13 13.03 + sky_engine 0.0.0 from sdk flutter
-#13 13.03 + source_span 1.10.2
-#13 13.03 + stack_trace 1.12.1
-#13 13.03 + stream_channel 2.1.4
-#13 13.03 + string_scanner 1.4.1
-#13 13.03 + term_glyph 1.2.2
-#13 13.03 + test_api 0.7.10
-#13 13.03 + typed_data 1.4.0
-#13 13.03 + vector_math 2.2.0
-#13 13.03 + vm_service 15.0.2
-#13 13.03 + web 0.5.1 (1.1.1 available)
-#13 13.03 + web_socket_channel 2.4.5 (3.0.3 available)
-#13 13.03 Changed 61 dependencies!
-#13 13.03 12 packages have newer versions incompatible with dependency constraints.
-#13 13.03 Try `flutter pub outdated` for more information.
-#13 DONE 13.4s
+#13 CACHED
 
 #14 [build 7/7] RUN flutter build web
-#14 0.370    Woah! You appear to be trying to run flutter as root.
-#14 0.370    We strongly recommend running the flutter tool without superuser privileges.
-#14 0.370   /
-#14 0.370 ≡ƒôÄ
-#14 0.546 Downloading Web SDK...                                             33.8s
-#14 35.50 Compiling lib/main.dart for the Web...                          
-#14 70.89 Wasm dry run findings:
-#14 70.89 Found incompatibilities with WebAssembly.
-#14 70.89 
-#14 70.89 package:axiovital/bluetooth_service.dart 2:1 - dart:js unsupported (1)
-#14 70.89 
-#14 70.89 Consider addressing these issues to enable wasm builds. See docs for more info: https://docs.flutter.dev/platform-integration/web/wasm
-#14 70.89 
-#14 70.89 Use --no-wasm-dry-run to disable these warnings.
-#14 72.66 Font asset "CupertinoIcons.ttf" was tree-shaken, reducing it from 257628 to 1472 bytes (99.4% reduction). Tree-shaking can be disabled by providing the --no-tree-shake-icons flag when building your app.
-#14 72.66 Font asset "MaterialIcons-Regular.otf" was tree-shaken, reducing it from 1645184 to 18564 bytes (98.9% reduction). Tree-shaking can be disabled by providing the --no-tree-shake-icons flag when building your app.
-#14 72.93 Compiling lib/main.dart for the Web...                             37.3s
-#14 72.93 Γ£ô Built build/web
-#14 DONE 73.1s
+#14 0.328    Woah! You appear to be trying to run flutter as root.
+#14 0.328    We strongly recommend running the flutter tool without superuser privileges.
+#14 0.328   /
+#14 0.328 ≡ƒôÄ
+#14 0.540 Downloading Web SDK...                                             40.4s
+#14 45.44 Compiling lib/main.dart for the Web...                          
+#14 81.71 Wasm dry run findings:
+#14 81.71 Found incompatibilities with WebAssembly.
+#14 81.71 
+#14 81.71 package:geolocator_web/src/html_geolocation_manager.dart 1:1 - dart:html unsupported (0)
+#14 81.71 package:geolocator_web/src/html_permissions_manager.dart 1:1 - dart:html unsupported (0)
+#14 81.71 package:geolocator_web/src/utils.dart 2:1 - dart:html unsupported (0)
+#14 81.71 
+#14 81.71 Consider addressing these issues to enable wasm builds. See docs for more info: https://docs.flutter.dev/platform-integration/web/wasm
+#14 81.71 
+#14 81.72 Use --no-wasm-dry-run to disable these warnings.
+#14 81.73 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
+#14 81.73 lib/habit_tracker_page.dart:103:27:
+#14 81.73 Error: Can't find ')' to match '('.
+#14 81.73     return GestureDetector(
+#14 81.73                           ^
+#14 81.73 lib/location_provider.dart:43:50:
+#14 81.73 Error: The method 'handlePermission' isn't defined for the type 'LocationService'.
+#14 81.73  - 'LocationService' is from 'package:axiovital/location_service.dart' ('lib/location_service.dart').
+#14 81.73     final hasPermission = await _locationService.handlePermission();
+#14 81.73                                                  ^^^^^^^^^^^^^^^^
+#14 81.73 Error: Compilation failed.
+#14 81.73   Command: /sdks/flutter/bin/cache/dart-sdk/bin/dart compile js --platform-binaries=/sdks/flutter/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true -DFLUTTER_VERSION=3.41.4 -DFLUTTER_CHANNEL=[user-branch] -DFLUTTER_GIT_URL=unknown source -DFLUTTER_FRAMEWORK_REVISION=ff37bef603 -DFLUTTER_ENGINE_REVISION=e4b8dca3f1 -DFLUTTER_DART_VERSION=3.11.1 -DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_USE_SKWASM=false -DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/e4b8dca3f1b4ede4c30371002441c88c12187ed6/ --native-null-assertions --no-source-maps -O4 --minify -o /app/.dart_tool/flutter_build/427cc716c9b2d81f3f905a38a3cd0b4f/app.dill --packages=/app/.dart_tool/package_config.json --cfe-only /app/.dart_tool/flutter_build/427cc716c9b2d81f3f905a38a3cd0b4f/main.dart
+#14 81.73 #0      RunResult.throwException (package:flutter_tools/src/base/process.dart:153:5)
+#14 81.73 #1      _DefaultProcessUtils.run (package:flutter_tools/src/base/process.dart:379:19)
+#14 81.73 <asynchronous suspension>
+#14 81.73 #2      Dart2JSTarget.build (package:flutter_tools/src/build_system/targets/web.dart:208:5)
+#14 81.73 <asynchronous suspension>
+#14 81.73 #3      _BuildInstance._invokeInternal (package:flutter_tools/src/build_system/build_system.dart:937:9)
+#14 81.73 <asynchronous suspension>
+#14 81.73 #4      Future.wait.<anonymous closure> (dart:async/future.dart:546:21)
+#14 81.73 <asynchronous suspension>
+#14 81.73 #5      _BuildInstance.invokeTarget (package:flutter_tools/src/build_system/build_system.dart:875:32)
+#14 81.73 <asynchronous suspension>
+#14 81.73 #6      Future.wait.<anonymous closure> (dart:async/future.dart:546:21)
+#14 81.73 <asynchronous suspension>
+#14 81.73 #7      _BuildInstance.invokeTarget (package:flutter_tools/src/build_system/build_system.dart:875:32)
+#14 81.73 <asynchronous suspension>
+#14 81.73 #8      FlutterBuildSystem.build (package:flutter_tools/src/build_system/build_system.dart:684:16)
+#14 81.73 <asynchronous suspension>
+#14 81.73 #9      WebBuilder.buildWeb (package:flutter_tools/src/web/compile.dart:107:34)
+#14 81.73 <asynchronous suspension>
+#14 81.73 #10     BuildWebCommand.runCommand (package:flutter_tools/src/commands/build_web.dart:300:5)
+#14 81.73 <asynchronous suspension>
+#14 81.73 #11     FlutterCommand.run.<anonymous closure> (package:flutter_tools/src/runner/flutter_command.dart:1590:27)
+#14 81.73 <asynchronous suspension>
+#14 81.73 #12     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+#14 81.73 <asynchronous suspension>
+#14 81.73 #13     CommandRunner.runCommand (package:args/command_runner.dart:212:13)
+#14 81.73 <asynchronous suspension>
+#14 81.73 #14     FlutterCommandRunner.runCommand.<anonymous closure> (package:flutter_tools/src/runner/flutter_command_runner.dart:496:9)
+#14 81.73 <asynchronous suspension>
+#14 81.73 #15     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+#14 81.73 <asynchronous suspension>
+#14 81.73 #16     FlutterCommandRunner.runCommand (package:flutter_tools/src/runner/flutter_command_runner.dart:431:5)
+#14 81.73 <asynchronous suspension>
+#14 81.73 #17     FlutterCommandRunner.run.<anonymous closure> (package:flutter_tools/src/runner/flutter_command_runner.dart:307:33)
+#14 81.73 <asynchronous suspension>
+#14 81.73 #18     run.<anonymous closure>.<anonymous closure> (package:flutter_tools/runner.dart:104:11)
+#14 81.73 <asynchronous suspension>
+#14 81.73 #19     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+#14 81.73 <asynchronous suspension>
+#14 81.73 #20     main (package:flutter_tools/executable.dart:103:3)
+#14 81.73 <asynchronous suspension>
+#14 81.73 
+#14 81.73 Compiling lib/main.dart for the Web...                             34.6s
+#14 81.74 Error: Failed to compile application for the Web.
+#14 ERROR: process "/bin/sh -c flutter build web" did not complete successfully: exit code: 1
+------
+ > [build 7/7] RUN flutter build web:
+81.73 <asynchronous suspension>
+81.73 #18     run.<anonymous closure>.<anonymous closure> (package:flutter_tools/runner.dart:104:11)
+81.73 <asynchronous suspension>
+81.73 #19     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+81.73 <asynchronous suspension>
+81.73 #20     main (package:flutter_tools/executable.dart:103:3)
+81.73 <asynchronous suspension>
+81.73 
+81.73 Compiling lib/main.dart for the Web...                             34.6s
+81.74 Error: Failed to compile application for the Web.
+------
+Dockerfile:16
 
-#15 [stage-1 2/2] COPY --from=build /app/build/web /usr/share/nginx/html
-#15 DONE 0.2s
+--------------------
 
-#16 exporting to image
-#16 exporting layers
-#16 exporting layers 1.3s done
-#16 exporting manifest sha256:e47cb1b2cf198040c373495695ad33ec4e3c20b130a89fd404166d9e8c7c4f36 0.0s done
-#16 exporting config sha256:4853501e3c6e9eebdbb6095f236fc8c3d52444fc64698e42f48e9b2c85145ace 0.0s done
-#16 exporting attestation manifest sha256:0cb3973075c7755904d18685561712f92e2931b2e54214b424463a9377cc1d5b 0.1s done
-#16 exporting manifest list sha256:4366594bfd5242ae4d3a96fddc3618467cd5aee9cd5f8b8ad8ef5c0c4524a144
-#16 exporting manifest list sha256:4366594bfd5242ae4d3a96fddc3618467cd5aee9cd5f8b8ad8ef5c0c4524a144 0.0s done
-#16 naming to docker.io/library/axiovital-frontend:latest done
-#16 unpacking to docker.io/library/axiovital-frontend:latest
-#16 unpacking to docker.io/library/axiovital-frontend:latest 0.2s done
-#16 DONE 1.8s
+  14 |     
 
-#17 resolving provenance for metadata file
-#17 DONE 0.0s
- Image axiovital-frontend Built 
+  15 |     # Build the Flutter app for the web
+
+  16 | >>> RUN flutter build web
+
+  17 |     
+
+  18 |     # Serve the app using Nginx
+
+--------------------
+
+failed to solve: process "/bin/sh -c flutter build web" did not complete successfully: exit code: 1
+

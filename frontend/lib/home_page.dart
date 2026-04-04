@@ -5,9 +5,29 @@ import 'notification_page.dart';
 import 'user_provider.dart';
 import 'bluetooth_provider.dart';
 import 'bluetooth_scan_page.dart';
+import 'profile_page.dart';
+import 'profile_drawer.dart';
+import 'essentials_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  
+  PopupMenuItem<String> _buildPopupItem(String title) {
+    return PopupMenuItem<String>(
+      value: title,
+      child: Text(
+        title,
+        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w400),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +39,9 @@ class HomePage extends StatelessWidget {
     final int displayHr = (btProvider.isConnected && btProvider.heartRate > 0) ? btProvider.heartRate : 72;
 
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: const Color(0xFFF9F9F9), // Light grey background
+      drawer: const ProfileDrawer(),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
@@ -32,18 +54,15 @@ class HomePage extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => HabitTrackerPage()),
-                      );
-                    },
-                    child: CircleAvatar(
-                      radius: 18,
-                      backgroundImage: NetworkImage(Provider.of<UserProvider>(context).avatarUrl),
-                    ),
-                  ),
+                      GestureDetector(
+                        onTap: () {
+                          _scaffoldKey.currentState?.openDrawer();
+                        },
+                        child: CircleAvatar(
+                          radius: 18,
+                          backgroundImage: NetworkImage(Provider.of<UserProvider>(context).avatarUrl),
+                        ),
+                      ),
                       const SizedBox(width: 12),
                       RichText(
                         text: TextSpan(
@@ -64,21 +83,20 @@ class HomePage extends StatelessWidget {
                         )
                     ],
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const NotificationPage()),
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
+                  Row(
+                    children: [
+                      _buildHeaderIcon(
+                        icon: Icons.notifications,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const NotificationPage()),
+                          );
+                        },
                       ),
-                      child: const Icon(Icons.notifications_none, color: Colors.black87, size: 24),
-                    ),
+                      const SizedBox(width: 12), // Minimum gap as requested
+                      _buildPopupMenu(context),
+                    ],
                   ),
                 ],
               ),
@@ -311,6 +329,64 @@ class HomePage extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildHeaderIcon({required IconData icon, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: _buildHeaderIconWidget(icon: icon),
+    );
+  }
+
+  Widget _buildHeaderIconWidget({required IconData icon}) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Icon(icon, color: Colors.black, size: 22),
+    );
+  }
+
+  Widget _buildPopupMenu(BuildContext context) {
+    return Theme(
+      data: Theme.of(context).copyWith(
+        hoverColor: Colors.transparent,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        cardColor: const Color(0xFF2C2C2E), 
+      ),
+      child: PopupMenuButton<String>(
+        padding: EdgeInsets.zero,
+        offset: const Offset(0, 50),
+        color: const Color(0xFF2C2C2E),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: _buildHeaderIconWidget(icon: Icons.menu), // Use child instead of icon for better control
+        itemBuilder: (context) => [
+          _buildPopupItem('Manage Diet'),
+          _buildPopupItem('My Pocket'),
+          _buildPopupItem('Essentials'),
+          _buildPopupItem('Communities'),
+          _buildPopupItem('My Fitbit'),
+        ],
+        onSelected: (value) {
+          if (value == 'Essentials') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const EssentialsPage()),
+            );
+          }
+        },
       ),
     );
   }

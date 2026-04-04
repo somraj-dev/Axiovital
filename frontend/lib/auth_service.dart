@@ -1,63 +1,66 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+// Mock Authentication Service
+// Previously using firebase_auth and google_sign_in
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  // Mock current user info
+  Map<String, dynamic>? _mockUser;
 
-  // Get current user
-  User? get currentUser => _auth.currentUser;
-
-  // Auth state changes stream
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
-
-  // Sign in with Google
-  Future<UserCredential?> signInWithGoogle() async {
-    try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return null;
-
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      return await _auth.signInWithCredential(credential);
-    } catch (e) {
-      print('Error signing in with Google: $e');
-      return null;
-    }
+  AuthService() {
+    // Optional: Seed mock user
+    // _mockUser = {'uid': 'VS-99283', 'email': 'julian.v@vitalsync.ai'};
   }
 
-  // Sign in with Email and Password
-  Future<UserCredential?> signInWithEmail(String email, String password) async {
-    try {
-      return await _auth.signInWithEmailAndPassword(email: email, password: password);
-    } catch (e) {
-      print('Error signing in with Email: $e');
-      return null;
-    }
+  // Get current user (mock)
+  dynamic get currentUser => _mockUser;
+
+  // Auth state changes stream (mock)
+  Stream<dynamic> get authStateChanges => Stream.value(_mockUser);
+
+  // Sign in with Google (mock)
+  Future<dynamic> signInWithGoogle() async {
+    print('Mock: Signing in with Google...');
+    await Future.delayed(const Duration(seconds: 1));
+    _mockUser = {
+      'uid': 'VS-99283',
+      'email': 'julian.v@vitalsync.ai',
+      'displayName': 'Dr. Julian Vance'
+    };
+    return _mockUser;
   }
 
-  // Sign up with Email and Password
-  Future<UserCredential?> signUpWithEmail(String email, String password) async {
-    try {
-      return await _auth.createUserWithEmailAndPassword(email: email, password: password);
-    } catch (e) {
-      print('Error signing up with Email: $e');
-      return null;
-    }
+  // Sign in with Email and Password (mock)
+  Future<dynamic> signInWithEmail(String email, String password) async {
+    print('Mock: Signing in with $email...');
+    await Future.delayed(const Duration(seconds: 1));
+    _mockUser = {
+      'uid': 'VS-99283',
+      'email': email,
+      'displayName': 'Axiovital User'
+    };
+    return _mockUser;
   }
 
-  // Sign out
+  // Sign up with Email and Password (mock)
+  Future<dynamic> signUpWithEmail(String email, String password) async {
+    print('Mock: Signing up with $email...');
+    await Future.delayed(const Duration(seconds: 1));
+    _mockUser = {
+      'uid': 'VS-99283',
+      'email': email,
+      'displayName': 'New Axiovital User'
+    };
+    return _mockUser;
+  }
+
+  // Sign out (mock)
   Future<void> signOut() async {
-    await _googleSignIn.signOut();
-    await _auth.signOut();
+    print('Mock: Signing out...');
+    _mockUser = null;
   }
 
-  // Get ID Token
+  // Get ID Token (mock)
   Future<String?> getIdToken() async {
-    return await _auth.currentUser?.getIdToken();
+    // Return a dummy static token that the backend can ignore or accept
+    return "MOCK_TOKEN_VS-99283";
   }
 }

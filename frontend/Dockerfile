@@ -5,15 +5,16 @@ WORKDIR /app
 # Copy the manually scouted files
 COPY . .
 
-# Generate the missing platform files safely by creating a dummy app and copying the web directory
-RUN flutter create /tmp/dummy_app --platforms=web
-RUN cp -r /tmp/dummy_app/web ./web
+# Hardening the build environment: prevent git safety errors and disable analytics
+RUN git config --global --add safe.directory /app
+RUN flutter config --no-analytics
 
-# Get dependencies
+# Ensure a clean state and get dependencies
+RUN flutter clean
 RUN flutter pub get
 
 # Build the Flutter app for the web
-RUN flutter build web
+RUN flutter build web --release --no-tree-shake-icons
 
 # Serve the app using Nginx
 FROM nginx:alpine
