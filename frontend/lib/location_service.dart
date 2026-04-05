@@ -35,22 +35,17 @@ class LocationService {
     if (status != 'enabled') return null;
 
     try {
-      // 1. Try to get last known position first (Instantaneous)
       Position? lastPosition = await Geolocator.getLastKnownPosition();
       if (lastPosition != null) {
-        // If last position is recent (within 1 min), return it immediately
         final diff = DateTime.now().difference(lastPosition.timestamp);
         if (diff.inMinutes < 1) return lastPosition;
       }
 
-      // 2. Otherwise get fresh position with a tight timeout
       return await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.medium, // Medium is faster than High
+        desiredAccuracy: LocationAccuracy.medium,
         timeLimit: const Duration(seconds: 5),
       );
     } catch (e) {
-      print('Error getting location: $e');
-      // Final attempt with low accuracy if high/medium failed
       try {
         return await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.low,
@@ -67,7 +62,7 @@ class LocationService {
     return Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
-        distanceFilter: 10, // Update every 10 meters
+        distanceFilter: 10,
       ),
     );
   }

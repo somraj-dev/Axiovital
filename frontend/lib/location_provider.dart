@@ -12,15 +12,12 @@ class LocationProvider extends ChangeNotifier {
   bool _isTracking = false;
   StreamSubscription<Position>? _positionSubscription;
   DateTime? _lastSyncTime;
-  final String _userId = 'VS-99283'; // Fixed for demo user
+  final String _userId = 'VS-99283';
 
   Position? get currentPosition => _currentPosition;
   bool get isTracking => _isTracking;
 
-  LocationProvider() {
-    // Optionally start tracking automatically if permissions allow
-    // _startTracking();
-  }
+  LocationProvider();
 
   Future<void> updatePositionOnce() async {
     final pos = await _locationService.getCurrentPosition();
@@ -61,7 +58,6 @@ class LocationProvider extends ChangeNotifier {
 
   void _throttleSync(Position position) {
     final now = DateTime.now();
-    // Sync at most once every 30 seconds to save battery/bandwidth
     if (_lastSyncTime == null || now.difference(_lastSyncTime!).inSeconds >= 30) {
       _lastSyncTime = now;
       _syncLocationToBackend(position);
@@ -75,9 +71,8 @@ class LocationProvider extends ChangeNotifier {
         'latitude': position.latitude,
         'longitude': position.longitude,
       });
-      print('Location synced to backend: ${position.latitude}, ${position.longitude}');
     } catch (e) {
-      print('Error syncing location: $e');
+      debugPrint('Error syncing location: $e');
     }
   }
 

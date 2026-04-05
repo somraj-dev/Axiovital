@@ -10,7 +10,6 @@ class HabitTrackerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
     return Scaffold(
       backgroundColor: const Color(0xFF000000),
       body: SafeArea(
@@ -65,6 +64,7 @@ class HabitTrackerPage extends StatelessWidget {
   }
 
   Widget _buildTopBar(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -72,8 +72,8 @@ class HabitTrackerPage extends StatelessWidget {
           children: [
             AxioAvatar(
               radius: 18,
-              imageUrl: Provider.of<UserProvider>(context).avatarUrl,
-              name: Provider.of<UserProvider>(context).name,
+              imageUrl: userProvider.avatarUrl,
+              name: userProvider.name,
             ),
             const SizedBox(width: 12),
             const Text(
@@ -107,7 +107,7 @@ class HabitTrackerPage extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: const Color(0xFF262626), // Lighter grey for better visibility
+          color: const Color(0xFF262626), 
           shape: BoxShape.circle,
           border: Border.all(color: Colors.white.withOpacity(0.08)),
         ),
@@ -244,9 +244,7 @@ class HabitTrackerPage extends StatelessWidget {
   }
 
   Widget _buildHeatmap() {
-    // Weekday labels
     final List<String> days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-    // Mock data for completed days
     final List<int> completedIndices = [10, 18, 19, 32, 33, 34, 45, 46, 52, 53, 54, 60];
 
     return Row(
@@ -265,7 +263,7 @@ class HabitTrackerPage extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 14, // Roughly matches the screenshot
+              crossAxisCount: 14,
               crossAxisSpacing: 4,
               mainAxisSpacing: 4,
             ),
@@ -276,13 +274,6 @@ class HabitTrackerPage extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isCompleted ? const Color(0xFFFFD60A) : const Color(0xFF1F1F1F),
                   borderRadius: BorderRadius.circular(4),
-                  boxShadow: isCompleted ? [
-                    BoxShadow(
-                      color: const Color(0xFFFFD60A).withOpacity(0.3),
-                      blurRadius: 4,
-                      spreadRadius: 1,
-                    )
-                  ] : null,
                 ),
               );
             },
@@ -316,6 +307,4 @@ class HabitTrackerPage extends StatelessWidget {
       ),
     );
   }
-
-
 }
