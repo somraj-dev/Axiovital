@@ -124,7 +124,7 @@ class SearchPage extends StatelessWidget {
                 const Icon(Icons.medical_services_outlined, size: 40, color: Color(0xFF6366F1)),
                 const SizedBox(height: 12),
                 Text('Product ${index + 1}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                const Text('$24.99', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                const Text('\$24.99', style: TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
           );

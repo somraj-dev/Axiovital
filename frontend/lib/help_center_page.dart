@@ -162,7 +162,7 @@ class HelpCenterPage extends StatelessWidget {
                 SizedBox(height: 4),
                 Text(
                   'We are here to help you.',
-                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500, opacity: 0.9),
+                  style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 20, fontWeight: FontWeight.w500),
                 ),
               ],
             ),
