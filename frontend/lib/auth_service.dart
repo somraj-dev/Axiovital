@@ -1,22 +1,66 @@
-import 'package:flutter/foundation.dart';
+// Mock Authentication Service
+// Previously using firebase_auth and google_sign_in
 
-class AuthService extends ChangeNotifier {
-  final Map<String, dynamic> _mockUserData = {
-    'uid': 'VS-99283',
-    'name': 'Dr. Julian Vance',
-    'email': 'julian.v@vitalsync.ai',
-    'avatarUrl': 'https://ui-avatars.com/api/?name=Julian+Vance&background=random',
-  };
+class AuthService {
+  // Mock current user info
+  Map<String, dynamic>? _mockUser;
 
-  Map<String, dynamic>? get currentUser => _mockUserData;
-
-  Future<bool> login(String email, String password) async {
-    // Simulating login delay
-    await Future.delayed(const Duration(seconds: 1));
-    return email == 'julian.v@vitalsync.ai' && password == 'password';
+  AuthService() {
+    // Optional: Seed mock user
+    // _mockUser = {'uid': 'VS-99283', 'email': 'julian.v@vitalsync.ai'};
   }
 
-  Future<void> logout() async {
-    // Logic for logging out
+  // Get current user (mock)
+  dynamic get currentUser => _mockUser;
+
+  // Auth state changes stream (mock)
+  Stream<dynamic> get authStateChanges => Stream.value(_mockUser);
+
+  // Sign in with Google (mock)
+  Future<dynamic> signInWithGoogle() async {
+    print('Mock: Signing in with Google...');
+    await Future.delayed(const Duration(seconds: 1));
+    _mockUser = {
+      'uid': 'VS-99283',
+      'email': 'julian.v@vitalsync.ai',
+      'displayName': 'Dr. Julian Vance'
+    };
+    return _mockUser;
+  }
+
+  // Sign in with Email and Password (mock)
+  Future<dynamic> signInWithEmail(String email, String password) async {
+    print('Mock: Signing in with $email...');
+    await Future.delayed(const Duration(seconds: 1));
+    _mockUser = {
+      'uid': 'VS-99283',
+      'email': email,
+      'displayName': 'Axiovital User'
+    };
+    return _mockUser;
+  }
+
+  // Sign up with Email and Password (mock)
+  Future<dynamic> signUpWithEmail(String email, String password) async {
+    print('Mock: Signing up with $email...');
+    await Future.delayed(const Duration(seconds: 1));
+    _mockUser = {
+      'uid': 'VS-99283',
+      'email': email,
+      'displayName': 'New Axiovital User'
+    };
+    return _mockUser;
+  }
+
+  // Sign out (mock)
+  Future<void> signOut() async {
+    print('Mock: Signing out...');
+    _mockUser = null;
+  }
+
+  // Get ID Token (mock)
+  Future<String?> getIdToken() async {
+    // Return a dummy static token that the backend can ignore or accept
+    return "MOCK_TOKEN_VS-99283";
   }
 }
