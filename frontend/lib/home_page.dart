@@ -11,6 +11,8 @@ import 'vitalsync_dashboard.dart';
 import 'widgets/axio_avatar.dart';
 import 'essentials_page.dart';
 import 'fitleague_page.dart';
+import 'sleep_details_page.dart';
+import 'search_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -90,6 +92,16 @@ class _HomePageState extends State<HomePage> {
                   Row(
                     children: [
                       _buildHeaderIcon(
+                        icon: Icons.search,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const SearchPage()),
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 12),
+                      _buildHeaderIcon(
                         icon: Icons.notifications,
                         onTap: () {
                           Navigator.push(
@@ -119,163 +131,70 @@ class _HomePageState extends State<HomePage> {
               ),
               const SizedBox(height: 24),
 
-              // Top row of metrics (Heart Rate & Steps)
+              // Health Metrics Section Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Health Metrics',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF101828)),
+                  ),
+                  _buildHeaderIconWidget(icon: Icons.tune),
+                ],
+              ),
+              const SizedBox(height: 4),
               Row(
                 children: [
-                  // Heart Rate Card
-                  Expanded(
-                    child: Container(
-                      height: 160,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDDF1F8), // Light pale blue
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                                child: const Icon(Icons.favorite, size: 16, color: Colors.black87),
-                              ),
-                              const SizedBox(width: 8),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('$displayHr bpm', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                                  const Text('Heart rate', style: TextStyle(color: Colors.black45, fontSize: 10)),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          // Mock Bar chart for Heartrate
-                          SizedBox(
-                            height: 60,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                _HeartRateBar(height: 40, isThick: true),
-                                _HeartRateBar(height: 50, isThick: false),
-                                _HeartRateBar(height: 20, isThick: true),
-                                _HeartRateBar(height: 40, isThick: false),
-                                _HeartRateBar(height: 35, isThick: true),
-                                _HeartRateBar(height: 60, isThick: false),
-                                _HeartRateBar(height: 30, isThick: true),
-                                _HeartRateBar(height: 45, isThick: false, isLight: true),
-                                _HeartRateBar(height: 25, isThick: false, isLight: true),
-                                _HeartRateBar(height: 35, isThick: true, isLight: true),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
+                  const Text(
+                    'Measured during your sleep',
+                    style: TextStyle(color: Color(0xFF667085), fontSize: 13),
                   ),
-                  const SizedBox(width: 16),
-                  
-                  // Steps Card
-                  Expanded(
-                    child: Container(
-                      height: 160,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEFE1F8), // Pale purple
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
-                        child: Stack(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                                    child: const Icon(Icons.directions_walk, size: 16, color: Colors.black87),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: const [
-                                      Text('2,200', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                                      Text('Steps', style: TextStyle(color: Colors.black45, fontSize: 10)),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // Mock Line Wave chart
-                            Positioned(
-                              bottom: -10,
-                              left: 0,
-                              right: 0,
-                              child: CustomPaint(
-                                size: const Size(double.infinity, 80),
-                                painter: _WavePainter(color: const Color(0xFFC3A5DF)), // Darker purple
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+                  const SizedBox(width: 4),
+                  Icon(Icons.chevron_right, size: 16, color: Colors.grey.shade400),
                 ],
               ),
               const SizedBox(height: 16),
 
-              // Sleep Card
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDBEBC7), // Pale green
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                          child: const Icon(Icons.nightlight_round, size: 20, color: Colors.black87),
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text('9h 30m', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                            Text('Total sleep', style: TextStyle(color: Colors.black54, fontSize: 12)),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    // Mock Bar chart for Sleep
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _SleepBar(height: 30, label: '6am'),
-                        _SleepBar(height: 40, label: '7am'),
-                        _SleepBar(height: 50, label: '8am'),
-                        _SleepBar(height: 65, label: '9am'),
-                        _SleepBar(height: 55, label: '10am'),
-                        _SleepBar(height: 45, label: '11am', isSelected: true), // Dark highlighted bar
-                        _SleepBar(height: 60, label: '12am'),
-                        _SleepBar(height: 35, label: '1pm'),
-                        _SleepBar(height: 25, label: '2pm'),
-                      ],
-                    ),
-                  ],
-                ),
+              // Metric Cards List
+              _buildHealthMetricCard(
+                icon: Icons.favorite,
+                title: 'Sleeping Heart Rate',
+                value: '$displayHr bpm',
+                status: 'Normal',
+                statusColor: const Color(0xFF12B76A), // Green
+                chartType: 'sparkline',
               ),
+              _buildHealthMetricCard(
+                icon: Icons.nightlight_round,
+                title: 'Sleep Duration',
+                value: '6h 36m',
+                status: 'Normal',
+                statusColor: const Color(0xFF12B76A),
+                chartType: 'bars',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SleepDetailsPage()),
+                  );
+                },
+              ),
+              _buildHealthMetricCard(
+                icon: Icons.monitor_heart_outlined,
+                title: 'Heart Rate Variability',
+                value: '31 ms',
+                status: 'Low',
+                statusColor: const Color(0xFFF79009), // Orange
+                chartType: 'wave',
+              ),
+              _buildHealthMetricCard(
+                icon: Icons.air,
+                title: 'Respiratory Rate',
+                value: '16,5 br/min',
+                status: 'Normal',
+                statusColor: const Color(0xFF12B76A),
+                chartType: 'line',
+              ),
+
               const SizedBox(height: 32),
 
               // Daily Recommendations Header
@@ -337,6 +256,125 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildHealthMetricCard({
+    required IconData icon,
+    required String title,
+    required String value,
+    required String status,
+    required Color statusColor,
+    required String chartType,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28), // Softer, more premium radius
+          border: Border.all(color: const Color(0xFFF2F4F7)),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF101828).withOpacity(0.03),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(icon, size: 16, color: const Color(0xFF667085)),
+                      const SizedBox(width: 8),
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF344054),
+                        ),
+                      ),
+                      const Spacer(),
+                      Icon(Icons.chevron_right, size: 16, color: Colors.grey.shade300),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF101828),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: statusColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        status,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: statusColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              flex: 2,
+              child: SizedBox(
+                height: 50,
+                child: chartType == 'bars'
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: List.generate(10, (index) {
+                          final heights = [18.0, 24.0, 28.0, 36.0, 32.0, 22.0, 30.0, 38.0, 26.0, 20.0];
+                          return Container(
+                            width: 6,
+                            height: heights[index],
+                            decoration: BoxDecoration(
+                              color: index == 7 ? const Color(0xFF101828) : const Color(0xFFF2F4F7), // Darker highlighted bar
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          );
+                        }),
+                      )
+                    : CustomPaint(
+                        painter: chartType == 'sparkline'
+                            ? _SparklinePainter(color: const Color(0xFF12B76A))
+                            : chartType == 'wave'
+                                ? _WavePainter(color: const Color(0xFFF79009))
+                                : _LinePainter(color: const Color(0xFF12B76A)),
+                      ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildHeaderIcon({required IconData icon, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
@@ -385,7 +423,12 @@ class _HomePageState extends State<HomePage> {
           _buildPopupItem('My Fitbit'),
         ],
         onSelected: (value) {
-          if (value == 'Essentials') {
+          if (value == 'Manage Diet') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const NutritionPage()),
+            );
+          } else if (value == 'Essentials') {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const EssentialsPage()),
@@ -413,28 +456,76 @@ class _HomePageState extends State<HomePage> {
 
 // Helper Widgets for the Mock Charts
 
-class _HeartRateBar extends StatelessWidget {
-  final double height;
-  final bool isThick;
-  final bool isLight;
-
-  const _HeartRateBar({
-    required this.height,
-    required this.isThick,
-    this.isLight = false,
-  });
+class _SparklinePainter extends CustomPainter {
+  final Color color;
+  _SparklinePainter({required this.color});
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: isThick ? 3 : 1.5,
-      height: height,
-      decoration: BoxDecoration(
-        color: isLight ? Colors.black26 : Colors.black87,
-        borderRadius: BorderRadius.circular(2),
-      ),
-    );
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round;
+
+    final path = Path();
+    path.moveTo(0, size.height * 0.7);
+    path.lineTo(size.width * 0.1, size.height * 0.5);
+    path.lineTo(size.width * 0.2, size.height * 0.6);
+    path.lineTo(size.width * 0.3, size.height * 0.3);
+    path.lineTo(size.width * 0.4, size.height * 0.5);
+    path.lineTo(size.width * 0.5, size.height * 0.4);
+    path.lineTo(size.width * 0.6, size.height * 0.6);
+    path.lineTo(size.width * 0.7, size.height * 0.4);
+    path.lineTo(size.width * 0.8, size.height * 0.5);
+    path.lineTo(size.width * 0.9, size.height * 0.3);
+    path.lineTo(size.width, size.height * 0.4);
+
+    canvas.drawPath(path, paint);
+    
+    final dotPaint = Paint()..color = const Color(0xFF12B76A);
+    canvas.drawCircle(Offset(size.width, size.height * 0.4), 3, dotPaint);
   }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _LinePainter extends CustomPainter {
+  final Color color;
+  _LinePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color.withOpacity(0.3)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    final path = Path();
+    path.moveTo(0, size.height * 0.5);
+    for (var i = 1; i <= 10; i++) {
+      path.lineTo(size.width * (i / 10), size.height * (0.4 + (i % 2 == 0 ? 0.2 : 0)));
+    }
+
+    canvas.drawPath(path, paint);
+    
+    final activePaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+      
+    final activePath = Path();
+    activePath.moveTo(size.width * 0.8, size.height * 0.6);
+    activePath.lineTo(size.width * 0.9, size.height * 0.4);
+    activePath.lineTo(size.width, size.height * 0.5);
+    
+    canvas.drawPath(activePath, activePaint);
+    canvas.drawCircle(Offset(size.width, size.height * 0.5), 3, Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _WavePainter extends CustomPainter {
@@ -444,72 +535,23 @@ class _WavePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color.withOpacity(0.5)
-      ..style = PaintingStyle.fill;
-      
-    final linePaint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
 
     final path = Path();
-    path.moveTo(0, size.height * 0.7);
-    
-    // Create a bezier curve matching the screenshot wave
-    path.quadraticBezierTo(size.width * 0.2, size.height * 0.9, size.width * 0.4, size.height * 0.7);
-    path.quadraticBezierTo(size.width * 0.6, size.height * 0.5, size.width * 0.7, size.height * 0.6);
-    path.quadraticBezierTo(size.width * 0.8, size.height * 0.8, size.width, size.height * 0.4);
-    
-    final fillPath = Path.from(path);
-    fillPath.lineTo(size.width, size.height);
-    fillPath.lineTo(0, size.height);
-    fillPath.close();
+    path.moveTo(0, size.height * 0.8);
+    path.quadraticBezierTo(size.width * 0.2, size.height * 0.4, size.width * 0.4, size.height * 0.6);
+    path.quadraticBezierTo(size.width * 0.6, size.height * 0.9, size.width * 0.8, size.height * 0.5);
+    path.quadraticBezierTo(size.width * 0.9, size.height * 0.3, size.width, size.height * 0.7);
 
-    canvas.drawPath(fillPath, paint);
-    canvas.drawPath(path, linePaint);
+    canvas.drawPath(path, paint);
     
-    // Draw the dot on the graph
-    final dotPaint = Paint()..color = Colors.white;
-    canvas.drawCircle(Offset(size.width * 0.7, size.height * 0.6), 5, dotPaint);
+    final dotPaint = Paint()..color = color;
+    canvas.drawCircle(Offset(size.width, size.height * 0.7), 3, dotPaint);
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-class _SleepBar extends StatelessWidget {
-  final double height;
-  final String label;
-  final bool isSelected;
-
-  const _SleepBar({
-    required this.height,
-    required this.label,
-    this.isSelected = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 24,
-          height: height,
-          decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF2C2C30) : const Color(0xFFCAE0B4), // Dark grey or light green
-            borderRadius: BorderRadius.circular(6),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.black54,
-            fontSize: 9,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-}

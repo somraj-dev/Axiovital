@@ -6,6 +6,8 @@ import 'habit_tracker_page.dart';
 import 'consultations_page.dart';
 import 'test_bookings_page.dart';
 import 'orders_page.dart';
+import 'help_center_page.dart';
+import 'read_about_health_page.dart';
 import 'widgets/axio_avatar.dart';
 
 class ProfileDrawer extends StatelessWidget {
@@ -157,8 +159,30 @@ class ProfileDrawer extends StatelessWidget {
                   _buildDrawerItem(Icons.verified_user_outlined, 'My Insurance Policy', const Color(0xFF2E90FA)),
                   _buildDrawerItem(Icons.notifications_active_outlined, 'Reminders', const Color(0xFF2E90FA)),
                   _buildDrawerItem(Icons.account_balance_wallet_outlined, 'Payments & HealthCash', const Color(0xFF2E90FA)),
-                  _buildDrawerItem(Icons.apple_outlined, 'Read about health', const Color(0xFF2E90FA)),
-                  _buildDrawerItem(Icons.help_outline, 'Help Center', const Color(0xFF2E90FA)),
+                  _buildDrawerItem(
+                    Icons.apple_outlined, 
+                    'Read about health', 
+                    const Color(0xFF2E90FA),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ReadAboutHealthPage()),
+                      );
+                    },
+                  ),
+                  _buildDrawerItem(
+                    Icons.help_outline, 
+                    'Help Center', 
+                    const Color(0xFF2E90FA),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const HelpCenterPage()),
+                      );
+                    },
+                  ),
                   _buildDrawerItem(Icons.settings_outlined, 'Settings', const Color(0xFF2E90FA)),
                   _buildDrawerItem(Icons.thumb_up_outlined, 'Like us? Give us 5 stars', const Color(0xFF2E90FA)),
                 ],
