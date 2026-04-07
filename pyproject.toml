@@ -18,6 +18,10 @@ dependencies = [
     "openai",
     "python-dotenv",
     "redis",
+    "firebase-admin",
+    "boto3",
+    "websockets",
+    "gradio",
     "openenv-core>=0.2.0"
 ]
 

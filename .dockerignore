@@ -1,0 +1,31 @@
+.git
+.gitignore
+.github
+.idea
+.vscode
+.env
+.env.local
+__pycache__
+*.pyc
+*.pyo
+
+# Frontend (Flutter) - not needed in backend Docker
+frontend/
+
+# Database files
+*.db
+
+# Build artifacts
+build_log.txt
+*.log
+
+# Test files
+test_proxy_fix.py
+validate-submission.sh
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Lock files (installed from requirements.txt)
+uv.lock

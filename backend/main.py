@@ -20,8 +20,12 @@ from backend.auth import get_current_user
 try:
     firebase_admin.get_app()
 except ValueError:
-    # Use default credentials (works on Render/GCP) or local file
-    firebase_admin.initialize_app()
+    try:
+        # Use default credentials (works on Render/GCP) or local file
+        firebase_admin.initialize_app()
+    except Exception:
+        # No credentials available (e.g., HF Spaces) — auth endpoints will fail gracefully
+        pass
 
 
 # Pydantic Schemas

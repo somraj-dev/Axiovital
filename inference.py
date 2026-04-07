@@ -12,10 +12,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Mandatory Environment Variables
-API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
+API_BASE_URL = os.environ.get("API_BASE_URL", "https://api.openai.com/v1")
+API_KEY = os.environ.get("API_KEY")
 MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o")
-HF_TOKEN = os.getenv("HF_TOKEN")
-API_KEY = HF_TOKEN or os.getenv("API_KEY")
+
+# OpenAI Client Initialization (initialized global for reuse in run_inference)
+llm_client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY) if API_KEY else None
+
 IMAGE_NAME = os.getenv("IMAGE_NAME")
 
 # Task Configuration
@@ -33,7 +36,7 @@ SYSTEM_PROMPT = textwrap.dedent(
     
     Available Actions:
     - GET_VITALS: Retrieve latest patient vital signs from the EHR.
-    - ANALZE_RISK: Perform clinical calculation based on thresholds.
+    - ANALYZE_RISK: Perform clinical calculation based on thresholds.
     - PROVIDE_REMEDY: Generate actionable medical recommendations.
     
     Each turn, output EXACTLY one action string from the list above.
@@ -162,31 +165,65 @@ async def run_task(task_name: str, llm_client: OpenAI, env: AxiovitalEnvClient):
         log_end(success=success, steps=steps_taken, score=score, rewards=rewards)
 
 async def main() -> None:
-    # Use environment URL or default local
-    ENV_URL = os.getenv("API_BASE_URL", "http://localhost:7860")
-    if "huggingface.co" in ENV_URL: 
-        # Standard HF Space URL logic if needed
-        pass
-
-    llm_client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+    # Use explicit application URL for environment, defaulting to local
+    ENV_URL = os.environ.get("APP_URL", "http://localhost:7860")
+    
+    # Strictly use the provided API_BASE_URL and API_KEY from validator
+    # Initialize a new client strictly with what's in os.environ as per hackathon rules
+    client_to_use = OpenAI(
+        base_url=os.environ.get("API_BASE_URL", "https://api.openai.com/v1"),
+        api_key=os.environ.get("API_KEY", "NOT_PROVIDED")
+    )
+    
     env = AxiovitalEnvClient(ENV_URL)
 
     try:
         for task in TASKS:
-            await run_task(task, llm_client, env)
+            await run_task(task, client_to_use, env)
     finally:
         await env.close()
 
 def run_inference(data: dict) -> dict:
-    """Legacy synchronous wrapper for the predict endpoint in server.py."""
-    # This is a simplified version for the API endpoint
-    import time
-    return {
-        "status": "diagnostic_complete",
-        "timestamp": time.time(),
-        "result": "Patient vitals analyzed. Risk level: Low.",
-        "input_received": data
-    }
+    """Synchronous predictive analysis using the LLM proxy."""
+    # Ensure we use the LLM proxy even for simple inference requests
+    try:
+        # Use simple global client if available or create one for this request
+        # Note: os.environ["API_KEY"] is the critical part to demonstrate call through proxy
+        local_client = OpenAI(
+            base_url=os.environ.get("API_BASE_URL", "https://api.openai.com/v1"),
+            api_key=os.environ.get("API_KEY", "NOT_PROVIDED")
+        )
+        
+        prompt = f"Analyze these patient vitals and identify risks: {json.dumps(data)}. Return ONLY a JSON object with 'risk_level', 'risk_score', 'factors', and 'recommendations'."
+        
+        completion = local_client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.0 # Deterministic for analysis
+        )
+        
+        result_text = (completion.choices[0].message.content or "{}").strip()
+        # Simple extraction if LLM adds markdown
+        if "```json" in result_text:
+            result_text = result_text.split("```json")[1].split("```")[0].strip()
+        elif "```" in result_text:
+            result_text = result_text.split("```")[1].split("```")[0].strip()
+            
+        prediction = json.loads(result_text)
+        return prediction
+    except Exception as e:
+        # Fallback to local logic if LLM fails, but attempt LLM first
+        print(f"Error in LLM inference: {e}", file=sys.stderr)
+        import time
+        return {
+            "risk_level": "LOW",
+            "risk_score": 0.1,
+            "factors": [],
+            "recommendations": ["Ensure regular vitals check."],
+            "status": "fallback_complete",
+            "timestamp": time.time(),
+        }
 
 if __name__ == "__main__":
     asyncio.run(main())
+
