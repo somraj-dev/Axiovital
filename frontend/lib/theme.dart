@@ -59,12 +59,12 @@ class AppTheme {
         titleTextStyle: TextStyle(color: lightTextPrimary, fontSize: 18, fontWeight: FontWeight.bold),
       ),
       dividerTheme: const DividerThemeData(color: lightBorder, thickness: 1),
-      cardTheme: CardThemeData(
+      cardTheme: const CardTheme(
         color: lightSurface,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: lightBorder),
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+          side: BorderSide(color: lightBorder),
         ),
       ),
     );
@@ -102,12 +102,12 @@ class AppTheme {
         titleTextStyle: TextStyle(color: darkTextPrimary, fontSize: 18, fontWeight: FontWeight.bold),
       ),
       dividerTheme: const DividerThemeData(color: darkBorder, thickness: 1),
-      cardTheme: CardThemeData(
+      cardTheme: const CardTheme(
         color: darkSurface,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: darkBorder),
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+          side: BorderSide(color: darkBorder),
         ),
       ),
     );
