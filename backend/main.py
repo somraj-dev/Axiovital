@@ -11,10 +11,10 @@ from backend.database import engine, Base, get_db
 from backend.redis_client import redis_client, check_rate_limit
 from backend.websocket import manager
 from backend.models import User, Vitals, MedicalHistoryForm, Condition, LocationRecord
-
+from backend.health_passport import router as passport_router
 import firebase_admin
 from firebase_admin import auth, credentials
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from backend.auth import get_current_user
 
 # Initialize Firebase (requires serviceAccountKey.json locally or env var in prod)
 try:
@@ -23,19 +23,6 @@ except ValueError:
     # Use default credentials (works on Render/GCP) or local file
     firebase_admin.initialize_app()
 
-security = HTTPBearer()
-
-async def get_current_user(res: HTTPAuthorizationCredentials = Depends(security)):
-    token = res.credentials
-    if token.startswith("MOCK_TOKEN_"):
-        # Return a mock payload for local dev
-        return {"uid": token.replace("MOCK_TOKEN_", ""), "email": "mock@axiovital.ai"}
-    
-    try:
-        decoded_token = auth.verify_id_token(token)
-        return decoded_token
-    except Exception as e:
-        raise HTTPException(status_code=401, detail=f"Invalid authentication credentials: {str(e)}")
 
 # Pydantic Schemas
 class VitalsBase(BaseModel):
@@ -193,6 +180,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(passport_router)
 
 @app.get("/")
 async def root():

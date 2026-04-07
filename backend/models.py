@@ -30,7 +30,12 @@ class User(Base):
     medical_records = relationship("MedicalHistoryForm", back_populates="owner")
     conditions = relationship("Condition", back_populates="owner")
     location_history = relationship("LocationRecord", back_populates="owner")
-
+    
+    # Decentralized Health Passport
+    health_records = relationship("MedicalRecord", back_populates="patient", foreign_keys="[MedicalRecord.patient_id]")
+    emergency_profile = relationship("EmergencyProfile", back_populates="user", uselist=False)
+    audit_logs = relationship("AuditLog", back_populates="user")
+    doctor_profile = relationship("DoctorProfile", back_populates="user", uselist=False)
 
 class Vitals(Base):
     __tablename__ = "vitals"
@@ -127,3 +132,89 @@ class LocationRecord(Base):
 
     owner = relationship("User", back_populates="location_history")
 
+class DoctorProfile(Base):
+    __tablename__ = "doctor_profiles"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.id"))
+    specialty = Column(String)
+    license_number = Column(String)
+    hospital_name = Column(String)
+    wallet_address = Column(String, nullable=True) # For blockchain
+    
+    user = relationship("User", back_populates="doctor_profile")
+
+class MedicalRecord(Base):
+    __tablename__ = "health_medical_records"
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(String, ForeignKey("users.id"))
+    record_type = Column(String) # report, prescription, scan
+    title = Column(String)
+    description = Column(Text, nullable=True)
+    hospital_name = Column(String, nullable=True)
+    doctor_name = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    version = Column(Integer, default=1)
+    is_active = Column(Boolean, default=True)
+    
+    patient = relationship("User", back_populates="health_records", foreign_keys=[patient_id])
+    file = relationship("RecordFile", back_populates="record", uselist=False)
+
+class RecordFile(Base):
+    __tablename__ = "record_files"
+    id = Column(Integer, primary_key=True, index=True)
+    record_id = Column(Integer, ForeignKey("health_medical_records.id"))
+    ipfs_cid = Column(String, nullable=True)
+    s3_key = Column(String, nullable=True)
+    hash_sha256 = Column(String)
+    file_size = Column(Integer, nullable=True)
+    mime_type = Column(String, nullable=True)
+    
+    record = relationship("MedicalRecord", back_populates="file")
+
+class AccessRequest(Base):
+    __tablename__ = "access_requests"
+    id = Column(Integer, primary_key=True, index=True)
+    doctor_id = Column(String, ForeignKey("users.id"))
+    patient_id = Column(String, ForeignKey("users.id"))
+    record_id = Column(Integer, ForeignKey("health_medical_records.id"))
+    status = Column(String, default="pending") # pending, approved, rejected
+    requested_at = Column(DateTime, default=datetime.utcnow)
+    expires_in_hours = Column(Integer, default=24)
+
+class AccessPermission(Base):
+    __tablename__ = "access_permissions"
+    id = Column(Integer, primary_key=True, index=True)
+    doctor_id = Column(String, ForeignKey("users.id"))
+    patient_id = Column(String, ForeignKey("users.id"))
+    record_id = Column(Integer, ForeignKey("health_medical_records.id"))
+    granted_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime)
+    tx_hash = Column(String, nullable=True) # Blockchain tx
+    is_active = Column(Boolean, default=True)
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.id"))
+    action = Column(String) # UPLOAD, VIEW, GRANT, REVOKE
+    record_id = Column(Integer, ForeignKey("health_medical_records.id"), nullable=True)
+    ip_address = Column(String, nullable=True)
+    device_info = Column(String, nullable=True)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    tx_hash = Column(String, nullable=True) # Blockchain tx
+    
+    user = relationship("User", back_populates="audit_logs")
+
+class EmergencyProfile(Base):
+    __tablename__ = "emergency_profiles"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.id"))
+    blood_group = Column(String)
+    allergies = Column(Text, nullable=True)
+    current_medications = Column(Text, nullable=True)
+    critical_conditions = Column(Text, nullable=True)
+    emergency_contact_name = Column(String, nullable=True)
+    emergency_contact_phone = Column(String, nullable=True)
+    is_public = Column(Boolean, default=True)
+    
+    user = relationship("User", back_populates="emergency_profile")

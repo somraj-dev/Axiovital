@@ -6,6 +6,8 @@ import 'user_provider.dart';
 import 'bluetooth_provider.dart';
 import 'location_provider.dart';
 import 'cart_provider.dart';
+import 'theme.dart';
+import 'theme_provider.dart';
 
 void main() {
   runApp(
@@ -15,6 +17,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => BluetoothProvider()),
         ChangeNotifierProvider(create: (_) => LocationProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
       child: const MyApp(),
     ),
@@ -26,13 +29,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    
     return MaterialApp(
       title: 'AxioVital',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),
-        useMaterial3: true,
-      ),
+      themeMode: themeProvider.themeMode,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
       builder: (context, child) => MobileWrapper(child: child!),
       home: const LoginPage(),
     );

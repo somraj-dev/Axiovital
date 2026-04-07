@@ -10,8 +10,11 @@ import 'bluetooth_provider.dart';
 import 'bluetooth_scan_page.dart';
 import 'location_provider.dart';
 import 'permission_service.dart';
-import 'package:file_picker/file_picker.dart';
 import 'widgets/axio_avatar.dart';
+import 'widgets/axio_card.dart';
+import 'widgets/axio_button.dart';
+import 'theme.dart';
+import 'theme_provider.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -33,7 +36,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final userProvider = Provider.of<UserProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
     
     final String userName = userProvider.name;
     final String clinicalId = userProvider.clinicalId;
@@ -43,32 +48,30 @@ class _ProfilePageState extends State<ProfilePage> {
     final String bloodGroup = userProvider.bloodGroup;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
         leading: Navigator.of(context).canPop()
-            ? TextButton.icon(
+            ? IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios, size: 16, color: Color(0xFF0F52FF)),
-                label: const Text('Back', style: TextStyle(color: Color(0xFF0F52FF), fontSize: 16)),
+                icon: Icon(Icons.arrow_back_ios, size: 20, color: theme.primaryColor),
               )
             : null,
-        leadingWidth: Navigator.of(context).canPop() ? 100 : 0,
-        title: const Text(
-          'Alexander\'s Health Profile',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
+        title: Text(
+          'Profile Settings',
+          style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18),
         ),
         actions: [
-          TextButton(
+          IconButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const UpdateProfilePage()),
               );
             },
-            child: const Text('Edit', style: TextStyle(color: Color(0xFF0F52FF), fontSize: 16)),
+            icon: Icon(Icons.edit_outlined, color: theme.primaryColor),
           ),
         ],
       ),
@@ -85,21 +88,21 @@ class _ProfilePageState extends State<ProfilePage> {
                     width: 120,
                     height: 120,
                     padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white,
+                      color: theme.colorScheme.surface,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black12,
+                          color: Colors.black.withOpacity(theme.brightness == Brightness.light ? 0.04 : 0.4),
                           blurRadius: 10,
-                          offset: Offset(0, 4),
+                          offset: const Offset(0, 4),
                         )
                       ],
                     ),
                     child: Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFF0F52FF), width: 3),
+                        border: Border.all(color: theme.primaryColor, width: 3),
                       ),
                       child: AxioAvatar(
                         radius: 56,
@@ -108,11 +111,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                   ),
-                  const Positioned(
+                  Positioned(
                     bottom: -10,
                     right: 15,
                     left: 15,
-                    child: _VerifiedBadge(),
+                    child: _VerifiedBadge(theme: theme),
                   ),
                 ],
               ),
@@ -123,40 +126,62 @@ class _ProfilePageState extends State<ProfilePage> {
             Text(
               userName,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: -0.5),
+              style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: -0.5),
             ),
             const SizedBox(height: 4),
             Center(
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
+                  color: theme.colorScheme.surfaceContainer,
                   borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
                 ),
                 child: Text(
                   'CLINICAL ID: $clinicalId',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface.withOpacity(0.6)),
                 ),
               ),
             ),
             const SizedBox(height: 32),
+
+            // THEME SETTINGS (Requirement: User can only choose dark theme from the settings page)
+            _buildSectionHeader('APP APPEARANCE', theme: theme),
+            const SizedBox(height: 12),
+            AxioCard(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Icon(themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode, color: theme.primaryColor),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(
+                      'Dark Mode',
+                      style: TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
+                    ),
+                  ),
+                  Switch.adaptive(
+                    value: themeProvider.isDarkMode,
+                    activeColor: theme.primaryColor,
+                    onChanged: (value) => themeProvider.toggleTheme(),
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 32),
             
             // Personal Metrics
-            _buildSectionHeader('PERSONAL METRICS', hasInfo: true),
+            _buildSectionHeader('PERSONAL METRICS', hasInfo: true, theme: theme),
             const SizedBox(height: 12),
-            Container(
+            AxioCard(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4), spreadRadius: -5)],
-              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildMetricCard('Age', age, 'Years'),
-                  _buildMetricCard('Weight', weight, 'kg'),
-                  _buildMetricCard('Blood Group', bloodGroup, ''),
+                  _buildMetricCard('Age', age, 'Years', theme: theme),
+                  _buildMetricCard('Weight', weight, 'kg', theme: theme),
+                  _buildMetricCard('Blood Group', bloodGroup, '', theme: theme),
                 ],
               ),
             ),
@@ -164,47 +189,42 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 32),
             
             // Health Activity Log
-            _buildSectionHeader('HEALTH ACTIVITY LOG', suffixText: 'LATEST 12 MONTHS'),
+            _buildSectionHeader('HEALTH ACTIVITY LOG', suffixText: 'LATEST 12 MONTHS', theme: theme),
             const SizedBox(height: 12),
-            Container(
+            AxioCard(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4), spreadRadius: -5)],
-              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Consistency Map', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text('Consistency Map', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: theme.colorScheme.onSurface)),
                   const SizedBox(height: 4),
-                  const Text('Daily health check-ins & adherence', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                  Text('Daily health check-ins & adherence', style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 12)),
                   const SizedBox(height: 16),
-                  _buildActivityGrid(),
+                  _buildActivityGrid(theme: theme),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          Text('LESS', style: TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
-                          SizedBox(width: 8),
-                          _GridSquare(color: Color(0xFFF1F5F9)),
-                          SizedBox(width: 4),
-                          _GridSquare(color: Color(0xFFBBE5CD)),
-                          SizedBox(width: 4),
-                          _GridSquare(color: Color(0xFF22C55E)),
-                          SizedBox(width: 4),
-                          _GridSquare(color: Color(0xFF166534)),
-                          SizedBox(width: 8),
-                          Text('MORE', style: TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
+                          Text('LESS', style: TextStyle(fontSize: 10, color: theme.colorScheme.onSurface.withOpacity(0.4), fontWeight: FontWeight.bold)),
+                          const SizedBox(width: 8),
+                          _GridSquare(color: theme.colorScheme.surfaceContainer),
+                          const SizedBox(width: 4),
+                          _GridSquare(color: AppTheme.successColor.withOpacity(0.3)),
+                          const SizedBox(width: 4),
+                          _GridSquare(color: AppTheme.successColor.withOpacity(0.6)),
+                          const SizedBox(width: 4),
+                          _GridSquare(color: AppTheme.successColor),
+                          const SizedBox(width: 8),
+                          Text('MORE', style: TextStyle(fontSize: 10, color: theme.colorScheme.onSurface.withOpacity(0.4), fontWeight: FontWeight.bold)),
                         ],
                       ),
                       Row(
-                        children: const [
-                          Icon(Icons.electric_bolt, color: Color(0xFF22C55E), size: 14),
-                          SizedBox(width: 4),
-                          Text('94% Compliance Rate', style: TextStyle(color: Color(0xFF22C55E), fontSize: 11, fontWeight: FontWeight.bold)),
+                        children: [
+                          const Icon(Icons.electric_bolt, color: AppTheme.successColor, size: 14),
+                          const SizedBox(width: 4),
+                          Text('94% Compliance', style: TextStyle(color: AppTheme.successColor, fontSize: 11, fontWeight: FontWeight.bold)),
                         ],
                       )
                     ],
@@ -219,6 +239,7 @@ class _ProfilePageState extends State<ProfilePage> {
             _buildSectionHeader(
               'MEDICAL HISTORY', 
               suffixAction: '+ Add Record',
+              theme: theme,
               onSuffixTap: () async {
                 final result = await Navigator.push(
                   context,
@@ -230,19 +251,14 @@ class _ProfilePageState extends State<ProfilePage> {
               }
             ),
             const SizedBox(height: 12),
-            Container(
+            AxioCard(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4), spreadRadius: -5)],
-              ),
               child: userProvider.isLoadingConditions 
                 ? const Center(child: CircularProgressIndicator())
                 : userProvider.conditions.isEmpty
-                  ? const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20),
-                      child: Center(child: Text('No medical history records found.', style: TextStyle(color: Colors.grey))),
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: Center(child: Text('No medical history records found.', style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.5)))),
                     )
                   : Column(
                       children: List.generate(userProvider.conditions.length, (index) {
@@ -252,10 +268,11 @@ class _ProfilePageState extends State<ProfilePage> {
                             _buildListTile(
                               icon: _getIconData(condition['icon_type']), 
                               title: condition['title'], 
-                              subtitle: condition['subtitle'] ?? ''
+                              subtitle: condition['subtitle'] ?? '',
+                              theme: theme,
                             ),
                             if (index < userProvider.conditions.length - 1)
-                              const SizedBox(height: 16),
+                              Divider(color: theme.dividerColor, height: 24),
                           ],
                         );
                       }),
@@ -265,227 +282,12 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 32),
             
             // Allergy Alerts
-            _buildSectionHeader('ALLERGY ALERTS'),
+            _buildSectionHeader('ALLERGY ALERTS', theme: theme),
             const SizedBox(height: 12),
-            _buildAlertCard(icon: Icons.warning_amber_rounded, title: 'Penicillin', subtitle: 'Anaphylaxis Risk • High Priority'),
+            _buildAlertCard(icon: Icons.warning_amber_rounded, title: 'Penicillin', subtitle: 'Anaphylaxis Risk • High Priority', theme: theme),
             const SizedBox(height: 12),
-            _buildAlertCard(icon: Icons.bug_report, title: 'Peanuts', subtitle: 'Severe reaction reported 2021'),
+            _buildAlertCard(icon: Icons.bug_report, title: 'Peanuts', subtitle: 'Severe reaction reported 2021', theme: theme),
             
-            const SizedBox(height: 32),
-
-            // Health Reports Section
-            _buildSectionHeader('DIGITAL HEALTH REPORTS', hasInfo: true),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4), spreadRadius: -5)],
-              ),
-              child: Column(
-                children: [
-                  _buildReportItem('BloodTest_March.pdf', 'Clinical Lab A', 'March 10, 2026'),
-                  const Divider(height: 24),
-                  _buildReportItem('XRay_Chest_Final.jpg', 'Modern Imaging', 'Feb 15, 2026'),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const UploadReportPage()),
-                        );
-                      },
-                      icon: const Icon(Icons.note_add_outlined, size: 22, color: Color(0xFF2E90FA)),
-                      label: const Text('Upload New Report', style: TextStyle(color: Color(0xFF2E90FA), fontWeight: FontWeight.bold)),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFFD1E9FF), width: 1.5),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        backgroundColor: const Color(0xFFF9FAFB),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            const SizedBox(height: 32),
-
-            // Location Services
-            _buildSectionHeader('LOCATION SERVICES', hasInfo: true),
-            const SizedBox(height: 12),
-            Consumer<LocationProvider>(
-              builder: (context, locationProvider, child) {
-                return Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4), spreadRadius: -5)],
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: locationProvider.isTracking ? const Color(0xFFECFDF3) : const Color(0xFFF1F5F9),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.gps_fixed, 
-                              color: locationProvider.isTracking ? const Color(0xFF16B364) : const Color(0xFF64748B),
-                              size: 20
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Real-time GPS Tracking', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                Text(
-                                  locationProvider.isTracking ? 'Active • Syncing to Clinical Hub' : 'Inactive • Manual sync only',
-                                  style: TextStyle(color: locationProvider.isTracking ? const Color(0xFF16B364) : Colors.grey, fontSize: 12),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Switch.adaptive(
-                            value: locationProvider.isTracking,
-                            activeColor: const Color(0xFF0F52FF),
-                            onChanged: (_) => locationProvider.toggleTracking(),
-                          ),
-                        ],
-                      ),
-                      if (locationProvider.currentPosition != null) ...[
-                        const Divider(height: 32),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            _buildCoordItem('LATITUDE', locationProvider.currentPosition!.latitude.toStringAsFixed(6)),
-                            _buildCoordItem('LONGITUDE', locationProvider.currentPosition!.longitude.toStringAsFixed(6)),
-                            _buildCoordItem('ACCURACY', '${locationProvider.currentPosition!.accuracy.toStringAsFixed(1)}m'),
-                          ],
-                        ),
-                      ],
-                    ],
-                  ),
-                );
-              },
-            ),
-            
-            const SizedBox(height: 32),
-            
-            // Connected Devices
-            _buildSectionHeader('CONNECTED DEVICES'),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFF131A2A),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Column(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const VitalSyncDashboard()),
-                      );
-                    },
-                    behavior: HitTestBehavior.opaque,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      color: Colors.transparent, 
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: const BoxDecoration(color: Color(0xFF1F2937), shape: BoxShape.circle),
-                            child: const Icon(Icons.watch, color: Colors.white, size: 24),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Smart Watch Series 9', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Container(width: 6, height: 6, decoration: const BoxDecoration(color: Color(0xFF22C55E), shape: BoxShape.circle)),
-                                    const SizedBox(width: 4),
-                                    const Text('Live sync active', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                                  ],
-                                )
-                              ],
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const DeviceConnectivityPage()),
-                              );
-                            },
-                            behavior: HitTestBehavior.opaque,
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              color: Colors.transparent,
-                              child: const Icon(Icons.settings, color: Colors.white54),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(child: _buildDeviceMetric(
-                        label: 'HEART RATE',
-                        value: Provider.of<BluetoothProvider>(context).isConnected && Provider.of<BluetoothProvider>(context).heartRate > 0
-                            ? '${Provider.of<BluetoothProvider>(context).heartRate}'
-                            : '72',
-                        unit: 'BPM',
-                      )),
-                      const SizedBox(width: 16),
-                      Expanded(child: _buildDeviceMetric(label: 'SLEEP SCORE', value: '88', unit: '/100')),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const BluetoothScanPage()),
-                        );
-                      },
-                      icon: const Icon(Icons.bluetooth_searching, color: Colors.white, size: 20),
-                      label: const Text(
-                        'Pair New Device via Bluetooth',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF4B89FF),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        elevation: 0,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
             const SizedBox(height: 40),
           ],
         ),
@@ -493,27 +295,27 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildMetricCard(String label, String value, String unit) {
+  Widget _buildMetricCard(String label, String value, String unit, {required ThemeData theme}) {
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFFF9FAFB),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFEAECF0)),
+            color: theme.colorScheme.surfaceContainer,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
           ),
           child: Column(
             children: [
               Text(
                 value,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1D2939)),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
               ),
               if (unit.isNotEmpty) ...[
                 const SizedBox(height: 2),
                 Text(
                   unit,
-                  style: const TextStyle(fontSize: 11, color: Color(0xFF667085), fontWeight: FontWeight.w500),
+                  style: TextStyle(fontSize: 11, color: theme.colorScheme.onSurface.withOpacity(0.5), fontWeight: FontWeight.w500),
                 ),
               ],
             ],
@@ -522,46 +324,46 @@ class _ProfilePageState extends State<ProfilePage> {
         const SizedBox(height: 8),
         Text(
           label.toUpperCase(),
-          style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8), fontWeight: FontWeight.bold, letterSpacing: 0.5),
+          style: TextStyle(fontSize: 10, color: theme.colorScheme.onSurface.withOpacity(0.4), fontWeight: FontWeight.bold, letterSpacing: 0.5),
         ),
       ],
     );
   }
 
-  Widget _buildSectionHeader(String title, {bool hasInfo = false, String? suffixText, String? suffixAction, VoidCallback? onSuffixTap}) {
+  Widget _buildSectionHeader(String title, {bool hasInfo = false, String? suffixText, String? suffixAction, VoidCallback? onSuffixTap, required ThemeData theme}) {
     return Row(
       children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF94A3B8), letterSpacing: 0.5)),
+        Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface.withOpacity(0.4), fontSize: 12, letterSpacing: 0.5)),
         if (hasInfo)
-          const Padding(
-            padding: EdgeInsets.only(left: 8.0),
-            child: Icon(Icons.info, color: Color(0xFFCBD5E1), size: 16),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Icon(Icons.info_outline, color: theme.colorScheme.onSurface.withOpacity(0.2), size: 16),
           ),
         const Spacer(),
         if (suffixText != null)
-          Text(suffixText, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF94A3B8), fontSize: 11)),
+          Text(suffixText, style: TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface.withOpacity(0.4), fontSize: 11)),
         if (suffixAction != null)
           GestureDetector(
-            onTap: onSuffixTap,
-            child: Text(suffixAction, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F52FF), fontSize: 12)),
+             onTap: onSuffixTap,
+             child: Text(suffixAction, style: TextStyle(fontWeight: FontWeight.bold, color: theme.primaryColor, fontSize: 12)),
           ),
       ],
     );
   }
 
-  Widget _buildActivityGrid() {
+  Widget _buildActivityGrid({required ThemeData theme}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Column(
+        Column(
           children: [
-            Text('MON', style: TextStyle(fontSize: 8, color: Colors.grey)),
-            SizedBox(height: 4),
-            Text('WED', style: TextStyle(fontSize: 8, color: Colors.grey)),
-            SizedBox(height: 4),
-            Text('FRI', style: TextStyle(fontSize: 8, color: Colors.grey)),
-            SizedBox(height: 4),
-            Text('SUN', style: TextStyle(fontSize: 8, color: Colors.grey)),
+            Text('MON', style: TextStyle(fontSize: 8, color: theme.colorScheme.onSurface.withOpacity(0.4))),
+            const SizedBox(height: 4),
+            Text('WED', style: TextStyle(fontSize: 8, color: theme.colorScheme.onSurface.withOpacity(0.4))),
+            const SizedBox(height: 4),
+            Text('FRI', style: TextStyle(fontSize: 8, color: theme.colorScheme.onSurface.withOpacity(0.4))),
+            const SizedBox(height: 4),
+            Text('SUN', style: TextStyle(fontSize: 8, color: theme.colorScheme.onSurface.withOpacity(0.4))),
           ],
         ),
         const SizedBox(width: 8),
@@ -577,10 +379,10 @@ class _ProfilePageState extends State<ProfilePage> {
             itemCount: 88,
             itemBuilder: (context, index) {
               final colors = [
-                const Color(0xFFF1F5F9),
-                const Color(0xFFBBE5CD),
-                const Color(0xFF22C55E),
-                const Color(0xFF166534),
+                theme.colorScheme.surfaceContainer,
+                AppTheme.successColor.withOpacity(0.3),
+                AppTheme.successColor.withOpacity(0.6),
+                AppTheme.successColor,
               ];
               final colorIntensity = (index * 7 % 4); 
               return _GridSquare(color: colors[colorIntensity]);
@@ -591,127 +393,60 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildListTile({required IconData icon, required String title, required String subtitle}) {
+  Widget _buildListTile({required IconData icon, required String title, required String subtitle, required ThemeData theme}) {
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
-          child: Icon(icon, color: const Color(0xFF475569)),
+          decoration: BoxDecoration(color: theme.colorScheme.surfaceContainer, borderRadius: BorderRadius.circular(12)),
+          child: Icon(icon, color: theme.colorScheme.onSurface.withOpacity(0.6)),
         ),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
               const SizedBox(height: 4),
-              Text(subtitle, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+              Text(subtitle, style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.5), fontSize: 12)),
             ],
           ),
         ),
-        const Icon(Icons.chevron_right, color: Colors.grey),
+        Icon(Icons.chevron_right, color: theme.colorScheme.onSurface.withOpacity(0.3)),
       ],
     );
   }
 
-  Widget _buildAlertCard({required IconData icon, required String title, required String subtitle}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2), spreadRadius: -2)],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          decoration: const BoxDecoration(
-            border: Border(left: BorderSide(color: Color(0xFFEF4444), width: 4)),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: const BoxDecoration(color: Color(0xFFFEE2E2), shape: BoxShape.circle),
-                child: Icon(icon, color: const Color(0xFFEF4444), size: 20),
+  Widget _buildAlertCard({required IconData icon, required String title, required String subtitle, required ThemeData theme}) {
+    return AxioCard(
+      padding: EdgeInsets.zero,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(left: BorderSide(color: theme.primaryColor, width: 4)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(color: theme.primaryColor.withOpacity(0.1), shape: BoxShape.circle),
+              child: Icon(icon, color: theme.primaryColor, size: 20),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
+                  const SizedBox(height: 2),
+                  Text(subtitle, style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.5), fontSize: 11)),
+                ],
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 2),
-                    Text(subtitle, style: const TextStyle(color: Colors.grey, fontSize: 11)),
-                  ],
-                ),
-              ),
-              const Icon(Icons.more_vert, color: Colors.grey),
-            ],
-          ),
+            ),
+            Icon(Icons.more_vert, color: theme.colorScheme.onSurface.withOpacity(0.3)),
+          ],
         ),
       ),
-    );
-  }
-
-  Widget _buildDeviceMetric({required String label, required String value, required String unit}) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1F2937),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(value, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-              const SizedBox(width: 2),
-              Text(unit, style: const TextStyle(color: Colors.white54, fontSize: 12)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReportItem(String name, String provider, String date) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: const Color(0xFFF8F9FE), borderRadius: BorderRadius.circular(12)),
-          child: const Icon(Icons.description, color: Color(0xFF2E90FA), size: 20),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              Text('$provider • $date', style: const TextStyle(color: Colors.grey, fontSize: 11)),
-            ],
-          ),
-        ),
-        const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 12),
-      ],
-    );
-  }
-
-  Widget _buildCoordItem(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontSize: 9, color: Colors.grey, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
-        const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1D2939))),
-      ],
     );
   }
 }
@@ -732,16 +467,17 @@ class _GridSquare extends StatelessWidget {
 }
 
 class _VerifiedBadge extends StatelessWidget {
-  const _VerifiedBadge();
+  final ThemeData theme;
+  const _VerifiedBadge({required this.theme});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F52FF),
+        color: theme.primaryColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white, width: 2),
+        border: Border.all(color: theme.colorScheme.surface, width: 2),
       ),
       child: const Row(
         mainAxisSize: MainAxisSize.min,

@@ -8,18 +8,23 @@ import 'test_bookings_page.dart';
 import 'orders_page.dart';
 import 'help_center_page.dart';
 import 'read_about_health_page.dart';
+import 'health_passport_page.dart';
+import 'emergency_card_page.dart';
 import 'widgets/axio_avatar.dart';
+import 'widgets/axio_card.dart';
+import 'theme.dart';
 
 class ProfileDrawer extends StatelessWidget {
   const ProfileDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final userProvider = Provider.of<UserProvider>(context);
 
     return Drawer(
-      width: MediaQuery.of(context).size.width * 0.72,
-      backgroundColor: Colors.white,
+      width: MediaQuery.of(context).size.width * 0.75,
+      backgroundColor: theme.scaffoldBackgroundColor,
       child: SafeArea(
         child: Column(
           children: [
@@ -30,7 +35,7 @@ class ProfileDrawer extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   AxioAvatar(
-                    radius: 36,
+                    radius: 32,
                     imageUrl: userProvider.avatarUrl,
                     name: userProvider.name,
                   ),
@@ -41,14 +46,15 @@ class ProfileDrawer extends StatelessWidget {
                       children: [
                         Text(
                           userProvider.name,
-                          style: const TextStyle(
-                            fontSize: 20,
+                          style: TextStyle(
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1D2939),
-                            letterSpacing: -0.5,
+                            color: theme.colorScheme.onSurface,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 4),
                         GestureDetector(
                           onTap: () {
                             Navigator.pop(context); // Close drawer
@@ -57,12 +63,12 @@ class ProfileDrawer extends StatelessWidget {
                               MaterialPageRoute(builder: (context) => const ProfilePage()),
                             );
                           },
-                          child: const Text(
+                          child: Text(
                             'View and edit profile',
                             style: TextStyle(
-                              color: Color(0xFF2E90FA),
+                              color: theme.primaryColor,
                               fontWeight: FontWeight.w600,
-                              fontSize: 14,
+                              fontSize: 13,
                             ),
                           ),
                         ),
@@ -76,48 +82,52 @@ class ProfileDrawer extends StatelessWidget {
             // Care Plan Card
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1D2939), // Minimal Slate/Black
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: AxioCard(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 child: Row(
                   children: [
-                    const Icon(Icons.stars_rounded, color: Color(0xFFF9DC5C), size: 24),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: theme.primaryColor.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.stars_rounded, color: theme.primaryColor, size: 20),
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
                             'Care Plan',
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                            style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 15),
                           ),
+                          const SizedBox(height: 2),
                           Text(
                             '12 FREE Appointments',
-                            style: TextStyle(color: Colors.white70, fontSize: 11),
+                            style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 12),
                           ),
                         ],
                       ),
                     ),
-                    const Icon(Icons.chevron_right, color: Colors.white70, size: 16),
+                    Icon(Icons.chevron_right, color: theme.colorScheme.onSurface.withOpacity(0.3), size: 18),
                   ],
                 ),
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             // Navigation List
             Expanded(
               child: ListView(
-                padding: EdgeInsets.zero,
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 children: [
                   _buildDrawerItem(
-                    Icons.add_box, 
+                    context,
+                    Icons.add_box_outlined, 
                     'Habit Tracker', 
-                    const Color(0xFF2E90FA),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
@@ -126,65 +136,87 @@ class ProfileDrawer extends StatelessWidget {
                       );
                     },
                   ),
-                  _buildDrawerItem(Icons.calendar_month, 'Appointments', const Color(0xFF2E90FA)),
+                  _buildDrawerItem(context, Icons.calendar_month_outlined, 'Appointments'),
                   _buildDrawerItem(
+                    context,
                     Icons.science_outlined, 
                     'Test Bookings', 
-                    const Color(0xFF2E90FA),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(context, MaterialPageRoute(builder: (context) => const TestBookingsPage()));
                     },
                   ),
                   _buildDrawerItem(
+                    context,
                     Icons.local_pharmacy_outlined, 
                     'Orders', 
-                    const Color(0xFF2E90FA),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(context, MaterialPageRoute(builder: (context) => const OrdersPage()));
                     },
                   ),
                   _buildDrawerItem(
+                    context,
                     Icons.chat_bubble_outline, 
                     'Consultations', 
-                    const Color(0xFF2E90FA),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(context, MaterialPageRoute(builder: (context) => const ConsultationsPage()));
                     },
                   ),
-                  _buildDrawerItem(Icons.person_pin_outlined, 'My Doctors', const Color(0xFF2E90FA)),
-                  _buildDrawerItem(Icons.assignment_outlined, 'Medical Records', const Color(0xFF2E90FA)),
-                  _buildDrawerItem(Icons.verified_user_outlined, 'My Insurance Policy', const Color(0xFF2E90FA)),
-                  _buildDrawerItem(Icons.notifications_active_outlined, 'Reminders', const Color(0xFF2E90FA)),
-                  _buildDrawerItem(Icons.account_balance_wallet_outlined, 'Payments & HealthCash', const Color(0xFF2E90FA)),
+                  _buildDrawerItem(context, Icons.person_pin_outlined, 'My Doctors'),
+                  
+                  // Medical Specific section
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+                    child: Text('MEDICAL', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface.withOpacity(0.4), letterSpacing: 1.2)),
+                  ),
+                  
                   _buildDrawerItem(
-                    Icons.apple_outlined, 
-                    'Read about health', 
-                    const Color(0xFF2E90FA),
+                    context,
+                    Icons.admin_panel_settings_outlined, 
+                    'Health Passport', 
+                    iconColor: theme.primaryColor,
+                    textColor: theme.primaryColor,
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const HealthPassportPage()));
+                    },
+                  ),
+                  _buildDrawerItem(
+                    context,
+                    Icons.contact_emergency_outlined, 
+                    'Emergency Card', 
+                    iconColor: theme.primaryColor,
+                    textColor: theme.primaryColor,
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const EmergencyCardPage()));
+                    },
+                  ),
+                  _buildDrawerItem(context, Icons.verified_user_outlined, 'My Insurance Policy'),
+                  
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+                    child: Text('GENERAL', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface.withOpacity(0.4), letterSpacing: 1.2)),
+                  ),
+
+                  _buildDrawerItem(context, Icons.notifications_active_outlined, 'Reminders'),
+                  _buildDrawerItem(context, Icons.account_balance_wallet_outlined, 'Payments & HealthCash'),
+                  _buildDrawerItem(
+                    context,
+                    Icons.settings_outlined, 
+                    'Settings',
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const ReadAboutHealthPage()),
+                        MaterialPageRoute(builder: (context) => const ProfilePage()),
                       );
                     },
                   ),
-                  _buildDrawerItem(
-                    Icons.help_outline, 
-                    'Help Center', 
-                    const Color(0xFF2E90FA),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const HelpCenterPage()),
-                      );
-                    },
-                  ),
-                  _buildDrawerItem(Icons.settings_outlined, 'Settings', const Color(0xFF2E90FA)),
-                  _buildDrawerItem(Icons.thumb_up_outlined, 'Like us? Give us 5 stars', const Color(0xFF2E90FA)),
+                  _buildDrawerItem(context, Icons.help_outline, 'Help Center'),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
@@ -194,16 +226,18 @@ class ProfileDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildDrawerItem(IconData icon, String title, Color iconColor, {VoidCallback? onTap}) {
+  Widget _buildDrawerItem(BuildContext context, IconData icon, String title, {Color? iconColor, Color? textColor, VoidCallback? onTap}) {
+    final theme = Theme.of(context);
     return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24),
       dense: true,
-      leading: Icon(icon, color: const Color(0xFF475569), size: 22), // No bulky background
+      leading: Icon(icon, color: iconColor ?? theme.colorScheme.onSurface.withOpacity(0.6), size: 22),
       title: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          color: Color(0xFF344054),
+          color: textColor ?? theme.colorScheme.onSurface,
         ),
       ),
       onTap: onTap ?? () {},

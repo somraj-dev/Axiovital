@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'auth_service.dart';
 
 class UserProvider with ChangeNotifier {
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://localhost:8000'));
+  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://localhost:7860'));
   final AuthService _authService = AuthService();
   
   String _name = 'Dr. Julian Vance';
@@ -84,7 +84,7 @@ class UserProvider with ChangeNotifier {
 
   Future<void> syncProfileWithBackend() async {
     try {
-      final response = await _dio.get('/api/v1/profile/$_clinicalId');
+      final response = await _dio.get('/api_v1/profile/$_clinicalId');
       final data = response.data;
       if (data != null) {
         _name = data['name'] ?? _name;
@@ -147,7 +147,7 @@ class UserProvider with ChangeNotifier {
     _isLoadingConditions = true;
     notifyListeners();
     try {
-      final response = await _dio.get('/api/v1/conditions/$_clinicalId');
+      final response = await _dio.get('/api_v1/conditions/$_clinicalId');
       _conditions = response.data;
     } catch (e) {
       print('Error fetching conditions: $e');
@@ -202,7 +202,7 @@ class UserProvider with ChangeNotifier {
 
   Future<void> _pushToBackend() async {
     try {
-      await _dio.put('/api/v1/profile/$_clinicalId', data: {
+      await _dio.put('/api_v1/profile/$_clinicalId', data: {
         'name': _name,
         'avatar_url': _avatarUrl,
         'dob': _dob,
