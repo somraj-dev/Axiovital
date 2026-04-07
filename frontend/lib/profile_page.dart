@@ -133,7 +133,7 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainer,
+                  color: theme.colorScheme.surfaceVariant,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
                 ),
@@ -209,7 +209,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         children: [
                           Text('LESS', style: TextStyle(fontSize: 10, color: theme.colorScheme.onSurface.withOpacity(0.4), fontWeight: FontWeight.bold)),
                           const SizedBox(width: 8),
-                          _GridSquare(color: theme.colorScheme.surfaceContainer),
+                          _GridSquare(color: theme.colorScheme.surfaceVariant),
                           const SizedBox(width: 4),
                           _GridSquare(color: AppTheme.successColor.withOpacity(0.3)),
                           const SizedBox(width: 4),
@@ -301,7 +301,7 @@ class _ProfilePageState extends State<ProfilePage> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainer,
+            color: theme.colorScheme.surfaceVariant,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
           ),
@@ -379,7 +379,7 @@ class _ProfilePageState extends State<ProfilePage> {
             itemCount: 88,
             itemBuilder: (context, index) {
               final colors = [
-                theme.colorScheme.surfaceContainer,
+                theme.colorScheme.surfaceVariant,
                 AppTheme.successColor.withOpacity(0.3),
                 AppTheme.successColor.withOpacity(0.6),
                 AppTheme.successColor,
@@ -398,7 +398,7 @@ class _ProfilePageState extends State<ProfilePage> {
       children: [
         Container(
           padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(color: theme.colorScheme.surfaceContainer, borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(color: theme.colorScheme.surfaceVariant, borderRadius: BorderRadius.circular(12)),
           child: Icon(icon, color: theme.colorScheme.onSurface.withOpacity(0.6)),
         ),
         const SizedBox(width: 16),

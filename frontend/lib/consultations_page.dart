@@ -63,7 +63,7 @@ class _EmptyConsultationView extends StatelessWidget {
           width: 200,
           height: 200,
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainer,
+            color: theme.colorScheme.surfaceVariant,
             shape: BoxShape.circle,
           ),
           child: Icon(Icons.event_busy, size: 80, color: theme.primaryColor.withOpacity(0.5)),

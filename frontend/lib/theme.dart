@@ -42,7 +42,7 @@ class AppTheme {
         secondary: secondaryColor,
         onSecondary: Colors.white,
         error: errorColor,
-        surfaceContainer: lightSurfaceSecondary,
+        surfaceVariant: lightSurfaceSecondary,
         outline: lightBorder,
       ),
       textTheme: GoogleFonts.interTextTheme().copyWith(
@@ -85,7 +85,7 @@ class AppTheme {
         secondary: secondaryColor,
         onSecondary: Colors.white,
         error: errorColor,
-        surfaceContainer: darkSurfaceSecondary,
+        surfaceVariant: darkSurfaceSecondary,
         outline: darkBorder,
       ),
       textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme).copyWith(

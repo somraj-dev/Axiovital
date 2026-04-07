@@ -290,7 +290,7 @@ class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainer,
+                  color: theme.colorScheme.surfaceVariant,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(icon, color: theme.primaryColor, size: 24),

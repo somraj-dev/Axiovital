@@ -146,7 +146,7 @@ class SearchPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainer,
+              color: theme.colorScheme.surfaceVariant,
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text('Ad', style: TextStyle(fontSize: 11, color: theme.colorScheme.onSurface.withOpacity(0.5), fontWeight: FontWeight.w600)),
@@ -239,7 +239,7 @@ class SearchPage extends StatelessWidget {
                 height: 140,
                 width: 160,
                 decoration: BoxDecoration(
-                  color: theme.brightness == Brightness.light ? const Color(0xFFF9FAFB) : theme.colorScheme.surfaceContainer,
+                  color: theme.brightness == Brightness.light ? const Color(0xFFF9FAFB) : theme.colorScheme.surfaceVariant,
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                 ),
                 child: ClipRRect(

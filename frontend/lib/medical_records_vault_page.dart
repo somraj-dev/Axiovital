@@ -73,7 +73,7 @@ class MedicalRecordsVaultPage extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: theme.colorScheme.surfaceContainer, borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: theme.colorScheme.surfaceVariant, borderRadius: BorderRadius.circular(12)),
             child: Icon(type == 'Scan' ? Icons.image : Icons.description, color: theme.primaryColor.withOpacity(0.7)),
           ),
           const SizedBox(width: 16),

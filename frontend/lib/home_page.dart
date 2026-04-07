@@ -63,7 +63,7 @@ class _HomePageState extends State<HomePage> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainer,
+                        color: theme.colorScheme.surfaceVariant,
                         shape: BoxShape.circle,
                       ),
                       child: Stack(
@@ -141,7 +141,7 @@ class _HomePageState extends State<HomePage> {
                 child: AxioCard(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                    showShadow: false,
-                  color: theme.colorScheme.surfaceContainer.withOpacity(0.5),
+                  color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
                   child: Row(
                     children: [
                       Icon(Icons.assignment_outlined, color: theme.primaryColor, size: 32),
