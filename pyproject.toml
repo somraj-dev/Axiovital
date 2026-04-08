@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "axiovital-health-agent"
+version = "0.1.0"
+description = "Axiovital Health Agent for OpenEnv evaluation"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic-settings",
+    "sqlalchemy",
+    "aiosqlite",
+    "httpx",
+    "openai",
+    "python-dotenv",
+    "redis",
+    "firebase-admin",
+    "boto3",
+    "websockets",
+    "gradio",
+    "openenv-core>=0.2.0"
+]
+
+[project.scripts]
+server = "server.app:main"
+
+[tool.setuptools]
+packages = ["backend", "server"]
