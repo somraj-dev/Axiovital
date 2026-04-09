@@ -5,6 +5,11 @@ import 'theme.dart';
 import 'widgets/axio_card.dart';
 import 'user_provider.dart';
 import 'vitals_service.dart';
+import 'widgets/axio_avatar.dart';
+import 'essentials_page.dart';
+import 'fitleague_page.dart';
+import 'device_connectivity_page.dart';
+import 'search_page.dart';
 
 class VitalSyncDashboard extends StatefulWidget {
   const VitalSyncDashboard({super.key});
@@ -44,32 +49,10 @@ class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final userProvider = Provider.of<UserProvider>(context);
     
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'VitalSync Dashboard',
-          style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.w700, fontSize: 18),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh, color: theme.colorScheme.onSurface),
-            onPressed: () {
-              setState(() => _isLoading = true);
-              _fetchVitalsData();
-            },
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
       body: _isLoading 
         ? const Center(child: CircularProgressIndicator()) 
         : SingleChildScrollView(
@@ -77,6 +60,9 @@ class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Custom Header to match screenshot
+                _buildCustomHeader(context, userProvider),
+                const SizedBox(height: 24),
                 // Top Stats Row
                 Row(
                   children: [
@@ -364,5 +350,115 @@ class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
         ],
       ),
     );
+  }
+
+  Widget _buildCustomHeader(BuildContext context, UserProvider userProvider) {
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        AxioAvatar(
+          radius: 20,
+          imageUrl: userProvider.avatarUrl,
+          name: userProvider.name,
+          backgroundColor: const Color(0xFFFFB7CE), // Pinkish from screenshot
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 18),
+              children: [
+                const TextSpan(text: 'Hello '),
+                TextSpan(
+                  text: userProvider.name.split(' ').first,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.search_rounded, size: 28),
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchPage()));
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.notifications_none_rounded, size: 28),
+          onPressed: () {},
+        ),
+        _buildHamburgerMenu(context),
+      ],
+    );
+  }
+
+  Widget _buildHamburgerMenu(BuildContext context) {
+    return PopupMenuButton<String>(
+      icon: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.menu_rounded, size: 24),
+      ),
+      offset: const Offset(0, 50),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: const Color(0xFF1F1F1F), // Dark background from screenshot
+      onSelected: (value) => _handleMenuNavigation(context, value),
+      itemBuilder: (context) => [
+        _buildPopupMenuItem('Manage Diet', Icons.restaurant_menu),
+        _buildPopupMenuItem('My Pocket', Icons.account_balance_wallet_outlined),
+        _buildPopupMenuItem('Essentials', Icons.medical_services_outlined),
+        _buildPopupMenuItem('Communities', Icons.groups_outlined),
+        _buildPopupMenuItem('FitLeague', Icons.emoji_events_outlined, isNew: true),
+        _buildPopupMenuItem('My Fitbit', Icons.watch_outlined),
+      ],
+    );
+  }
+
+  PopupMenuItem<String> _buildPopupMenuItem(String title, IconData icon, {bool isNew = false}) {
+    return PopupMenuItem<String>(
+      value: title,
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.white70, size: 20),
+          const SizedBox(width: 12),
+          Text(
+            title,
+            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+          ),
+          if (isNew) ...[
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.orange,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Text(
+                'NEW',
+                style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _handleMenuNavigation(BuildContext context, String value) {
+    if (value == 'FitLeague') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const FitLeaguePage()));
+    } else if (value == 'Essentials') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const EssentialsPage()));
+    } else if (value == 'My Fitbit') {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const DeviceConnectivityPage()));
+    } else {
+      // For items not yet implemented
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$value shortcut coming soon!')),
+      );
+    }
   }
 }
