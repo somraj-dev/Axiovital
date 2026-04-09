@@ -1,15 +1,14 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'theme.dart';
-import 'widgets/axio_card.dart';
 import 'user_provider.dart';
 import 'vitals_service.dart';
 import 'widgets/axio_avatar.dart';
 import 'essentials_page.dart';
 import 'fitleague_page.dart';
 import 'device_connectivity_page.dart';
-import 'search_page.dart';
+import 'notification_page.dart';
 
 class VitalSyncDashboard extends StatefulWidget {
   const VitalSyncDashboard({super.key});
@@ -33,10 +32,10 @@ class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
   Future<void> _fetchVitalsData() async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final userId = userProvider.clinicalId;
-    
+
     final latest = await _vitalsService.getLatestVitals(userId);
     final history = await _vitalsService.getVitalsHistory(userId);
-    
+
     if (mounted) {
       setState(() {
         _latestVitals = latest;
@@ -50,348 +49,524 @@ class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final userProvider = Provider.of<UserProvider>(context);
-    
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: _isLoading 
-        ? const Center(child: CircularProgressIndicator()) 
-        : SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Custom Header to match screenshot
-                _buildCustomHeader(context, userProvider),
-                const SizedBox(height: 24),
-                // Top Stats Row
-                Row(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: _buildStatCard(
-                        context,
-                        'Heart Rate',
-                        '${_latestVitals?['heart_rate'] ?? '--'}',
-                        'bpm',
-                        Icons.favorite,
-                        theme.primaryColor.withOpacity(0.1),
-                        theme.primaryColor,
+                    const SizedBox(height: 16),
+                    // Header row: Avatar + Hello Dr. + bell + hamburger
+                    _buildHeader(context, userProvider),
+                    const SizedBox(height: 24),
+
+                    // "Here's your day at a glance"
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Text(
+                        "Here's your day\nat a glance",
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w900,
+                          color: theme.colorScheme.onSurface,
+                          height: 1.2,
+                          letterSpacing: -0.5,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildStatCard(
-                        context,
-                        'Blood Pressure',
-                        '${_latestVitals?['systolic_bp'] ?? '--'}/${_latestVitals?['diastolic_bp'] ?? '--'}',
-                        'mmHg',
-                        Icons.monitor_heart_outlined,
-                        theme.primaryColor.withOpacity(0.1),
-                        theme.primaryColor,
+                    const SizedBox(height: 24),
+
+                    // Heart Rate + Blood Pressure cards row
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        children: [
+                          // Heart Rate Card (pink)
+                          Expanded(
+                            child: _buildHeartRateCard(context),
+                          ),
+                          const SizedBox(width: 12),
+                          // Blood Pressure card (light purple)
+                          Expanded(
+                            child: _buildBloodPressureCard(context),
+                          ),
+                        ],
                       ),
                     ),
+                    const SizedBox(height: 16),
+
+                    // Sleep Card (green)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: _buildSleepCard(context),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Daily recommendations
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Daily recommendations',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {},
+                            child: Text(
+                              'See all',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: theme.colorScheme.onSurface.withOpacity(0.5),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Recommendation card: Stay Hydrated
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: _buildRecommendationCard(
+                        context,
+                        icon: Icons.water_drop,
+                        iconColor: const Color(0xFF4A90D9),
+                        iconBgColor: const Color(0xFFE8F0FE),
+                        title: 'Stay Hydrated!',
+                        subtitle: 'Drink at least 2L of water today.',
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Recommendation card: Take a Walk
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: _buildRecommendationCard(
+                        context,
+                        icon: Icons.directions_walk,
+                        iconColor: const Color(0xFF4CAF50),
+                        iconBgColor: const Color(0xFFE8F5E9),
+                        title: 'Take a Walk!',
+                        subtitle: 'Walk at least 10,000 steps today.',
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Recommendation card: Sleep Well
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: _buildRecommendationCard(
+                        context,
+                        icon: Icons.bedtime,
+                        iconColor: const Color(0xFF7C4DFF),
+                        iconBgColor: const Color(0xFFF3E8FF),
+                        title: 'Sleep Well!',
+                        subtitle: 'Aim for 7-9 hours of quality sleep.',
+                      ),
+                    ),
+
+                    const SizedBox(height: 40),
                   ],
                 ),
-                const SizedBox(height: 24),
-
-                // SpO2 Stat (Single small card)
-                _buildMedicationCard(
-                  context,
-                  'OXYGEN SATURATION',
-                  'SpO2: ${_latestVitals?['spo2'] ?? '--'}%',
-                  'Normal range: 95-100%',
-                  Icons.air,
-                  false,
-                ),
-                const SizedBox(height: 24),
-
-                // Adherence Trends Card
-                _buildTrendsCard(context),
-                const SizedBox(height: 32),
-
-                // Today's Schedule Section
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Today's Schedule",
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
-                    ),
-                    TextButton(
-                      onPressed: () {},
-                      child: Text('See All', style: TextStyle(color: theme.primaryColor, fontWeight: FontWeight.w600)),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Active Medication Card example
-                _buildMedicationCard(
-                  context,
-                  'UPCOMING • 8:00 PM',
-                  'Atorvastatin - 10mg',
-                  'After Dinner',
-                  Icons.medication,
-                  true,
-                ),
-                const SizedBox(height: 24),
-
-                // Smart Reminders Toggle
-                _buildReminderToggle(context),
-                const SizedBox(height: 40),
-              ],
+              ),
             ),
-          ),
     );
   }
 
-  Widget _buildStatCard(BuildContext context, String label, String value, String subValue, IconData icon, Color bgColor, Color accentColor) {
+  // ─── HEADER ────────────────────────────────────────────────────────
+  Widget _buildHeader(BuildContext context, UserProvider userProvider) {
     final theme = Theme.of(context);
+    final firstName = userProvider.name.split(' ').first;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          // Avatar
+          AxioAvatar(
+            radius: 20,
+            imageUrl: userProvider.avatarUrl,
+            name: userProvider.name,
+            backgroundColor: const Color(0xFF8B5E6B), // Muted mauve from screenshot
+          ),
+          const SizedBox(width: 10),
+          // Hello Dr.
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                style: TextStyle(
+                    color: theme.colorScheme.onSurface, fontSize: 16),
+                children: [
+                  const TextSpan(text: 'Hello '),
+                  TextSpan(
+                    text: '$firstName.',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Notification bell
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const NotificationPage()),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.notifications_none_rounded,
+                  size: 22, color: theme.colorScheme.onSurface),
+            ),
+          ),
+          const SizedBox(width: 8),
+          // Hamburger menu
+          _buildHamburgerMenu(context),
+        ],
+      ),
+    );
+  }
+
+  // ─── HEART RATE CARD (pink) ────────────────────────────────────────
+  Widget _buildHeartRateCard(BuildContext context) {
+    final heartRate = _latestVitals?['heart_rate'] ?? 72;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFCE4EC), // Light pink
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Heart icon + value
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade400,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.favorite, color: Colors.white, size: 14),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '$heartRate bpm',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A1A1A),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Heart rate',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey.shade600,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Bar chart visualization
+          SizedBox(
+            height: 60,
+            child: _buildHeartRateBars(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeartRateBars() {
+    // Bar heights simulating heart rate variation (like the screenshot)
+    final List<double> barHeights = [
+      0.7, 0.85, 0.6, 0.9, 0.5, 0.75, 0.65, 0.8, 0.55, 0.7,
+      0.45, 0.6, 0.8, 0.5, 0.7,
+    ];
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: barHeights.map((h) {
+        return Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: Container(
+              height: 60 * h,
+              decoration: BoxDecoration(
+                color: const Color(0xFF2C2C2C),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  // ─── BLOOD PRESSURE CARD (light purple) ────────────────────────────
+  Widget _buildBloodPressureCard(BuildContext context) {
+    final systolic = _latestVitals?['systolic_bp'] ?? 120;
+    final diastolic = _latestVitals?['diastolic_bp'] ?? 80;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3E5F5), // Light purple/lavender
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF9C27B0),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.monitor_heart_outlined,
+                    color: Colors.white, size: 14),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '$systolic/$diastolic',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A1A1A),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Blood pressure',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey.shade600,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Wave visualization
+          SizedBox(
+            height: 60,
+            child: CustomPaint(
+              size: const Size(double.infinity, 60),
+              painter: _WavePainter(color: const Color(0xFF9C27B0)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── SLEEP CARD (green) ────────────────────────────────────────────
+  Widget _buildSleepCard(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(24),
+        color: const Color(0xFFE8F5E9), // Light green
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Moon icon + sleep time
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(label, style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontWeight: FontWeight.w600, fontSize: 13)),
-              Icon(icon, color: accentColor, size: 18),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                value,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: theme.colorScheme.onSurface),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2E7D32).withOpacity(0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.nightlight_round,
+                    color: Color(0xFF2E7D32), size: 20),
               ),
-              const SizedBox(width: 4),
-              Text(
-                subValue,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: accentColor),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTrendsCard(BuildContext context) {
-    final theme = Theme.of(context);
-    return AxioCard(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.auto_graph, color: theme.primaryColor, size: 18),
-              const SizedBox(width: 8),
-              Text(
-                'History Trends (Heart Rate)',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: theme.colorScheme.onSurface),
-              ),
-            ],
-          ),
-          const SizedBox(height: 30),
-          if (_vitalsHistory.isEmpty)
-             const Center(child: Text("No data history available"))
-          else
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: List.generate(_vitalsHistory.length > 7 ? 7 : _vitalsHistory.length, (index) {
-                final item = _vitalsHistory[index];
-                final hr = item['heart_rate'] as int;
-                final date = DateTime.parse(item['timestamp']);
-                final label = "${date.month}/${date.day}";
-                return _buildBar(context, label, hr / 140); // Scaling to 140 bpm max for demo
-              }),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBar(BuildContext context, String label, double heightFactor) {
-    final theme = Theme.of(context);
-    return Column(
-      children: [
-        Container(
-          width: 32,
-          height: 100 * heightFactor,
-          decoration: BoxDecoration(
-            color: theme.primaryColor,
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface.withOpacity(0.4)),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMedicationCard(BuildContext context, String status, String title, String instructions, IconData icon, bool isCurrent) {
-    final theme = Theme.of(context);
-    return AxioCard(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: isCurrent ? theme.primaryColor : theme.colorScheme.onSurface.withOpacity(0.3),
-                      shape: BoxShape.circle,
+                  const Text(
+                    '9h 30m',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1A1A1A),
                     ),
                   ),
-                  const SizedBox(width: 8),
                   Text(
-                    status,
+                    'Total sleep',
                     style: TextStyle(
-                      color: isCurrent ? theme.primaryColor : theme.colorScheme.onSurface.withOpacity(0.4),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.5,
+                      fontSize: 13,
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceVariant,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(icon, color: theme.primaryColor, size: 24),
-              ),
             ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
+          const SizedBox(height: 20),
+          // Sleep bar chart
+          SizedBox(
+            height: 80,
+            child: _buildSleepBars(),
           ),
-          const SizedBox(height: 4),
-          Text(
-            instructions,
-            style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 13),
+          const SizedBox(height: 8),
+          // Time labels
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: ['6am', '7am', '8am', '9am', '10am', '11am', '12am', '1pm', '2pm']
+                .map((t) => Text(
+                      t,
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ))
+                .toList(),
           ),
-          if (isCurrent) ...[
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.check_circle_outline, color: Colors.white),
-                label: const Text(
-                  'Mark as Resolved',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.primaryColor,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                ),
-              ),
-            ),
-          ],
         ],
       ),
     );
   }
 
-  Widget _buildReminderToggle(BuildContext context) {
+  Widget _buildSleepBars() {
+    // Bar heights matching the screenshot pattern (11am is tallest/darkest)
+    final List<Map<String, dynamic>> bars = [
+      {'height': 0.55, 'dark': false},
+      {'height': 0.50, 'dark': false},
+      {'height': 0.60, 'dark': false},
+      {'height': 0.50, 'dark': false},
+      {'height': 0.55, 'dark': false},
+      {'height': 1.0, 'dark': true},   // 11am - tallest, dark
+      {'height': 0.45, 'dark': false},
+      {'height': 0.50, 'dark': false},
+      {'height': 0.55, 'dark': false},
+    ];
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: bars.map((bar) {
+        final isDark = bar['dark'] as bool;
+        final h = bar['height'] as double;
+        return Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 3),
+            child: Container(
+              height: 80 * h,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? const Color(0xFF1A1A1A)
+                    : const Color(0xFFA5D6A7).withOpacity(0.7),
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  // ─── RECOMMENDATION CARD ───────────────────────────────────────────
+  Widget _buildRecommendationCard(
+    BuildContext context, {
+    required IconData icon,
+    required Color iconColor,
+    required Color iconBgColor,
+    required String title,
+    required String subtitle,
+  }) {
     final theme = Theme.of(context);
-    return AxioCard(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: theme.dividerColor.withOpacity(0.3),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Row(
         children: [
+          // Icon circle
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: theme.primaryColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+              color: iconBgColor,
+              shape: BoxShape.circle,
             ),
-            child: Icon(Icons.sensors, color: theme.primaryColor, size: 20),
+            child: Icon(icon, color: iconColor, size: 22),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 14),
+          // Text
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Smart Reminders', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: theme.colorScheme.onSurface)),
-                Text('Location alerts & family nudges', style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.5), fontSize: 12)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: theme.colorScheme.onSurface.withOpacity(0.5),
+                  ),
+                ),
               ],
             ),
           ),
-          CupertinoSwitch(
-            value: true,
-            onChanged: (v) {},
-            activeColor: theme.primaryColor,
+          // Chevron
+          Icon(
+            Icons.chevron_right,
+            color: theme.colorScheme.onSurface.withOpacity(0.3),
+            size: 22,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCustomHeader(BuildContext context, UserProvider userProvider) {
-    final theme = Theme.of(context);
-    return Row(
-      children: [
-        AxioAvatar(
-          radius: 20,
-          imageUrl: userProvider.avatarUrl,
-          name: userProvider.name,
-          backgroundColor: const Color(0xFFFFB7CE), // Pinkish from screenshot
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: RichText(
-            text: TextSpan(
-              style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 18),
-              children: [
-                const TextSpan(text: 'Hello '),
-                TextSpan(
-                  text: userProvider.name.split(' ').first,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
-        ),
-        IconButton(
-          icon: const Icon(Icons.search_rounded, size: 28),
-          onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchPage()));
-          },
-        ),
-        IconButton(
-          icon: const Icon(Icons.notifications_none_rounded, size: 28),
-          onPressed: () {},
-        ),
-        _buildHamburgerMenu(context),
-      ],
-    );
-  }
-
+  // ─── HAMBURGER MENU ────────────────────────────────────────────────
   Widget _buildHamburgerMenu(BuildContext context) {
     return PopupMenuButton<String>(
       icon: Container(
@@ -411,13 +586,13 @@ class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
         _buildPopupMenuItem('My Pocket', Icons.account_balance_wallet_outlined),
         _buildPopupMenuItem('Essentials', Icons.medical_services_outlined),
         _buildPopupMenuItem('Communities', Icons.groups_outlined),
-        _buildPopupMenuItem('FitLeague', Icons.emoji_events_outlined, isNew: true),
+        _buildPopupMenuItem('FitLeague', Icons.emoji_events_outlined),
         _buildPopupMenuItem('My Fitbit', Icons.watch_outlined),
       ],
     );
   }
 
-  PopupMenuItem<String> _buildPopupMenuItem(String title, IconData icon, {bool isNew = false}) {
+  PopupMenuItem<String> _buildPopupMenuItem(String title, IconData icon) {
     return PopupMenuItem<String>(
       value: title,
       child: Row(
@@ -426,22 +601,11 @@ class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
           const SizedBox(width: 12),
           Text(
             title,
-            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+            style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w500),
           ),
-          if (isNew) ...[
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.orange,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: const Text(
-                'NEW',
-                style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
         ],
       ),
     );
@@ -449,11 +613,16 @@ class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
 
   void _handleMenuNavigation(BuildContext context, String value) {
     if (value == 'FitLeague') {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const FitLeaguePage()));
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const FitLeaguePage()));
     } else if (value == 'Essentials') {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const EssentialsPage()));
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const EssentialsPage()));
     } else if (value == 'My Fitbit') {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const DeviceConnectivityPage()));
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const DeviceConnectivityPage()));
     } else {
       // For items not yet implemented
       ScaffoldMessenger.of(context).showSnackBar(
@@ -461,4 +630,34 @@ class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
       );
     }
   }
+}
+
+// ─── WAVE PAINTER for Blood Pressure ─────────────────────────────────
+class _WavePainter extends CustomPainter {
+  final Color color;
+  _WavePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color.withOpacity(0.4)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.5
+      ..strokeCap = StrokeCap.round;
+
+    final path = Path();
+    path.moveTo(0, size.height * 0.5);
+
+    for (double x = 0; x <= size.width; x += 1) {
+      final y = size.height * 0.5 +
+          math.sin(x * 0.08) * 15 +
+          math.sin(x * 0.04) * 8;
+      path.lineTo(x, y);
+    }
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
