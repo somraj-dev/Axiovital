@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'profile_page.dart';
 import 'home_page.dart';
+import 'vitalsync_dashboard.dart';
 import 'find_doctor_page.dart';
 import 'health_insights_page.dart';
 import 'user_provider.dart';
@@ -29,7 +30,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   final List<Widget> _pages = [
-    const HomePage(key: ValueKey('HomePage')),
+    const VitalSyncDashboard(key: ValueKey('HomePage')),
     const FindDoctorPage(key: ValueKey('FindDoctor')),
     const LabTestsPage(key: ValueKey('LabTests')),
     const HealthInsightsPage(key: ValueKey('HealthInsights')),
