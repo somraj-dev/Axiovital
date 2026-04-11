@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'checkout_provider.dart';
+import 'orders_provider.dart';
 import 'login_page.dart';
 import 'home_page.dart';
 import 'user_provider.dart';
@@ -7,7 +9,12 @@ import 'bluetooth_provider.dart';
 import 'location_provider.dart';
 import 'cart_provider.dart';
 import 'theme.dart';
+import 'theme.dart';
 import 'theme_provider.dart';
+import 'community_provider.dart';
+import 'call_provider.dart';
+
+import 'notification_provider.dart';
 
 void main() {
   runApp(
@@ -18,6 +25,11 @@ void main() {
         ChangeNotifierProvider(create: (_) => LocationProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => CommunityProvider()),
+        ChangeNotifierProvider(create: (_) => CallProvider()),
+        ChangeNotifierProvider(create: (_) => CheckoutProvider()),
+        ChangeNotifierProvider(create: (_) => OrdersProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: const MyApp(),
     ),

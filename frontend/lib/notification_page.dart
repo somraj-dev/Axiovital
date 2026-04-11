@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'notification_settings_page.dart';
+import 'notification_provider.dart';
+import 'appointment_slip_page.dart';
+import 'package:intl/intl.dart';
 
 class NotificationPage extends StatelessWidget {
   const NotificationPage({super.key});
@@ -7,7 +11,7 @@ class NotificationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FE), // Light background matching screenshot
+      backgroundColor: const Color(0xFFF8F9FE),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -28,108 +32,230 @@ class NotificationPage extends StatelessWidget {
           const SizedBox(width: 16),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
+      body: Consumer<NotificationProvider>(
+        builder: (context, notifProvider, _) {
+          final notifications = notifProvider.notifications;
+          final unreadCount = notifProvider.unreadCount;
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Notifications',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF1D2939),
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {},
-                  child: const Text(
-                    'Mark all as read',
-                    style: TextStyle(
-                      color: Color(0xFF2E90FA),
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    const Text(
+                      'Notifications',
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF1D2939),
+                        letterSpacing: -0.5,
+                      ),
                     ),
-                  ),
+                    if (unreadCount > 0)
+                      GestureDetector(
+                        onTap: () => notifProvider.markAllAsRead(),
+                        child: const Text(
+                          'Mark all as read',
+                          style: TextStyle(
+                            color: Color(0xFF2E90FA),
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
+                const SizedBox(height: 32),
+
+                // Dynamic Notifications
+                if (notifications.isNotEmpty) ...[
+                  _buildSectionHeader('NEW UPDATES', badge: unreadCount > 0 ? '$unreadCount NEW' : null),
+                  const SizedBox(height: 16),
+                  ...notifications.map((notif) => Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: _buildNotificationCard(context, notif, notifProvider),
+                  )).toList(),
+                  const SizedBox(height: 16),
+                ],
+
+                // Critical Alerts Section (Hardcoded for demo)
+                _buildSectionHeader('CRITICAL ALERTS'),
+                const SizedBox(height: 16),
+                _buildCriticalCard(
+                  icon: Icons.favorite,
+                  title: 'High Heart Rate Detected',
+                  time: '2m ago',
+                  description: 'Your resting heart rate exceeded 105 BPM for over 5 minutes. Please find a place to rest.',
+                  actionLabel: 'View Live Data',
+                  color: const Color(0xFFF04438),
+                ),
+                const SizedBox(height: 16),
+                _buildCriticalCard(
+                  icon: Icons.thermostat,
+                  title: 'Temperature Elevation',
+                  time: '1h ago',
+                  description: 'Mild fever detected (99.8°F). This matches your recovery profile markers.',
+                  buttons: ['Log Symptoms', 'Dismiss'],
+                  color: const Color(0xFFF79009),
+                ),
+                const SizedBox(height: 32),
+
+                // Administrative Section
+                _buildSectionHeader('ADMINISTRATIVE'),
+                const SizedBox(height: 16),
+                // Show dynamic admin notifications here too
+                ...notifications.where((n) => n.type == NotificationType.admin).map((notif) => Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: _buildNotificationCard(context, notif, notifProvider),
+                )).toList(),
+                _buildAdminCard(
+                  icon: Icons.description_outlined,
+                  title: 'Invoice Available',
+                  time: 'Yesterday',
+                  description: 'Monthly VitalSync AI premium subscription statement.',
+                  link: 'View Statement',
+                ),
+                const SizedBox(height: 40),
               ],
             ),
-            const SizedBox(height: 32),
+          );
+        },
+      ),
+    );
+  }
 
-            // Critical Alerts Section
-            _buildSectionHeader('CRITICAL ALERTS', badge: '2 NEW'),
-            const SizedBox(height: 16),
-            _buildCriticalCard(
-              icon: Icons.favorite,
-              title: 'High Heart Rate Detected',
-              time: '2m ago',
-              description: 'Your resting heart rate exceeded 105 BPM for over 5 minutes. Please find a place to rest.',
-              actionLabel: 'View Live Data',
-              color: const Color(0xFFF04438), // Red
-            ),
-            const SizedBox(height: 16),
-            _buildCriticalCard(
-              icon: Icons.thermostat,
-              title: 'Temperature Elevation',
-              time: '1h ago',
-              description: 'Mild fever detected (99.8°F). This matches your recovery profile markers.',
-              buttons: ['Log Symptoms', 'Dismiss'],
-              color: const Color(0xFFF79009), // Orange
-            ),
-            const SizedBox(height: 32),
+  Widget _buildNotificationCard(BuildContext context, AxioNotification notif, NotificationProvider provider) {
+    IconData icon;
+    Color color;
+    
+    switch (notif.type) {
+      case NotificationType.critical:
+        icon = Icons.warning_rounded;
+        color = const Color(0xFFF04438);
+        break;
+      case NotificationType.standard:
+        icon = Icons.notifications_active;
+        color = const Color(0xFF2E90FA);
+        break;
+      case NotificationType.admin:
+        icon = Icons.calendar_today_rounded;
+        color = const Color(0xFF475467);
+        break;
+    }
 
-            // Daily Health Plan Section
-            _buildSectionHeader('DAILY HEALTH PLAN'),
-            const SizedBox(height: 16),
-            _buildStandardCard(
-              icon: Icons.medication,
-              title: 'Medication Reminder',
-              time: 'Scheduled',
-              description: '8:00 AM • Lisinopril (10mg)',
-              actionLabel: 'Log Dose',
-              color: const Color(0xFF2E90FA), // Blue
-            ),
-            const SizedBox(height: 16),
-            _buildStandardCard(
-              icon: Icons.show_chart,
-              title: 'Blood Pressure Check',
-              time: 'Today',
-              description: 'Record your morning reading for accurate AI predictions.',
-              actionLabel: '+ Start Reading',
-              color: const Color(0xFF2E90FA),
-              isOutlinedAction: true,
-            ),
-            const SizedBox(height: 32),
-
-            // Administrative Section
-            _buildSectionHeader('ADMINISTRATIVE'),
-            const SizedBox(height: 16),
-            _buildAdminCard(
-              icon: Icons.calendar_today,
-              title: 'Appointment Confirmed',
-              time: '4h ago',
-              description: 'Dr. Aris (Cardiology) • Tomorrow, 10:30 AM',
-              buttons: ['Reschedule', 'Details'],
-            ),
-            const SizedBox(height: 16),
-            _buildAdminCard(
-              icon: Icons.description_outlined,
-              title: 'Invoice Available',
-              time: 'Yesterday',
-              description: 'Monthly VitalSync AI premium subscription statement.',
-              link: 'View Statement',
-            ),
-            const SizedBox(height: 40),
-          ],
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _openDetails(context, notif, provider),
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4)),
+            ],
+            border: notif.isRead ? null : Border.all(color: const Color(0xFF2E90FA).withOpacity(0.3), width: 1),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+                    child: Icon(icon, color: color, size: 20),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(notif.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            Text(_getTimeAgo(notif.timestamp), style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(notif.description, style: const TextStyle(color: Colors.black54, fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (notif.title == 'Appointment Confirmed') ...[
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          provider.markAsRead(notif.id);
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.grey.shade200),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                        ),
+                        child: const Text('Reschedule', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => _openDetails(context, notif, provider),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey.shade100,
+                          foregroundColor: Colors.black87,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                        ),
+                        child: const Text('Details', style: TextStyle(fontWeight: FontWeight.w600)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  void _openDetails(BuildContext context, AxioNotification notif, NotificationProvider provider) {
+    provider.markAsRead(notif.id);
+    if (notif.title == 'Appointment Confirmed' && notif.metaData != null) {
+      // Show feedback
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Opening Appointment Slip...'),
+          duration: Duration(milliseconds: 500),
+        ),
+      );
+      
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AppointmentSlipPage(appointmentData: notif.metaData!),
+        ),
+      );
+    }
+  }
+
+  String _getTimeAgo(DateTime timestamp) {
+    final diff = DateTime.now().difference(timestamp);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    return DateFormat('MMM d').format(timestamp);
   }
 
   Widget _buildSectionHeader(String title, {String? badge}) {
@@ -268,87 +394,11 @@ class NotificationPage extends StatelessWidget {
     );
   }
 
-  Widget _buildStandardCard({
-    required IconData icon,
-    required String title,
-    required String time,
-    required String description,
-    required String actionLabel,
-    required Color color,
-    bool isOutlinedAction = false,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4)),
-        ],
-      ),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
-                child: Icon(icon, color: color, size: 20),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text(time, style: const TextStyle(color: Colors.grey, fontSize: 11)),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(description, style: const TextStyle(color: Colors.black54, fontSize: 13)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: isOutlinedAction
-                ? OutlinedButton(
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: color),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                    ),
-                    child: Text(actionLabel, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
-                  )
-                : ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: color,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                      elevation: 0,
-                    ),
-                    child: Text(actionLabel, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildAdminCard({
     required IconData icon,
     required String title,
     required String time,
     required String description,
-    List<String>? buttons,
     String? link,
   }) {
     return Container(
@@ -367,7 +417,7 @@ class NotificationPage extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: const Color(0xFFF2F4F7), shape: BoxShape.circle),
+                decoration: const BoxDecoration(color: Color(0xFFF2F4F7), shape: BoxShape.circle),
                 child: Icon(icon, color: const Color(0xFF475467), size: 20),
               ),
               const SizedBox(width: 16),
@@ -389,35 +439,6 @@ class NotificationPage extends StatelessWidget {
               ),
             ],
           ),
-          if (buttons != null) ...[
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Colors.grey.shade200),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                    ),
-                    child: const Text('Reschedule', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Colors.grey.shade200),
-                      backgroundColor: Colors.grey.shade50,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                    ),
-                    child: const Text('Details', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
-                  ),
-                ),
-              ],
-            ),
-          ],
           if (link != null) ...[
             const SizedBox(height: 16),
             TextButton(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'cart_provider.dart';
 import 'product_list_page.dart';
+import 'cart_page.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   final Product product;
@@ -239,7 +240,14 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> with TickerProv
       child: Stack(
         alignment: Alignment.center,
         children: [
-          IconButton(icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black87), onPressed: () {}),
+          IconButton(
+              icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black87),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CartPage()),
+                );
+              }),
           Positioned(
             right: 8,
             top: 10,
@@ -735,7 +743,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> with TickerProv
                   child: ElevatedButton(
                     onPressed: () {
                       Provider.of<CartProvider>(context, listen: false).addItem(
-                        widget.product.id, widget.product.name, widget.product.currentPrice, widget.product.imagePath
+                        productId: widget.product.id,
+                        name: widget.product.name,
+                        price: widget.product.currentPrice,
+                        imagePath: widget.product.imagePath,
+                        type: CartItemType.essential,
                       );
                       Feedback.forTap(context);
                     },

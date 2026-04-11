@@ -9,6 +9,11 @@ import 'essentials_page.dart';
 import 'fitleague_page.dart';
 import 'device_connectivity_page.dart';
 import 'notification_page.dart';
+import 'search_page.dart';
+import 'profile_drawer.dart';
+import 'cart_page.dart';
+import 'cart_provider.dart';
+import 'communities_page.dart';
 
 class VitalSyncDashboard extends StatefulWidget {
   const VitalSyncDashboard({super.key});
@@ -18,6 +23,7 @@ class VitalSyncDashboard extends StatefulWidget {
 }
 
 class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final VitalsService _vitalsService = VitalsService();
   Map<String, dynamic>? _latestVitals;
   List<dynamic> _vitalsHistory = [];
@@ -51,7 +57,9 @@ class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
     final userProvider = Provider.of<UserProvider>(context);
 
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: theme.scaffoldBackgroundColor,
+      drawer: const ProfileDrawer(),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SafeArea(
@@ -195,11 +203,14 @@ class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
       child: Row(
         children: [
           // Avatar
-          AxioAvatar(
-            radius: 20,
-            imageUrl: userProvider.avatarUrl,
-            name: userProvider.name,
-            backgroundColor: const Color(0xFF8B5E6B), // Muted mauve from screenshot
+          GestureDetector(
+            onTap: () => _scaffoldKey.currentState?.openDrawer(),
+            child: AxioAvatar(
+              radius: 20,
+              imageUrl: userProvider.avatarUrl,
+              name: userProvider.name,
+              backgroundColor: const Color(0xFF8B5E6B), // Muted mauve from screenshot
+            ),
           ),
           const SizedBox(width: 10),
           // Hello Dr.
@@ -218,13 +229,12 @@ class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
               ),
             ),
           ),
-          // Notification bell
+          // Search icon
           GestureDetector(
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => const NotificationPage()),
+                MaterialPageRoute(builder: (context) => const SearchPage()),
               );
             },
             child: Container(
@@ -233,8 +243,73 @@ class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
                 color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.notifications_none_rounded,
+              child: Icon(Icons.search_rounded,
                   size: 22, color: theme.colorScheme.onSurface),
+            ),
+          ),
+
+          // Notification bell
+          Consumer<NotificationProvider>(
+            builder: (context, notifProvider, _) => Row(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    notifProvider.simulateNotification();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Simulated Appointment Added!')),
+                    );
+                  },
+                  icon: const Icon(Icons.bug_report_outlined, color: Colors.blue, size: 20),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const NotificationPage()),
+                    );
+                  },
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.notifications_none_rounded,
+                            size: 22, color: theme.colorScheme.onSurface),
+                      ),
+                      if (notifProvider.unreadCount > 0)
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFF04438),
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Text(
+                              '${notifProvider.unreadCount}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(width: 8),
@@ -615,6 +690,9 @@ class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
     if (value == 'FitLeague') {
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => const FitLeaguePage()));
+    } else if (value == 'Communities') {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const CommunitiesPage()));
     } else if (value == 'Essentials') {
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => const EssentialsPage()));

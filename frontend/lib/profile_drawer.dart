@@ -7,6 +7,7 @@ import 'consultations_page.dart';
 import 'test_bookings_page.dart';
 import 'orders_page.dart';
 import 'help_center_page.dart';
+import 'communities_page.dart';
 import 'read_about_health_page.dart';
 import 'health_passport_page.dart';
 import 'emergency_card_page.dart';
@@ -23,23 +24,29 @@ class ProfileDrawer extends StatelessWidget {
     final userProvider = Provider.of<UserProvider>(context);
 
     return Drawer(
-      width: MediaQuery.of(context).size.width * 0.75,
+      width: MediaQuery.of(context).size.width * 0.68,
       backgroundColor: theme.scaffoldBackgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(32),
+          bottomRight: Radius.circular(32),
+        ),
+      ),
       child: SafeArea(
         child: Column(
           children: [
             // Header Section
             Padding(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.fromLTRB(20, 32, 20, 20),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   AxioAvatar(
-                    radius: 32,
+                    radius: 28,
                     imageUrl: userProvider.avatarUrl,
                     name: userProvider.name,
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,7 +54,7 @@ class ProfileDrawer extends StatelessWidget {
                         Text(
                           userProvider.name,
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: theme.colorScheme.onSurface,
                           ),
@@ -81,9 +88,9 @@ class ProfileDrawer extends StatelessWidget {
 
             // Care Plan Card
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: AxioCard(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 child: Row(
                   children: [
                     Container(
@@ -92,21 +99,21 @@ class ProfileDrawer extends StatelessWidget {
                         color: theme.primaryColor.withOpacity(0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.stars_rounded, color: theme.primaryColor, size: 20),
+                      child: Icon(Icons.stars_rounded, color: theme.primaryColor, size: 18),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Care Plan',
-                            style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 15),
+                            style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 13),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             '12 FREE Appointments',
-                            style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 12),
+                            style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 10),
                           ),
                         ],
                       ),
@@ -165,6 +172,24 @@ class ProfileDrawer extends StatelessWidget {
                     },
                   ),
                   _buildDrawerItem(context, Icons.person_pin_outlined, 'My Doctors'),
+                  _buildDrawerItem(
+                    context,
+                    Icons.people_alt_outlined, 
+                    'Communities', 
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const CommunitiesPage()));
+                    },
+                  ),
+                  _buildDrawerItem(
+                    context,
+                    Icons.article_outlined, 
+                    'Read about health', 
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const ReadAboutHealthPage()));
+                    },
+                  ),
                   
                   // Medical Specific section
                   Padding(
@@ -202,7 +227,7 @@ class ProfileDrawer extends StatelessWidget {
                   ),
 
                   _buildDrawerItem(context, Icons.notifications_active_outlined, 'Reminders'),
-                  _buildDrawerItem(context, Icons.account_balance_wallet_outlined, 'Payments & HealthCash'),
+                  _buildDrawerItem(context, Icons.account_balance_wallet_outlined, 'TrackCoins'),
                   _buildDrawerItem(
                     context,
                     Icons.settings_outlined, 
@@ -215,7 +240,15 @@ class ProfileDrawer extends StatelessWidget {
                       );
                     },
                   ),
-                  _buildDrawerItem(context, Icons.help_outline, 'Help Center'),
+                  _buildDrawerItem(
+                    context, 
+                    Icons.help_outline, 
+                    'Help Center',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const HelpCenterPage()));
+                    },
+                  ),
                   const SizedBox(height: 24),
                 ],
               ),

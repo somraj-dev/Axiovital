@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'upload_report_page.dart';
 import 'widgets/axio_avatar.dart';
+import 'theme.dart';
+import 'package:provider/provider.dart';
+import 'cart_provider.dart';
+import 'cart_page.dart';
 
 class LabTestsPage extends StatelessWidget {
   const LabTestsPage({super.key});
@@ -34,13 +38,21 @@ class LabTestsPage extends StatelessWidget {
                     ),
                     const Icon(Icons.keyboard_arrow_down, size: 20),
                     const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        shape: BoxShape.circle,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const CartPage()),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.shopping_bag_outlined, size: 24, color: Colors.black87),
                       ),
-                      child: const Icon(Icons.shopping_bag_outlined, size: 24, color: Colors.black87),
                     ),
                   ],
                 ),
@@ -149,6 +161,7 @@ class LabTestsPage extends StatelessWidget {
                   child: Row(
                     children: [
                       _buildPackageCard(
+                        context,
                         'Comprehensive Silver Package', 
                         '55% OFF', 
                         'https://images.unsplash.com/photo-1576091160550-217359f42f8c?w=400',
@@ -156,6 +169,7 @@ class LabTestsPage extends StatelessWidget {
                         '2026', '3598'
                       ),
                       _buildPackageCard(
+                        context,
                         'Comprehensive Gold Package', 
                         '56% OFF', 
                         'https://images.unsplash.com/photo-1581056771107-24ca5f033842?w=400',
@@ -163,6 +177,7 @@ class LabTestsPage extends StatelessWidget {
                         '2498', '4098'
                       ),
                       _buildPackageCard(
+                        context,
                         'Good Health Gold Package', 
                         '60% OFF', 
                         'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=400',
@@ -196,7 +211,7 @@ class LabTestsPage extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               // Re-use package carousel for the "Most booked" items too
-              _buildHorizontalPackageList(), 
+              _buildHorizontalPackageList(context), 
               const SizedBox(height: 32),
 
               // 7. Categories Section
@@ -360,7 +375,7 @@ class LabTestsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildPackageCard(String title, String discount, String imgUrl, String tests, String currentPrice, String originalPrice) {
+  Widget _buildPackageCard(BuildContext context, String title, String discount, String imgUrl, String tests, String currentPrice, String originalPrice) {
     return Container(
       width: 210,
       margin: const EdgeInsets.only(right: 14),
@@ -426,7 +441,23 @@ class LabTestsPage extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Provider.of<CartProvider>(context, listen: false).addItem(
+                        productId: 'pkg_${title.replaceAll(' ', '_')}',
+                        name: title,
+                        price: double.tryParse(currentPrice) ?? 0.0,
+                        imagePath: imgUrl,
+                        type: CartItemType.labTest,
+                        timing: '24-48 hrs',
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('$title added to cart'),
+                          duration: const Duration(seconds: 1),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Color(0xFFFF5247), width: 1),
                       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -443,7 +474,7 @@ class LabTestsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHorizontalPackageList() {
+  Widget _buildHorizontalPackageList(BuildContext context) {
      return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: SingleChildScrollView(
@@ -451,6 +482,7 @@ class LabTestsPage extends StatelessWidget {
         child: Row(
           children: [
             _buildPackageCard(
+              context,
               'Comprehensive New Year Package', 
               '44% OFF', 
               'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=400',
@@ -458,6 +490,7 @@ class LabTestsPage extends StatelessWidget {
               '2026', '3598'
             ),
             _buildPackageCard(
+              context,
               'Full Body Checkup Special', 
               '55% OFF', 
               'https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?w=400',

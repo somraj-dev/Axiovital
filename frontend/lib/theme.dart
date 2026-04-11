@@ -59,7 +59,7 @@ class AppTheme {
         titleTextStyle: TextStyle(color: lightTextPrimary, fontSize: 18, fontWeight: FontWeight.bold),
       ),
       dividerTheme: const DividerThemeData(color: lightBorder, thickness: 1),
-      cardTheme: const CardTheme(
+      cardTheme: const CardThemeData(
         color: lightSurface,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -102,7 +102,7 @@ class AppTheme {
         titleTextStyle: TextStyle(color: darkTextPrimary, fontSize: 18, fontWeight: FontWeight.bold),
       ),
       dividerTheme: const DividerThemeData(color: darkBorder, thickness: 1),
-      cardTheme: const CardTheme(
+      cardTheme: const CardThemeData(
         color: darkSurface,
         elevation: 0,
         shape: RoundedRectangleBorder(

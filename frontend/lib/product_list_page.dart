@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'cart_provider.dart';
 import 'product_details_page.dart';
+import 'cart_page.dart';
 
 class Product {
   final String id;
@@ -98,7 +99,14 @@ class _ProductListPageState extends State<ProductListPage> {
           IconButton(icon: const Icon(Icons.search, color: Colors.black87), onPressed: () {}),
           Stack(
             children: [
-              IconButton(icon: const Icon(Icons.shopping_bag_outlined, color: Colors.black87), onPressed: () {}),
+              IconButton(
+                  icon: const Icon(Icons.shopping_bag_outlined, color: Colors.black87),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const CartPage()),
+                    );
+                  }),
               Positioned(
                 right: 8,
                 top: 8,
@@ -375,7 +383,11 @@ class _ProductListPageState extends State<ProductListPage> {
                 child: OutlinedButton(
                   onPressed: () {
                     Provider.of<CartProvider>(context, listen: false).addItem(
-                      product.id, product.name, product.currentPrice, product.imagePath
+                      productId: product.id,
+                      name: product.name,
+                      price: product.currentPrice,
+                      imagePath: product.imagePath,
+                      type: CartItemType.essential,
                     );
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'find_doctor_page.dart';
 import 'widgets/axio_avatar.dart';
+import 'package:provider/provider.dart';
+import 'cart_page.dart';
+import 'cart_provider.dart';
+import 'call_provider.dart';
+import 'call_screen.dart';
 
 class DoctorDetailsPage extends StatelessWidget {
   final Doctor doctor;
@@ -42,7 +47,7 @@ class DoctorDetailsPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header Block
-              _buildHeaderSection(),
+              _buildHeaderSection(context),
               
               // Divider
               Container(height: 8, color: const Color(0xFFF3F5F4)),
@@ -57,7 +62,7 @@ class DoctorDetailsPage extends StatelessWidget {
               Container(height: 8, color: const Color(0xFFF3F5F4)),
 
               // Clinic Details
-              _buildClinicDetails(),
+              _buildClinicDetails(context),
 
               // Divider
               Container(height: 8, color: const Color(0xFFF3F5F4)),
@@ -77,11 +82,11 @@ class DoctorDetailsPage extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomStickyBar(),
+      bottomNavigationBar: _buildBottomStickyBar(context),
     );
   }
 
-  Widget _buildBottomStickyBar() {
+  Widget _buildBottomStickyBar(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -101,7 +106,19 @@ class DoctorDetailsPage extends StatelessWidget {
               ],
             ),
             ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                final provider = Provider.of<CallProvider>(context, listen: false);
+                provider.startOutgoingCall(
+                  context, 
+                  CallParticipant(
+                    id: doctor.id, 
+                    name: 'Pariniti Heart Centre', 
+                    avatarUrl: 'https://cdn-icons-png.flaticon.com/512/4320/4320337.png', // Clinic avatar
+                    role: 'Clinic Support'
+                  ), 
+                  CallType.clinic
+                );
+              },
               icon: const Icon(Icons.call, color: Color(0xFF2E90FA), size: 18),
               label: const Text('Call Clinic', style: TextStyle(color: Color(0xFF2E90FA), fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
@@ -120,7 +137,7 @@ class DoctorDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderSection() {
+  Widget _buildHeaderSection(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
@@ -216,13 +233,36 @@ class DoctorDetailsPage extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Provider.of<CartProvider>(context, listen: false).addItem(
+                              productId: 'apt_${doctor.id}',
+                              name: 'Appointment with ${doctor.name}',
+                              price: doctor.sessionPrice.toDouble(),
+                              imagePath: '', // Icon is used instead
+                              type: CartItemType.appointment,
+                              subtitle: doctor.specialty,
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Appointment with ${doctor.name} added to cart'),
+                                action: SnackBarAction(
+                                  label: 'View Cart',
+                                  textColor: Colors.white,
+                                  onPressed: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => const CartPage()));
+                                  },
+                                ),
+                                behavior: SnackBarBehavior.floating,
+                                backgroundColor: const Color(0xFF2D3282),
+                              ),
+                            );
+                          },
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Color(0xFF2E90FA)),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
-                          child: const Text('Contact Clinic', style: TextStyle(color: Color(0xFF2E90FA), fontWeight: FontWeight.bold)),
+                          child: const Text('Book Clinic Visit', style: TextStyle(color: Color(0xFF2E90FA), fontWeight: FontWeight.bold)),
                         ),
                       ),
                     ],
@@ -355,7 +395,7 @@ class DoctorDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildClinicDetails() {
+  Widget _buildClinicDetails(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
