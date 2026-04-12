@@ -11,6 +11,10 @@ import 'communities_page.dart';
 import 'read_about_health_page.dart';
 import 'health_passport_page.dart';
 import 'emergency_card_page.dart';
+import 'trackcoins_page.dart';
+import 'trackcoins_landing_page.dart';
+import 'trackcoins_provider.dart';
+import 'care_plan_page.dart';
 import 'widgets/axio_avatar.dart';
 import 'widgets/axio_card.dart';
 import 'theme.dart';
@@ -89,37 +93,46 @@ class ProfileDrawer extends StatelessWidget {
             // Care Plan Card
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: AxioCard(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: theme.primaryColor.withOpacity(0.1),
-                        shape: BoxShape.circle,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CarePlanPage()),
+                  );
+                },
+                child: AxioCard(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: theme.primaryColor.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.stars_rounded, color: theme.primaryColor, size: 18),
                       ),
-                      child: Icon(Icons.stars_rounded, color: theme.primaryColor, size: 18),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Care Plan',
-                            style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 13),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            '12 FREE Appointments',
-                            style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 10),
-                          ),
-                        ],
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Care Plan',
+                              style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '12 FREE Appointments',
+                              style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 10),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Icon(Icons.chevron_right, color: theme.colorScheme.onSurface.withOpacity(0.3), size: 18),
-                  ],
+                      Icon(Icons.chevron_right, color: theme.colorScheme.onSurface.withOpacity(0.3), size: 18),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -227,7 +240,7 @@ class ProfileDrawer extends StatelessWidget {
                   ),
 
                   _buildDrawerItem(context, Icons.notifications_active_outlined, 'Reminders'),
-                  _buildDrawerItem(context, Icons.account_balance_wallet_outlined, 'TrackCoins'),
+                  _buildTrackcoinsItem(context),
                   _buildDrawerItem(
                     context,
                     Icons.settings_outlined, 
@@ -274,6 +287,50 @@ class ProfileDrawer extends StatelessWidget {
         ),
       ),
       onTap: onTap ?? () {},
+    );
+  }
+
+  Widget _buildTrackcoinsItem(BuildContext context) {
+    final theme = Theme.of(context);
+    final tcProvider = Provider.of<TrackcoinsProvider>(context);
+
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+      dense: true,
+      leading: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFBBF24).withOpacity(0.15),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Icon(Icons.toll_rounded, color: Color(0xFFFBBF24), size: 18),
+      ),
+      title: const Text(
+        'Trackcoins',
+        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF0FDF4),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              '${tcProvider.availableBalance} TC',
+              style: const TextStyle(color: Color(0xFF12B76A), fontSize: 11, fontWeight: FontWeight.w700),
+            ),
+          ),
+          const SizedBox(width: 4),
+          Icon(Icons.chevron_right, size: 16, color: theme.colorScheme.onSurface.withOpacity(0.3)),
+        ],
+      ),
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const TrackcoinsLandingPage()));
+      },
     );
   }
 }

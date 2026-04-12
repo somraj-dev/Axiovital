@@ -72,55 +72,59 @@ class NotificationPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
 
-                // Dynamic Notifications
-                if (notifications.isNotEmpty) ...[
-                  _buildSectionHeader('NEW UPDATES', badge: unreadCount > 0 ? '$unreadCount NEW' : null),
+                if (notifications.isEmpty)
+                  _buildEmptyState(context)
+                else ...[
+                  // Dynamic Notifications
+                  if (notifications.isNotEmpty) ...[
+                    _buildSectionHeader('NEW UPDATES', badge: unreadCount > 0 ? '$unreadCount NEW' : null),
+                    const SizedBox(height: 16),
+                    ...notifications.map((notif) => Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: _buildNotificationCard(context, notif, notifProvider),
+                    )).toList(),
+                    const SizedBox(height: 16),
+                  ],
+
+                  // Critical Alerts Section (Hardcoded for demo)
+                  _buildSectionHeader('CRITICAL ALERTS'),
                   const SizedBox(height: 16),
-                  ...notifications.map((notif) => Padding(
+                  _buildCriticalCard(
+                    icon: Icons.favorite,
+                    title: 'High Heart Rate Detected',
+                    time: '2m ago',
+                    description: 'Your resting heart rate exceeded 105 BPM for over 5 minutes. Please find a place to rest.',
+                    actionLabel: 'View Live Data',
+                    color: const Color(0xFFF04438),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildCriticalCard(
+                    icon: Icons.thermostat,
+                    title: 'Temperature Elevation',
+                    time: '1h ago',
+                    description: 'Mild fever detected (99.8°F). This matches your recovery profile markers.',
+                    buttons: ['Log Symptoms', 'Dismiss'],
+                    color: const Color(0xFFF79009),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Administrative Section
+                  _buildSectionHeader('ADMINISTRATIVE'),
+                  const SizedBox(height: 16),
+                  // Show dynamic admin notifications here too
+                  ...notifications.where((n) => n.type == NotificationType.admin).map((notif) => Padding(
                     padding: const EdgeInsets.only(bottom: 16),
                     child: _buildNotificationCard(context, notif, notifProvider),
                   )).toList(),
-                  const SizedBox(height: 16),
+                  _buildAdminCard(
+                    icon: Icons.description_outlined,
+                    title: 'Invoice Available',
+                    time: 'Yesterday',
+                    description: 'Monthly VitalSync AI premium subscription statement.',
+                    link: 'View Statement',
+                  ),
+                  const SizedBox(height: 40),
                 ],
-
-                // Critical Alerts Section (Hardcoded for demo)
-                _buildSectionHeader('CRITICAL ALERTS'),
-                const SizedBox(height: 16),
-                _buildCriticalCard(
-                  icon: Icons.favorite,
-                  title: 'High Heart Rate Detected',
-                  time: '2m ago',
-                  description: 'Your resting heart rate exceeded 105 BPM for over 5 minutes. Please find a place to rest.',
-                  actionLabel: 'View Live Data',
-                  color: const Color(0xFFF04438),
-                ),
-                const SizedBox(height: 16),
-                _buildCriticalCard(
-                  icon: Icons.thermostat,
-                  title: 'Temperature Elevation',
-                  time: '1h ago',
-                  description: 'Mild fever detected (99.8°F). This matches your recovery profile markers.',
-                  buttons: ['Log Symptoms', 'Dismiss'],
-                  color: const Color(0xFFF79009),
-                ),
-                const SizedBox(height: 32),
-
-                // Administrative Section
-                _buildSectionHeader('ADMINISTRATIVE'),
-                const SizedBox(height: 16),
-                // Show dynamic admin notifications here too
-                ...notifications.where((n) => n.type == NotificationType.admin).map((notif) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: _buildNotificationCard(context, notif, notifProvider),
-                )).toList(),
-                _buildAdminCard(
-                  icon: Icons.description_outlined,
-                  title: 'Invoice Available',
-                  time: 'Yesterday',
-                  description: 'Monthly VitalSync AI premium subscription statement.',
-                  link: 'View Statement',
-                ),
-                const SizedBox(height: 40),
               ],
             ),
           );
@@ -453,6 +457,46 @@ class NotificationPage extends StatelessWidget {
               ),
             ),
           ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 100),
+          Image.asset(
+            'assets/images/notification_empty.png',
+            height: 240,
+            fit: BoxFit.contain,
+          ),
+          const SizedBox(height: 48),
+          const Text(
+            "You've got no message",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1D2939),
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 40),
+            child: Text(
+              "No messages in your inbox, just like every other day. Get some life, dude.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Color(0xFF667085),
+                height: 1.5,
+              ),
+            ),
+          ),
+          const SizedBox(height: 100),
         ],
       ),
     );

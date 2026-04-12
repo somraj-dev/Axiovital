@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'find_doctor_page.dart';
 import 'widgets/axio_avatar.dart';
+import 'widgets/axio_verified_badge.dart';
 import 'package:provider/provider.dart';
 import 'cart_page.dart';
 import 'cart_provider.dart';
@@ -618,13 +619,14 @@ class DoctorDetailsPage extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: const [
-              Icon(Icons.verified, color: Color(0xFF2D3282), size: 18),
+              AxioVerifiedBadge(size: 16),
               SizedBox(width: 8),
               Text('Council verified practitioner', style: TextStyle(color: Colors.black87, fontSize: 14)),
               SizedBox(width: 4),
               Icon(Icons.info_outline, color: Colors.grey, size: 16),
             ],
           ),
+
           const SizedBox(height: 32),
           const Text('About', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           const SizedBox(height: 12),

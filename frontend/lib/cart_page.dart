@@ -5,6 +5,7 @@ import 'theme.dart';
 import 'coupons_page.dart';
 import 'new_address_page.dart';
 import 'checkout_sheets.dart';
+import 'payment_options_page.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -89,6 +90,16 @@ class _CartPageState extends State<CartPage> {
                                 _buildSectionHeader('Essentials'),
                                 ...cartProvider.essentials
                                     .map((item) => _buildCartItemCard(item, cartProvider))
+                                    .toList(),
+                                const Divider(height: 1, thickness: 8, color: Color(0xFFF2F4F7)),
+                              ],
+
+                              // Memberships Section
+                              if (cartProvider.subscriptions.isNotEmpty) ...[
+                                _buildSectionHeader('Memberships'),
+                                _buildFulfillmentHeader(context, 'AxioVital Team'),
+                                ...cartProvider.subscriptions
+                                    .map((item) => _buildSubscriptionCartItem(item, cartProvider))
                                     .toList(),
                                 const Divider(height: 1, thickness: 8, color: Color(0xFFF2F4F7)),
                               ],
@@ -444,6 +455,113 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
+  Widget _buildSubscriptionCartItem(CartItem item, CartProvider cartProvider) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Hot Deal Tag
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF0FDF4), // Light green bg
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: const Text('Hot Deal', style: TextStyle(color: Color(0xFF16A34A), fontSize: 12, fontWeight: FontWeight.bold)),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Image and Qty Column
+              Column(
+                children: [
+                  Container(
+                    width: 76, height: 50,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF222222), // Dark grey like image
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Center(
+                      child: Icon(Icons.badge_outlined, color: Colors.white24, size: 28),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // Simple Qty Dropdown (Matching image styling)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('Qty: ${item.quantity}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1D2939))),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.arrow_drop_down, color: Color(0xFF1D2939), size: 18),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 16),
+              // Content Column
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.name,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text('Instant Activation', style: TextStyle(color: Colors.black54, fontSize: 13)),
+                    const SizedBox(height: 6),
+                    // Rating Row
+                    Row(
+                      children: [
+                        ...List.generate(4, (_) => const Icon(Icons.star, color: Color(0xFF16A34A), size: 14)),
+                        const Icon(Icons.star_half, color: Color(0xFF16A34A), size: 14),
+                        const SizedBox(width: 4),
+                        const Text('4.8', style: TextStyle(color: Color(0xFF16A34A), fontSize: 12, fontWeight: FontWeight.bold)),
+                        const SizedBox(width: 4),
+                        const Text('• (1,12,610)', style: TextStyle(color: Colors.black54, fontSize: 12)),
+                        const SizedBox(width: 6),
+                        // AxioAssured Badge
+                        Row(
+                          children: [
+                            const Icon(Icons.verified_user, color: Color(0xFF2E90FA), size: 14),
+                            const Text('Assured', style: TextStyle(color: Color(0xFF2E90FA), fontSize: 11, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic)),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    // Price Row
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        const Icon(Icons.arrow_downward, color: Color(0xFF16A34A), size: 16),
+                        const Text('33%', style: TextStyle(color: Color(0xFF16A34A), fontSize: 18, fontWeight: FontWeight.bold)),
+                        const SizedBox(width: 6),
+                        Text('₹${(item.price * 1.5).toInt()}', style: const TextStyle(color: Colors.black54, fontSize: 16, decoration: TextDecoration.lineThrough, fontWeight: FontWeight.w600)),
+                        const SizedBox(width: 6),
+                        Text('₹${item.price.toInt()}', style: const TextStyle(color: Colors.black87, fontSize: 20, fontWeight: FontWeight.w900)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showPatientSelectionDialog(BuildContext context, CartItem item, CartProvider cartProvider) {
     showDialog(
       context: context,
@@ -770,7 +888,18 @@ class _CartPageState extends State<CartPage> {
                 SizedBox(
                   width: 180, height: 48,
                   child: ElevatedButton(
-                    onPressed: () => CheckoutFlow.start(context),
+                    onPressed: () {
+                      // Check if any item in the cart requires patient and slot selection
+                      bool requiresPatientOrSlot = cartProvider.items.values.any(
+                        (item) => item.type == CartItemType.labTest || item.type == CartItemType.appointment
+                      );
+                      
+                      if (!requiresPatientOrSlot) {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const PaymentOptionsPage()));
+                      } else {
+                        CheckoutFlow.start(context);
+                      }
+                    },
                     style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF5247), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), elevation: 0),
                     child: const Text('Continue', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16)),
                   ),

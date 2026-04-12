@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum NotificationType { critical, standard, admin }
 
@@ -22,33 +24,71 @@ class AxioNotification {
     this.isRead = false,
     this.metaData,
   });
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'title': title,
+    'subtitle': subtitle,
+    'description': description,
+    'timestamp': timestamp.toIso8601String(),
+    'type': type.index,
+    'isRead': isRead,
+    'metaData': metaData,
+  };
+
+  factory AxioNotification.fromJson(Map<String, dynamic> json) => AxioNotification(
+    id: json['id'],
+    title: json['title'],
+    subtitle: json['subtitle'],
+    description: json['description'],
+    timestamp: DateTime.parse(json['timestamp']),
+    type: NotificationType.values[json['type']],
+    isRead: json['isRead'] ?? false,
+    metaData: json['metaData'] != null ? Map<String, dynamic>.from(json['metaData']) : null,
+  );
 }
 
 class NotificationProvider with ChangeNotifier {
-  final List<AxioNotification> _notifications = [
-    AxioNotification(
-      id: 'initial_demo',
-      title: 'Appointment Confirmed',
-      subtitle: 'Booking Successful',
-      description: 'Dr. Aris (Cardiology) • Tomorrow, 10:30 AM',
-      timestamp: DateTime.now().subtract(const Duration(hours: 4)),
-      type: NotificationType.admin,
-      isRead: false,
-      metaData: {
-        'orderId': 'AXIO-DEMO-123',
-        'items': [
-          {'name': 'Dr. Aris (Cardiology)', 'price': 500, 'category': 'Cardiology'}
-        ],
-        'date': 'Tomorrow, 10:30 AM',
-        'pin': '8842',
-        'confirmationNumber': 'CONF-7629-XB',
-      },
-    ),
-  ];
+  static const String _storageKey = 'axio_notifications';
+  final List<AxioNotification> _notifications = [];
+
+  NotificationProvider() {
+    _loadNotifications();
+  }
 
   List<AxioNotification> get notifications => List.unmodifiable(_notifications);
 
   int get unreadCount => _notifications.where((n) => !n.isRead).length;
+
+  Future<void> _loadNotifications() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? storedData = prefs.getString(_storageKey);
+      
+      if (storedData != null) {
+        final List<dynamic> decodedData = jsonDecode(storedData);
+        _notifications.clear();
+        _notifications.addAll(
+          decodedData.map((item) => AxioNotification.fromJson(item)).toList(),
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error loading notifications: $e');
+    }
+  }
+
+  Future<void> _saveNotifications() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String encodedData = jsonEncode(
+        _notifications.map((n) => n.toJson()).toList(),
+      );
+      await prefs.setString(_storageKey, encodedData);
+    } catch (e) {
+      debugPrint('Error saving notifications: $e');
+    }
+  }
 
   void addNotification({
     required String title,
@@ -68,31 +108,15 @@ class NotificationProvider with ChangeNotifier {
     );
     _notifications.insert(0, notification);
     debugPrint('Notification added: $title');
+    _saveNotifications();
     notifyListeners();
-  }
-
-  void simulateNotification() {
-    addNotification(
-      title: 'Appointment Confirmed',
-      subtitle: 'Booking Successful',
-      description: 'Your test appointment with Dr. Somraj has been confirmed.',
-      type: NotificationType.admin,
-      metaData: {
-        'orderId': 'SIM-TEST-999',
-        'items': [
-          {'name': 'Dr. Somraj Dev', 'price': 1200, 'category': 'Developer Diagnostics'}
-        ],
-        'date': 'Next Week, 09:00 AM',
-        'pin': '1234',
-        'confirmationNumber': 'SIM-999-OK',
-      },
-    );
   }
 
   void markAsRead(String id) {
     final index = _notifications.indexWhere((n) => n.id == id);
     if (index != -1) {
       _notifications[index].isRead = true;
+      _saveNotifications();
       notifyListeners();
     }
   }
@@ -101,11 +125,13 @@ class NotificationProvider with ChangeNotifier {
     for (var n in _notifications) {
       n.isRead = true;
     }
+    _saveNotifications();
     notifyListeners();
   }
 
   void clearNotifications() {
     _notifications.clear();
+    _saveNotifications();
     notifyListeners();
   }
 }

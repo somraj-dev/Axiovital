@@ -140,6 +140,8 @@ class DoctorProfile(Base):
     license_number = Column(String)
     hospital_name = Column(String)
     wallet_address = Column(String, nullable=True) # For blockchain
+    signature_url = Column(String, nullable=True) # Automated digital signature
+    is_axio_verified = Column(Boolean, default=True) # AxioVerified partner badge
     
     user = relationship("User", back_populates="doctor_profile")
 
@@ -218,3 +220,53 @@ class EmergencyProfile(Base):
     is_public = Column(Boolean, default=True)
     
     user = relationship("User", back_populates="emergency_profile")
+
+# ─── TRACKCOINS ECOSYSTEM ────────────────────────────────────────
+
+class TrackcoinWallet(Base):
+    __tablename__ = "trackcoin_wallets"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.id"), unique=True)
+    available_balance = Column(Integer, default=500)  # Demo: start with 500
+    earned_total = Column(Integer, default=500)
+    spent_total = Column(Integer, default=0)
+    locked_balance = Column(Integer, default=0)
+    expiring_balance = Column(Integer, default=50)
+    expiring_date = Column(DateTime, nullable=True)
+    last_updated_at = Column(DateTime, default=datetime.utcnow)
+
+class TrackcoinTransaction(Base):
+    __tablename__ = "trackcoin_transactions"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.id"))
+    type = Column(String)  # earned, spent, refund, bonus, expired, adjustment, locked, unlocked
+    amount = Column(Integer)
+    title = Column(String)
+    description = Column(String, nullable=True)
+    source = Column(String, nullable=True)  # streak, referral, booking, purchase, admin
+    status = Column(String, default="completed")  # completed, pending, failed, reversed
+    reference_id = Column(String, nullable=True)  # order/booking ID
+    created_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime, nullable=True)
+
+class TrackcoinOffer(Base):
+    __tablename__ = "trackcoin_offers"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String)
+    description = Column(String)
+    coins_reward = Column(Integer, default=0)
+    coins_required = Column(Integer, default=0)
+    offer_type = Column(String, default="earn")  # earn, redeem, bonus
+    validity = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True)
+    icon_type = Column(String, default="star")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class TrackcoinRewardRule(Base):
+    __tablename__ = "trackcoin_reward_rules"
+    id = Column(Integer, primary_key=True, index=True)
+    activity = Column(String)  # daily_streak, booking, purchase, referral, etc
+    coins = Column(Integer)
+    description = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True)
+    max_per_day = Column(Integer, default=1)

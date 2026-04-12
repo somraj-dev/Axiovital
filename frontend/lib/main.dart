@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'checkout_provider.dart';
 import 'orders_provider.dart';
 import 'login_page.dart';
+import 'splash_screen.dart';
 import 'home_page.dart';
 import 'user_provider.dart';
 import 'bluetooth_provider.dart';
@@ -15,6 +16,7 @@ import 'community_provider.dart';
 import 'call_provider.dart';
 
 import 'notification_provider.dart';
+import 'trackcoins_provider.dart';
 
 void main() {
   runApp(
@@ -30,6 +32,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => CheckoutProvider()),
         ChangeNotifierProvider(create: (_) => OrdersProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) => TrackcoinsProvider()),
       ],
       child: const MyApp(),
     ),
@@ -50,7 +53,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       builder: (context, child) => MobileWrapper(child: child!),
-      home: const LoginPage(),
+      home: const SplashScreen(),
     );
   }
 }

@@ -251,37 +251,26 @@ class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
 
           // Notification bell
           Consumer<NotificationProvider>(
-            builder: (context, notifProvider, _) => Row(
-              children: [
-                IconButton(
-                  onPressed: () {
-                    notifProvider.simulateNotification();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Simulated Appointment Added!')),
-                    );
-                  },
-                  icon: const Icon(Icons.bug_report_outlined, color: Colors.blue, size: 20),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const NotificationPage()),
-                    );
-                  },
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(Icons.notifications_none_rounded,
-                            size: 22, color: theme.colorScheme.onSurface),
-                      ),
+            builder: (context, notifProvider, _) => GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const NotificationPage()),
+                );
+              },
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.notifications_none_rounded,
+                        size: 22, color: theme.colorScheme.onSurface),
+                  ),
                       if (notifProvider.unreadCount > 0)
                         Positioned(
                           top: 0,
@@ -307,10 +296,8 @@ class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
                             ),
                           ),
                         ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           const SizedBox(width: 8),

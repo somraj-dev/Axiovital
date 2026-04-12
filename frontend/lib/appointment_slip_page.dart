@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'appointment_slip_detail.dart';
+import 'widgets/axio_verified_badge.dart';
 
 class AppointmentSlipPage extends StatefulWidget {
   final Map<String, dynamic> appointmentData;
@@ -182,13 +184,20 @@ class _AppointmentSlipPageState extends State<AppointmentSlipPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              appointmentName,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  appointmentName,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                const AxioVerifiedBadge(size: 14),
+                              ],
                             ),
                             const SizedBox(height: 2),
                             Text(
@@ -250,7 +259,16 @@ class _AppointmentSlipPageState extends State<AppointmentSlipPage> {
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AppointmentSlipDetail(
+                        appointmentData: data,
+                      ),
+                    ),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2E90FA),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
