@@ -4,6 +4,7 @@ import 'checkout_provider.dart';
 import 'cart_provider.dart';
 import 'orders_provider.dart';
 import 'orders_page.dart';
+import 'notification_provider.dart';
 
 class PaymentOptionsPage extends StatelessWidget {
   const PaymentOptionsPage({super.key});
@@ -210,7 +211,7 @@ class PaymentOptionsPage extends StatelessWidget {
                           'items': cartItems.map((item) => {
                             'name': item.name,
                             'price': item.price,
-                            'category': item.category,
+                            'category': item.type.name,
                           }).toList(),
                           'date': 'Tomorrow, 10:30 AM',
                           'pin': '8842',

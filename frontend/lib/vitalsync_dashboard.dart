@@ -14,6 +14,7 @@ import 'profile_drawer.dart';
 import 'cart_page.dart';
 import 'cart_provider.dart';
 import 'communities_page.dart';
+import 'notification_provider.dart';
 
 class VitalSyncDashboard extends StatefulWidget {
   const VitalSyncDashboard({super.key});
