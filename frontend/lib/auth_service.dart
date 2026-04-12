@@ -58,6 +58,14 @@ class AuthService {
     _mockUser = null;
   }
 
+  // Verify OTP (mock)
+  Future<bool> verifyOtp(String code) async {
+    print('Mock: Verifying OTP $code...');
+    await Future.delayed(const Duration(seconds: 1));
+    // Let's say all 6-digit codes are valid for the mock
+    return code.length == 6;
+  }
+
   // Get ID Token (mock)
   Future<String?> getIdToken() async {
     // Return a dummy static token that the backend can ignore or accept

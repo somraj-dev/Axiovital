@@ -10,7 +10,6 @@ import 'bluetooth_provider.dart';
 import 'location_provider.dart';
 import 'cart_provider.dart';
 import 'theme.dart';
-import 'theme.dart';
 import 'theme_provider.dart';
 import 'community_provider.dart';
 import 'call_provider.dart';

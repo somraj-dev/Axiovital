@@ -7,7 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'user_provider.dart';
 import 'login_page.dart';
-import 'permissions_page.dart'; // Added
+import 'permissions_page.dart';
+import 'verification_page.dart';
 
 class CreateProfilePage extends StatefulWidget {
   const CreateProfilePage({super.key});
@@ -88,11 +89,16 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('is_onboarded', true);
 
-      // 3. Navigate to Login/Home
+      // 3. Navigate to Verification
       if (mounted) {
-        Navigator.pushReplacement(
+        Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const LoginPage()),
+          MaterialPageRoute(
+            builder: (context) => VerificationPage(
+              type: VerificationType.email,
+              targetValue: _emailController.text,
+            ),
+          ),
         );
       }
     } else if (!_isAgreed) {
