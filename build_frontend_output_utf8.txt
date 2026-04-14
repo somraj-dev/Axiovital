@@ -1,0 +1,396 @@
+﻿docker : #0 building with "desktop-linux" instance using docker driver
+At line:1 char:1
++ docker build -t axiovital-frontend frontend > build_frontend_output.t ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (#0 building wit...g docker driver:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 659B 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for ghcr.io/cirruslabs/flutter:stable
+#2 DONE 3.5s
+
+#3 [internal] load metadata for docker.io/library/nginx:alpine
+#3 DONE 4.3s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [stage-1 1/2] FROM 
+docker.io/library/nginx:alpine@sha256:582c496ccf79d8aa6f8203a79d32aaf7ffd8b13362c60a701a2f9ac64886c93d
+#5 resolve docker.io/library/nginx:alpine@sha256:582c496ccf79d8aa6f8203a79d32aaf7ffd8b13362c60a701a2f9ac64886c93d 0.0s 
+done
+#5 DONE 0.0s
+
+#6 [build 1/8] FROM 
+ghcr.io/cirruslabs/flutter:stable@sha256:7f429b29a9568705def6308f94458633e7c21d8dcf14fe6e1762f9ced3ba83b8
+#6 resolve ghcr.io/cirruslabs/flutter:stable@sha256:7f429b29a9568705def6308f94458633e7c21d8dcf14fe6e1762f9ced3ba83b8 
+0.0s done
+#6 ...
+
+#7 [internal] load build context
+#7 transferring context: 5.95MB 0.6s done
+#7 DONE 0.7s
+
+#6 [build 1/8] FROM 
+ghcr.io/cirruslabs/flutter:stable@sha256:7f429b29a9568705def6308f94458633e7c21d8dcf14fe6e1762f9ced3ba83b8
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 0B / 752.90MB 0.2s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 15.73MB / 752.90MB 5.3s
+#6 ...
+
+#5 [stage-1 1/2] FROM 
+docker.io/library/nginx:alpine@sha256:582c496ccf79d8aa6f8203a79d32aaf7ffd8b13362c60a701a2f9ac64886c93d
+#5 sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4 3.15MB / 20.25MB 6.6s
+#5 sha256:c8a2fa3a88d244a3f32dcbc9c1f7649c662661a28c624198ada43aa0b7598e7f 1.40kB / 1.40kB 1.5s done
+#5 sha256:34dfdd2ef1f920d0054dde2fc09ddc83ff8e71d05fadb79e2cab6e6234596f0a 1.21kB / 1.21kB 4.8s done
+#5 sha256:a71873b303e8d75170b7ced2725b01b3ae15ad76f0d4eef16a49335821b6a0ef 0B / 404B 6.6s
+#5 sha256:ff9f59a6a62e9e9f29d7a84fb18865b45664d3f0d061eff7548bd61746dd101c 0B / 957B 5.3s
+#5 sha256:15e759724ff67f262e38bb7c070af9d0b84f959f9b37fa966f68bf2f881a4b62 0B / 627B 1.8s
+#5 sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4 4.19MB / 20.25MB 7.2s
+#5 sha256:a71873b303e8d75170b7ced2725b01b3ae15ad76f0d4eef16a49335821b6a0ef 404B / 404B 7.2s done
+#5 sha256:f03becc8ac15611cfcc421c977a5ba4d65456093570788523a4ba557689aa7f7 0B / 1.87MB 0.2s
+#5 sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4 5.24MB / 20.25MB 8.7s
+#5 sha256:ff9f59a6a62e9e9f29d7a84fb18865b45664d3f0d061eff7548bd61746dd101c 957B / 957B 8.7s done
+#5 sha256:15e759724ff67f262e38bb7c070af9d0b84f959f9b37fa966f68bf2f881a4b62 627B / 627B 6.0s done
+#5 sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4 6.29MB / 20.25MB 11.4s
+#5 sha256:f03becc8ac15611cfcc421c977a5ba4d65456093570788523a4ba557689aa7f7 0B / 1.87MB 5.3s
+#5 sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4 7.34MB / 20.25MB 13.7s
+#5 sha256:f03becc8ac15611cfcc421c977a5ba4d65456093570788523a4ba557689aa7f7 1.05MB / 1.87MB 7.2s
+#5 ...
+
+#6 [build 1/8] FROM 
+ghcr.io/cirruslabs/flutter:stable@sha256:7f429b29a9568705def6308f94458633e7c21d8dcf14fe6e1762f9ced3ba83b8
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 55.57MB / 752.90MB 16.8s
+#6 ...
+
+#5 [stage-1 1/2] FROM 
+docker.io/library/nginx:alpine@sha256:582c496ccf79d8aa6f8203a79d32aaf7ffd8b13362c60a701a2f9ac64886c93d
+#5 sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4 8.39MB / 20.25MB 17.0s
+#5 sha256:f03becc8ac15611cfcc421c977a5ba4d65456093570788523a4ba557689aa7f7 1.87MB / 1.87MB 12.2s done
+#5 extracting sha256:f03becc8ac15611cfcc421c977a5ba4d65456093570788523a4ba557689aa7f7
+#5 extracting sha256:f03becc8ac15611cfcc421c977a5ba4d65456093570788523a4ba557689aa7f7 0.2s done
+#5 extracting sha256:15e759724ff67f262e38bb7c070af9d0b84f959f9b37fa966f68bf2f881a4b62 0.0s done
+#5 extracting sha256:ff9f59a6a62e9e9f29d7a84fb18865b45664d3f0d061eff7548bd61746dd101c 0.0s done
+#5 extracting sha256:a71873b303e8d75170b7ced2725b01b3ae15ad76f0d4eef16a49335821b6a0ef 0.0s done
+#5 extracting sha256:34dfdd2ef1f920d0054dde2fc09ddc83ff8e71d05fadb79e2cab6e6234596f0a 0.0s done
+#5 extracting sha256:c8a2fa3a88d244a3f32dcbc9c1f7649c662661a28c624198ada43aa0b7598e7f 0.0s done
+#5 sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4 9.44MB / 20.25MB 21.5s
+#5 sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4 10.49MB / 20.25MB 23.1s
+#5 sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4 11.53MB / 20.25MB 24.5s
+#5 sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4 12.58MB / 20.25MB 25.7s
+#5 ...
+
+#6 [build 1/8] FROM 
+ghcr.io/cirruslabs/flutter:stable@sha256:7f429b29a9568705def6308f94458633e7c21d8dcf14fe6e1762f9ced3ba83b8
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 84.93MB / 752.90MB 27.0s
+#6 ...
+
+#5 [stage-1 1/2] FROM 
+docker.io/library/nginx:alpine@sha256:582c496ccf79d8aa6f8203a79d32aaf7ffd8b13362c60a701a2f9ac64886c93d
+#5 sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4 13.63MB / 20.25MB 27.2s
+#5 sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4 14.68MB / 20.25MB 28.2s
+#5 sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4 15.73MB / 20.25MB 31.3s
+#5 sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4 16.78MB / 20.25MB 34.1s
+#5 sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4 17.83MB / 20.25MB 35.2s
+#5 sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4 18.87MB / 20.25MB 36.1s
+#5 sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4 19.92MB / 20.25MB 36.8s
+#5 ...
+
+#6 [build 1/8] FROM 
+ghcr.io/cirruslabs/flutter:stable@sha256:7f429b29a9568705def6308f94458633e7c21d8dcf14fe6e1762f9ced3ba83b8
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 110.10MB / 752.90MB 37.1s
+#6 ...
+
+#5 [stage-1 1/2] FROM 
+docker.io/library/nginx:alpine@sha256:582c496ccf79d8aa6f8203a79d32aaf7ffd8b13362c60a701a2f9ac64886c93d
+#5 sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4 20.25MB / 20.25MB 37.0s done
+#5 extracting sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4
+#5 extracting sha256:1165b869c51a1a0747d78cec8fab96c30156a979e51ecf2f91aa792e557d94a4 0.6s done
+#5 DONE 38.2s
+
+#6 [build 1/8] FROM 
+ghcr.io/cirruslabs/flutter:stable@sha256:7f429b29a9568705def6308f94458633e7c21d8dcf14fe6e1762f9ced3ba83b8
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 133.17MB / 752.90MB 42.2s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 154.14MB / 752.90MB 47.3s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 173.02MB / 752.90MB 52.4s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 190.84MB / 752.90MB 57.5s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 209.72MB / 752.90MB 62.6s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 228.59MB / 752.90MB 67.7s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 251.66MB / 752.90MB 72.8s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 277.87MB / 752.90MB 77.9s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 303.04MB / 752.90MB 83.0s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 328.20MB / 752.90MB 88.1s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 340.79MB / 752.90MB 93.2s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 351.27MB / 752.90MB 98.3s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 362.81MB / 752.90MB 103.4s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 382.73MB / 752.90MB 108.5s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 402.65MB / 752.90MB 113.6s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 425.72MB / 752.90MB 118.7s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 446.69MB / 752.90MB 123.8s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 469.76MB / 752.90MB 128.9s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 491.78MB / 752.90MB 134.0s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 513.80MB / 752.90MB 139.1s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 536.87MB / 752.90MB 144.2s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 560.99MB / 752.90MB 149.3s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 584.06MB / 752.90MB 154.5s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 608.17MB / 752.90MB 159.6s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 628.10MB / 752.90MB 164.7s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 651.17MB / 752.90MB 169.8s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 674.23MB / 752.90MB 174.9s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 697.30MB / 752.90MB 180.0s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 720.37MB / 752.90MB 185.1s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 743.44MB / 752.90MB 190.2s
+#6 sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 752.90MB / 752.90MB 192.9s done
+#6 extracting sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec
+#6 extracting sha256:89b2bac8e3c633f7044794c3580f7c108f6f2f52be22b02f2f513691b583eaec 5.1s done
+#6 DONE 198.4s
+
+#8 [build 2/8] WORKDIR /app
+#8 DONE 0.3s
+
+#9 [build 3/8] COPY . .
+#9 DONE 0.1s
+
+#10 [build 4/8] RUN git config --global --add safe.directory /app
+#10 DONE 0.3s
+
+#11 [build 5/8] RUN flutter config --no-analytics
+#11 0.329    Woah! You appear to be trying to run flutter as root.
+#11 0.329    We strongly recommend running the flutter tool without superuser privileges.
+#11 0.329   /
+#11 0.329 ≡ƒôÄ
+#11 0.495 Analytics reporting disabled.
+#11 0.495 
+#11 0.495 You may need to restart any open editors for them to read new settings.
+#11 DONE 0.5s
+
+#12 [build 6/8] RUN flutter clean
+#12 0.365    Woah! You appear to be trying to run flutter as root.
+#12 0.365    We strongly recommend running the flutter tool without superuser privileges.
+#12 0.365   /
+#12 0.365 ≡ƒôÄ
+#12 DONE 0.6s
+
+#13 [build 7/8] RUN flutter pub get
+#13 0.320    Woah! You appear to be trying to run flutter as root.
+#13 0.320    We strongly recommend running the flutter tool without superuser privileges.
+#13 0.320   /
+#13 0.320 ≡ƒôÄ
+#13 0.562 Resolving dependencies...
+#13 7.670 Downloading packages...
+#13 32.62   file_picker 8.0.7 (11.0.2 available)
+#13 32.62   flutter_lints 3.0.2 (6.0.0 available)
+#13 32.62   geocoding 3.0.0 (4.0.0 available)
+#13 32.62   geocoding_android 3.3.1 (5.0.1 available)
+#13 32.62   geocoding_platform_interface 3.2.0 (5.0.0 available)
+#13 32.62   geolocator 11.1.0 (14.0.2 available)
+#13 32.62   geolocator_android 4.6.2 (5.0.2 available)
+#13 32.62   geolocator_web 3.0.0 (4.1.3 available)
+#13 32.62   google_fonts 6.3.3 (8.0.2 available)
+#13 32.62   intl 0.18.1 (0.20.2 available)
+#13 32.62   lints 3.0.0 (6.1.0 available)
+#13 32.62   meta 1.17.0 (1.18.2 available)
+#13 32.62   path_provider_android 2.3.0 (2.3.1 available)
+#13 32.62   permission_handler 11.4.0 (12.0.1 available)
+#13 32.62   permission_handler_android 12.1.0 (13.0.1 available)
+#13 32.62   test_api 0.7.10 (0.7.11 available)
+#13 32.62   vector_math 2.2.0 (2.3.0 available)
+#13 32.62   web 0.5.1 (1.1.1 available)
+#13 32.62   web_socket_channel 2.4.5 (3.0.3 available)
+#13 32.62   win32 5.15.0 (6.0.0 available)
+#13 32.62 Got dependencies!
+#13 32.63 20 packages have newer versions incompatible with dependency constraints.
+#13 32.63 Try `flutter pub outdated` for more information.
+#13 DONE 33.5s
+
+#14 [build 8/8] RUN flutter build web --release --no-tree-shake-icons
+#14 0.364    Woah! You appear to be trying to run flutter as root.
+#14 0.364    We strongly recommend running the flutter tool without superuser privileges.
+#14 0.364   /
+#14 0.364 ≡ƒôÄ
+#14 0.565 Downloading Web SDK...                                             14.2s
+#14 16.22 Resolving dependencies...
+#14 16.43 Downloading packages...
+#14 19.25   file_picker 8.0.7 (11.0.2 available)
+#14 19.25   flutter_lints 3.0.2 (6.0.0 available)
+#14 19.25   geocoding 3.0.0 (4.0.0 available)
+#14 19.25   geocoding_android 3.3.1 (5.0.1 available)
+#14 19.25   geocoding_platform_interface 3.2.0 (5.0.0 available)
+#14 19.25   geolocator 11.1.0 (14.0.2 available)
+#14 19.25   geolocator_android 4.6.2 (5.0.2 available)
+#14 19.25   geolocator_web 3.0.0 (4.1.3 available)
+#14 19.25   google_fonts 6.3.3 (8.0.2 available)
+#14 19.25   intl 0.18.1 (0.20.2 available)
+#14 19.25   lints 3.0.0 (6.1.0 available)
+#14 19.25   meta 1.17.0 (1.18.2 available)
+#14 19.25   path_provider_android 2.3.0 (2.3.1 available)
+#14 19.25   permission_handler 11.4.0 (12.0.1 available)
+#14 19.25   permission_handler_android 12.1.0 (13.0.1 available)
+#14 19.25   test_api 0.7.10 (0.7.11 available)
+#14 19.25   vector_math 2.2.0 (2.3.0 available)
+#14 19.25   web 0.5.1 (1.1.1 available)
+#14 19.25   web_socket_channel 2.4.5 (3.0.3 available)
+#14 19.25   win32 5.15.0 (6.0.0 available)
+#14 19.25 Got dependencies!
+#14 19.25 20 packages have newer versions incompatible with dependency constraints.
+#14 19.25 Try `flutter pub outdated` for more information.
+#14 20.08 Compiling lib/main.dart for the Web...                          
+#14 74.80 Wasm dry run findings:
+#14 74.80 Found incompatibilities with WebAssembly.
+#14 74.80 
+#14 74.80 package:geolocator_web/src/html_geolocation_manager.dart 1:1 - dart:html unsupported (0)
+#14 74.80 package:geolocator_web/src/html_permissions_manager.dart 1:1 - dart:html unsupported (0)
+#14 74.80 package:geolocator_web/src/utils.dart 2:1 - dart:html unsupported (0)
+#14 74.80 
+#14 74.80 Consider addressing these issues to enable wasm builds. See docs for more info: 
+https://docs.flutter.dev/platform-integration/web/wasm
+#14 74.80 
+#14 74.81 Use --no-wasm-dry-run to disable these warnings.
+#14 74.82 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
+#14 74.82 lib/theme.dart:62:24:
+#14 74.82 Error: The argument type 'CardTheme' can't be assigned to the parameter type 'CardThemeData?'.
+#14 74.82  - 'CardTheme' is from 'package:flutter/src/material/card_theme.dart' 
+('/sdks/flutter/packages/flutter/lib/src/material/card_theme.dart').
+#14 74.82  - 'CardThemeData' is from 'package:flutter/src/material/card_theme.dart' 
+('/sdks/flutter/packages/flutter/lib/src/material/card_theme.dart').
+#14 74.82       cardTheme: const CardTheme(
+#14 74.82                        ^
+#14 74.82 lib/theme.dart:105:24:
+#14 74.82 Error: The argument type 'CardTheme' can't be assigned to the parameter type 'CardThemeData?'.
+#14 74.82  - 'CardTheme' is from 'package:flutter/src/material/card_theme.dart' 
+('/sdks/flutter/packages/flutter/lib/src/material/card_theme.dart').
+#14 74.82  - 'CardThemeData' is from 'package:flutter/src/material/card_theme.dart' 
+('/sdks/flutter/packages/flutter/lib/src/material/card_theme.dart').
+#14 74.82       cardTheme: const CardTheme(
+#14 74.82                        ^
+#14 74.82 lib/vitalsync_dashboard.dart:269:38:
+#14 74.82 Error: 'CartProvider' isn't a type.
+#14 74.82                      child: Consumer<CartProvider>(
+#14 74.82                                      ^^^^^^^^^^^^
+#14 74.82 lib/vitalsync_dashboard.dart:270:64:
+#14 74.82 Error: The getter 'itemCount' isn't defined for the type 'Object?'.
+#14 74.82  - 'Object' is from 'dart:core'.
+#14 74.82                        builder: (context, cart, child) => cart.itemCount > 0
+#14 74.82                                                                ^^^^^^^^^
+#14 74.82 lib/vitalsync_dashboard.dart:275:52:
+#14 74.82 Error: The getter 'itemCount' isn't defined for the type 'Object?'.
+#14 74.82  - 'Object' is from 'dart:core'.
+#14 74.82                                child: Text('${cart.itemCount}', style: const TextStyle(color: Colors.white, 
+fontSize: 6, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+#14 74.82                                                    ^^^^^^^^^
+#14 74.82 lib/lab_tests_page.dart:442:49:
+#14 74.82 Error: The getter 'context' isn't defined for the type 'LabTestsPage'.
+#14 74.82  - 'LabTestsPage' is from 'package:axiovital/lab_tests_page.dart' ('lib/lab_tests_page.dart').
+#14 74.82                       Provider.of<CartProvider>(context, listen: false).addItem(
+#14 74.82                                                 ^^^^^^^
+#14 74.82 lib/lab_tests_page.dart:450:44:
+#14 74.82 Error: The getter 'context' isn't defined for the type 'LabTestsPage'.
+#14 74.82  - 'LabTestsPage' is from 'package:axiovital/lab_tests_page.dart' ('lib/lab_tests_page.dart').
+#14 74.82                       ScaffoldMessenger.of(context).showSnackBar(
+#14 74.82                                            ^^^^^^^
+#14 74.82 lib/doctor_details_page.dart:223:55:
+#14 74.82 Error: The getter 'context' isn't defined for the type 'DoctorDetailsPage'.
+#14 74.82  - 'DoctorDetailsPage' is from 'package:axiovital/doctor_details_page.dart' ('lib/doctor_details_page.dart').
+#14 74.82                             Provider.of<CartProvider>(context, listen: false).addItem(
+#14 74.82                                                       ^^^^^^^
+#14 74.82 lib/doctor_details_page.dart:226:45:
+#14 74.82 Error: The argument type 'int' can't be assigned to the parameter type 'double'.
+#14 74.82                               price: doctor.sessionPrice,
+#14 74.82                                             ^
+#14 74.82 lib/doctor_details_page.dart:231:50:
+#14 74.82 Error: The getter 'context' isn't defined for the type 'DoctorDetailsPage'.
+#14 74.82  - 'DoctorDetailsPage' is from 'package:axiovital/doctor_details_page.dart' ('lib/doctor_details_page.dart').
+#14 74.82                             ScaffoldMessenger.of(context).showSnackBar(
+#14 74.82                                                  ^^^^^^^
+#14 74.82 lib/doctor_details_page.dart:238:52:
+#14 74.82 Error: The getter 'context' isn't defined for the type 'DoctorDetailsPage'.
+#14 74.82  - 'DoctorDetailsPage' is from 'package:axiovital/doctor_details_page.dart' ('lib/doctor_details_page.dart').
+#14 74.82                                     Navigator.push(context, MaterialPageRoute(builder: (context) => const 
+CartPage()));
+#14 74.82                                                    ^^^^^^^
+#14 74.82 Error: Compilation failed.
+#14 74.82   Command: /sdks/flutter/bin/cache/dart-sdk/bin/dart compile js 
+--platform-binaries=/sdks/flutter/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true 
+-DFLUTTER_VERSION=3.41.6 -DFLUTTER_CHANNEL=[user-branch] -DFLUTTER_GIT_URL=unknown source 
+-DFLUTTER_FRAMEWORK_REVISION=db50e20168 -DFLUTTER_ENGINE_REVISION=425cfb54d0 -DFLUTTER_DART_VERSION=3.11.4 
+-DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_USE_SKWASM=false 
+-DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/425cfb54d01a9472b3e81d9e76fd63a4a44cfbcb/ 
+--native-null-assertions --no-source-maps -O4 --minify -o 
+/app/.dart_tool/flutter_build/d15fecd2b4989763423741072291866f/app.dill --packages=/app/.dart_tool/package_config.json 
+--cfe-only /app/.dart_tool/flutter_build/d15fecd2b4989763423741072291866f/main.dart
+#14 74.82 #0      RunResult.throwException (package:flutter_tools/src/base/process.dart:153:5)
+#14 74.82 #1      _DefaultProcessUtils.run (package:flutter_tools/src/base/process.dart:379:19)
+#14 74.82 <asynchronous suspension>
+#14 74.82 #2      Dart2JSTarget.build (package:flutter_tools/src/build_system/targets/web.dart:208:5)
+#14 74.82 <asynchronous suspension>
+#14 74.82 #3      _BuildInstance._invokeInternal (package:flutter_tools/src/build_system/build_system.dart:937:9)
+#14 74.82 <asynchronous suspension>
+#14 74.82 #4      Future.wait.<anonymous closure> (dart:async/future.dart:546:21)
+#14 74.82 <asynchronous suspension>
+#14 74.82 #5      _BuildInstance.invokeTarget (package:flutter_tools/src/build_system/build_system.dart:875:32)
+#14 74.82 <asynchronous suspension>
+#14 74.82 #6      Future.wait.<anonymous closure> (dart:async/future.dart:546:21)
+#14 74.82 <asynchronous suspension>
+#14 74.82 #7      _BuildInstance.invokeTarget (package:flutter_tools/src/build_system/build_system.dart:875:32)
+#14 74.82 <asynchronous suspension>
+#14 74.82 #8      FlutterBuildSystem.build (package:flutter_tools/src/build_system/build_system.dart:684:16)
+#14 74.82 <asynchronous suspension>
+#14 74.82 #9      WebBuilder.buildWeb (package:flutter_tools/src/web/compile.dart:107:34)
+#14 74.82 <asynchronous suspension>
+#14 74.82 #10     BuildWebCommand.runCommand (package:flutter_tools/src/commands/build_web.dart:300:5)
+#14 74.82 <asynchronous suspension>
+#14 74.82 #11     FlutterCommand.run.<anonymous closure> 
+(package:flutter_tools/src/runner/flutter_command.dart:1590:27)
+#14 74.82 <asynchronous suspension>
+#14 74.82 #12     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+#14 74.82 <asynchronous suspension>
+#14 74.82 #13     CommandRunner.runCommand (package:args/command_runner.dart:212:13)
+#14 74.82 <asynchronous suspension>
+#14 74.82 #14     FlutterCommandRunner.runCommand.<anonymous closure> 
+(package:flutter_tools/src/runner/flutter_command_runner.dart:496:9)
+#14 74.82 <asynchronous suspension>
+#14 74.82 #15     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+#14 74.82 <asynchronous suspension>
+#14 74.82 #16     FlutterCommandRunner.runCommand (package:flutter_tools/src/runner/flutter_command_runner.dart:431:5)
+#14 74.82 <asynchronous suspension>
+#14 74.82 #17     FlutterCommandRunner.run.<anonymous closure> 
+(package:flutter_tools/src/runner/flutter_command_runner.dart:307:33)
+#14 74.82 <asynchronous suspension>
+#14 74.82 #18     run.<anonymous closure>.<anonymous closure> (package:flutter_tools/runner.dart:104:11)
+#14 74.82 <asynchronous suspension>
+#14 74.82 #19     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+#14 74.82 <asynchronous suspension>
+#14 74.82 #20     main (package:flutter_tools/executable.dart:103:3)
+#14 74.82 <asynchronous suspension>
+#14 74.82 
+#14 74.82 Compiling lib/main.dart for the Web...                             54.5s
+#14 74.84 Error: Failed to compile application for the Web.
+#14 ERROR: process "/bin/sh -c flutter build web --release --no-tree-shake-icons" did not complete successfully: exit 
+code: 1
+------
+ > [build 8/8] RUN flutter build web --release --no-tree-shake-icons:
+74.82 <asynchronous suspension>
+74.82 #18     run.<anonymous closure>.<anonymous closure> (package:flutter_tools/runner.dart:104:11)
+74.82 <asynchronous suspension>
+74.82 #19     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+74.82 <asynchronous suspension>
+74.82 #20     main (package:flutter_tools/executable.dart:103:3)
+74.82 <asynchronous suspension>
+74.82 
+74.82 Compiling lib/main.dart for the Web...                             54.5s
+74.84 Error: Failed to compile application for the Web.
+------
+Dockerfile:17
+--------------------
+  15 |     
+  16 |     # Build the Flutter app for the web
+  17 | >>> RUN flutter build web --release --no-tree-shake-icons
+  18 |     
+  19 |     # Serve the app using Nginx
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c flutter build web --release --no-tree-shake-icons" did 
+not complete successfully: exit code: 1

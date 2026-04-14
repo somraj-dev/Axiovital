@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'product_provider.dart';
 import 'product_list_page.dart';
 
 class EssentialsPage extends StatelessWidget {

@@ -15,6 +15,7 @@ import 'trackcoins_page.dart';
 import 'trackcoins_landing_page.dart';
 import 'trackcoins_provider.dart';
 import 'care_plan_page.dart';
+import 'insurance_feed_page.dart';
 import 'widgets/axio_avatar.dart';
 import 'widgets/axio_card.dart';
 import 'theme.dart';
@@ -232,7 +233,15 @@ class ProfileDrawer extends StatelessWidget {
                       Navigator.push(context, MaterialPageRoute(builder: (context) => const EmergencyCardPage()));
                     },
                   ),
-                  _buildDrawerItem(context, Icons.verified_user_outlined, 'My Insurance Policy'),
+                  _buildDrawerItem(
+                    context, 
+                    Icons.verified_user_outlined, 
+                    'My Insurance Policy',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const InsuranceFeedPage()));
+                    },
+                  ),
                   
                   Padding(
                     padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),

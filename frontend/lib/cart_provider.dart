@@ -154,4 +154,5 @@ class CartProvider extends ChangeNotifier {
   List<CartItem> get appointments => _items.values.where((i) => i.type == CartItemType.appointment).toList();
   List<CartItem> get essentials => _items.values.where((i) => i.type == CartItemType.essential).toList();
   List<CartItem> get subscriptions => _items.values.where((i) => i.type == CartItemType.subscription).toList();
+  List<CartItem> get insuranceItems => _items.values.where((i) => i.type == CartItemType.insurance).toList();
 }

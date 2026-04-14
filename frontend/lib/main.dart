@@ -16,6 +16,9 @@ import 'call_provider.dart';
 
 import 'notification_provider.dart';
 import 'trackcoins_provider.dart';
+import 'insurance_provider.dart';
+import 'product_provider.dart';
+
 
 void main() {
   runApp(
@@ -32,6 +35,8 @@ void main() {
         ChangeNotifierProvider(create: (_) => OrdersProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => TrackcoinsProvider()),
+        ChangeNotifierProvider(create: (_) => InsuranceProvider()),
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
       ],
       child: const MyApp(),
     ),

@@ -63,7 +63,7 @@ class DoctorDetailsPage extends StatelessWidget {
               Container(height: 8, color: const Color(0xFFF3F5F4)),
 
               // Clinic Details
-              _buildClinicDetails(context),
+              _buildClinicDetails(),
 
               // Divider
               Container(height: 8, color: const Color(0xFFF3F5F4)),
@@ -396,7 +396,7 @@ class DoctorDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildClinicDetails(BuildContext context) {
+  Widget _buildClinicDetails() {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(

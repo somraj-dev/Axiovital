@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'cart_provider.dart';
-import 'product_list_page.dart';
+import 'product_provider.dart';
 import 'cart_page.dart';
 
 class ProductDetailsPage extends StatefulWidget {

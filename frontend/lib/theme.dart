@@ -64,7 +64,7 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(16)),
-          side: BorderSide(color: lightBorder),
+          side: BorderSide(color: Color(0xFFEAECF0)),
         ),
       ),
     );
@@ -107,7 +107,7 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(16)),
-          side: BorderSide(color: darkBorder),
+          side: BorderSide(color: Color(0xFF344054)),
         ),
       ),
     );

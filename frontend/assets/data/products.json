@@ -1,0 +1,100 @@
+{
+  "categories": [
+    "All",
+    "Multivitamins",
+    "Omega & Fish Oil",
+    "Hair & Skin",
+    "Ayurveda",
+    "Sports Nutrition"
+  ],
+  "products": [
+    {
+      "id": "swisse_mens_multi",
+      "name": "Swisse Ultivite Men's Multivitamin",
+      "brand": "Swisse",
+      "quantity": "60 Tablets",
+      "rating": 4.8,
+      "ratingCount": 12450,
+      "deliveryDate": "Tomorrow, 8 AM",
+      "currentPrice": 1250,
+      "originalPrice": 1500,
+      "discount": 16,
+      "imagePath": "assets/images/placeholder_vitamin.png",
+      "category": "Multivitamins",
+      "isBestSeller": true,
+      "description": "Premium quality formula containing 36 vitamins, minerals, antioxidants and herbs tailored for men."
+    },
+    {
+      "id": "gnc_fish_oil",
+      "name": "GNC Triple Strength Fish Oil",
+      "brand": "GNC",
+      "quantity": "60 Softgels",
+      "rating": 4.7,
+      "ratingCount": 8920,
+      "deliveryDate": "Wed, 9 Apr",
+      "currentPrice": 1850,
+      "originalPrice": 2200,
+      "discount": 15,
+      "imagePath": "assets/images/placeholder_fishoil.png",
+      "category": "Omega & Fish Oil",
+      "isBestSeller": true,
+      "description": "1000mg of EPA/DHA Omega-3s. Supports heart, brain, skin, eye & joint health."
+    },
+    {
+      "id": "centrum_women",
+      "name": "Centrum Women Multivitamin",
+      "brand": "Centrum",
+      "quantity": "50 Tablets",
+      "rating": 4.6,
+      "ratingCount": 15600,
+      "deliveryDate": "Tomorrow, 8 AM",
+      "currentPrice": 850,
+      "originalPrice": 999,
+      "discount": 15,
+      "imagePath": "assets/images/placeholder_vitamin_women.png",
+      "category": "Multivitamins",
+      "isBestSeller": false,
+      "description": "Daily multivitamin for women to support energy, immunity, and metabolism."
+    },
+    {
+      "id": "oziva_hair_vitamins",
+      "name": "OZiva Hair Vitamins With DHT Blocker",
+      "brand": "OZiva",
+      "quantity": "60 Capsules",
+      "rating": 4.4,
+      "ratingCount": 4200,
+      "deliveryDate": "Thu, 10 Apr",
+      "currentPrice": 750,
+      "originalPrice": 899,
+      "discount": 16,
+      "imagePath": "assets/images/placeholder_hair.png",
+      "category": "Hair & Skin",
+      "isBestSeller": false,
+      "description": "Helps reduce hair fall and promote hair growth with DHT blockers and Biotin."
+    },
+    {
+      "id": "on_whey_gold",
+      "name": "Optimum Nutrition (ON) Gold Standard Whey",
+      "brand": "Optimum Nutrition",
+      "quantity": "2 lbs (907 g)",
+      "rating": 4.9,
+      "ratingCount": 45000,
+      "deliveryDate": "Tomorrow, 8 AM",
+      "currentPrice": 3200,
+      "originalPrice": 3800,
+      "discount": 15,
+      "imagePath": "assets/images/placeholder_whey.png",
+      "category": "Sports Nutrition",
+      "isBestSeller": true,
+      "description": "The world's best-selling whey protein powder. 24g of protein per serving to help build and maintain muscle."
+    }
+  ],
+  "banners": [
+    {
+      "title": "Boost Your Immunity",
+      "subtitle": "Get flat 20% off on all Vitamin C supplements",
+      "image": "assets/images/banner_immunity.png",
+      "color": "#E8F5E9"
+    }
+  ]
+}
