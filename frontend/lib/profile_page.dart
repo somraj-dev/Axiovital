@@ -138,7 +138,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
                 ),
                 child: Text(
-                  'CLINICAL ID: $clinicalId',
+                  'AXIO-ID: ${userProvider.axioId}',
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface.withOpacity(0.6)),
                 ),
               ),

@@ -142,6 +142,61 @@ class UserProvider with ChangeNotifier {
   String get wearableStatus => _wearableStatus;
   List<dynamic> get conditions => _conditions;
   bool get isLoadingConditions => _isLoadingConditions;
+  
+  String get axioId {
+    // Prefix
+    const String prefix = "AX";
+    
+    // 1. Join Month (MM) and Year (YY) from _memberSince (e.g., "Oct 2023")
+    final Map<String, String> monthMap = {
+      'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
+      'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+    };
+    final List<String> sinceParts = _memberSince.split(' ');
+    String joinMonth = '01';
+    String joinYearShort = '23';
+
+    if (sinceParts.isNotEmpty) {
+      joinMonth = monthMap[sinceParts[0]] ?? '01';
+      if (sinceParts.length > 1 && sinceParts[1].length >= 4) {
+        joinYearShort = sinceParts[1].substring(2);
+      }
+    }
+
+    // 2. Initials (FL) from _name (e.g., "Dr. Julian Vance")
+    // Remove common titles
+    final String cleanName = _name.replaceAll(RegExp(r'^(Dr\.|Mr\.|Mrs\.|Ms\.)\s+'), '');
+    final List<String> nameParts = cleanName.trim().split(' ');
+    
+    String fInitial = 'A';
+    String lInitial = 'X';
+    
+    if (nameParts.isNotEmpty) {
+      fInitial = nameParts[0].isNotEmpty ? nameParts[0][0].toUpperCase() : 'A';
+      if (nameParts.length > 1) {
+        lInitial = nameParts.last.isNotEmpty ? nameParts.last[0].toUpperCase() : 'X';
+      }
+    }
+
+    // 3. DOB (DDMMYY) from _dob (e.g., "12/05/1992")
+    final List<String> dobParts = _dob.split('/');
+    String dobDay = '01';
+    String dobMonth = '01';
+    String dobYearShort = '00';
+
+    if (dobParts.length == 3) {
+      dobDay = dobParts[0].padLeft(2, '0');
+      dobMonth = dobParts[1].padLeft(2, '0');
+      if (dobParts[2].length >= 4) {
+        dobYearShort = dobParts[2].substring(2);
+      } else if (dobParts[2].length == 2) {
+        dobYearShort = dobParts[2];
+      }
+    }
+
+    return "$prefix$joinMonth$fInitial$lInitial$dobDay$dobMonth$dobYearShort$joinYearShort";
+  }
+
 
   Future<void> fetchConditions() async {
     _isLoadingConditions = true;

@@ -19,6 +19,8 @@ import 'insurance_feed_page.dart';
 import 'widgets/axio_avatar.dart';
 import 'widgets/axio_card.dart';
 import 'theme.dart';
+import 'settings_page.dart';
+
 
 class ProfileDrawer extends StatelessWidget {
   const ProfileDrawer({super.key});
@@ -258,7 +260,7 @@ class ProfileDrawer extends StatelessWidget {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const ProfilePage()),
+                        MaterialPageRoute(builder: (context) => const SettingsPage()),
                       );
                     },
                   ),
