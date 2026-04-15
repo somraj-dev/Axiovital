@@ -4,6 +4,7 @@ import 'user_provider.dart';
 import 'theme_provider.dart';
 import 'widgets/axio_avatar.dart';
 import 'widgets/axio_card.dart';
+import 'update_profile_page.dart';
 
 class AccountSettingsPage extends StatelessWidget {
   const AccountSettingsPage({super.key});
@@ -95,6 +96,12 @@ class AccountSettingsPage extends StatelessWidget {
                   icon: Icons.account_circle_outlined,
                   title: 'Manage Profile',
                   theme: theme,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const UpdateProfilePage()),
+                    );
+                  },
                 ),
                 _buildDivider(theme),
                 _buildSettingsItem(
