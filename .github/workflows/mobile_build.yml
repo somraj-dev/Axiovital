@@ -66,31 +66,53 @@ jobs:
             echo "Updated Gradle wrapper to 8.2.1"
           fi
 
-          # 4. Ensure SDK versions are set correctly (Required for geolocator and SDK 35)
+          # 4. Ensure SDK versions are set correctly (Global Overrides for Plugins & App)
           APP_BUILD_GRADLE="android/app/build.gradle"
+          ROOT_BUILD_GRADLE="android/build.gradle"
           LOCAL_PROPERTIES="android/local.properties"
           
-          # Initialize/Update local.properties (forces versions for all plugins)
-          # This is the most reliable way to propagate versions in Flutter
-          touch "$LOCAL_PROPERTIES"
+          # Initialize local.properties with guaranteed values
+          # This resolves the "null object / substring" errors in plugins
+          echo "flutter.sdk=$FLUTTER_ROOT" > "$LOCAL_PROPERTIES"
           echo "flutter.compileSdkVersion=35" >> "$LOCAL_PROPERTIES"
           echo "flutter.targetSdkVersion=35" >> "$LOCAL_PROPERTIES"
           echo "flutter.minSdkVersion=21" >> "$LOCAL_PROPERTIES"
-          if [ -n "$FLUTTER_ROOT" ]; then
-            # Use the environment variable from flutter-action to prevent "null object" crashes in plugins
-            echo "flutter.sdk=$FLUTTER_ROOT" >> "$LOCAL_PROPERTIES"
+          
+          # Force all subprojects (plugins) to use SDK 35
+          # This is the "God mode" fix for plugin compatibility issues
+          if [ -f "$ROOT_BUILD_GRADLE" ]; then
+            cat >> "$ROOT_BUILD_GRADLE" <<EOF
+
+allprojects {
+    subprojects {
+        afterEvaluate { project ->
+            if (project.hasProperty('android')) {
+                project.android {
+                    compileSdk 35
+                    buildToolsVersion "35.0.0"
+                    defaultConfig {
+                        minSdk 23
+                        targetSdk 35
+                    }
+                }
+            }
+        }
+    }
+}
+EOF
+            echo "Injected global overrides into $ROOT_BUILD_GRADLE"
           fi
 
           if [ -f "$APP_BUILD_GRADLE" ]; then
-            # Update main app build.gradle to avoid version mismatches
+            # Sync main app build.gradle to avoid any confusion
             sed -i 's/compileSdk .*/compileSdk 35/' "$APP_BUILD_GRADLE"
             sed -i 's/compileSdkVersion .*/compileSdkVersion 35/' "$APP_BUILD_GRADLE"
             sed -i 's/targetSdk .*/targetSdk 35/' "$APP_BUILD_GRADLE"
             sed -i 's/targetSdkVersion .*/targetSdkVersion 35/' "$APP_BUILD_GRADLE"
-            sed -i 's/minSdk .*/minSdk 21/' "$APP_BUILD_GRADLE"
-            sed -i 's/minSdkVersion .*/minSdkVersion 21/' "$APP_BUILD_GRADLE"
+            sed -i 's/minSdk .*/minSdk 23/' "$APP_BUILD_GRADLE"
+            sed -i 's/minSdkVersion .*/minSdkVersion 23/' "$APP_BUILD_GRADLE"
             
-            echo "Updated SDK versions to 35 in $APP_BUILD_GRADLE and local.properties"
+            echo "Updated SDK versions to 35 in $APP_BUILD_GRADLE"
           fi
         working-directory: frontend
 
