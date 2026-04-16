@@ -27,87 +27,68 @@ class AppTheme {
   static const Color darkTextMuted = Color(0xFF98A2B3);
   static const Color darkBorder = Color(0xFF344054);
 
-  // The global material ThemeData for LIGHT mode
-  static ThemeData get lightTheme {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.light,
-      primaryColor: primaryColor,
-      scaffoldBackgroundColor: lightBackground,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: primaryColor,
-        brightness: Brightness.light,
-        surface: lightSurface,
-        onSurface: lightTextPrimary,
-        secondary: secondaryColor,
-        onSecondary: Colors.white,
-        error: errorColor,
-        surfaceVariant: lightSurfaceSecondary,
-        outline: lightBorder,
-      ),
-      textTheme: GoogleFonts.interTextTheme().copyWith(
-        displayLarge: GoogleFonts.inter(color: lightTextPrimary, fontWeight: FontWeight.bold),
-        titleLarge: GoogleFonts.inter(color: lightTextPrimary, fontWeight: FontWeight.w600),
-        bodyLarge: GoogleFonts.inter(color: lightTextPrimary),
-        bodyMedium: GoogleFonts.inter(color: lightTextSecondary),
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: lightSurface,
-        elevation: 0,
-        centerTitle: false,
-        iconTheme: IconThemeData(color: lightTextPrimary),
-        titleTextStyle: TextStyle(color: lightTextPrimary, fontSize: 18, fontWeight: FontWeight.bold),
-      ),
-      dividerTheme: const DividerThemeData(color: lightBorder, thickness: 1),
-      cardTheme: const CardThemeData(
-        color: lightSurface,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-          side: BorderSide(color: Color(0xFFEAECF0)),
-        ),
-      ),
-    );
-  }
+  // THE DYNAMIC THEME GENERATOR
+  static ThemeData getTheme(bool isDarkMode, Color primaryColor, {String preset = 'Default'}) {
+    // Override colors based on presets
+    Color backgroundColor = isDarkMode ? darkBackground : lightBackground;
+    Color surfaceColor = isDarkMode ? darkSurface : lightSurface;
+    Color surfaceVariant = isDarkMode ? darkSurfaceSecondary : lightSurfaceSecondary;
+    
+    if (isDarkMode) {
+      if (preset == 'Orange Mechanic') {
+        backgroundColor = const Color(0xFF1A1714); // Slightly warmer/orange dark
+        surfaceColor = const Color(0xFF24201C);
+      } else if (preset == 'Purple Disco') {
+        backgroundColor = const Color(0xFF14111A); // Deep purple dark
+        surfaceColor = const Color(0xFF1E1926);
+      } else if (preset == 'Blue Powder') {
+        backgroundColor = const Color(0xFF11141A); // Deep blue dark
+        surfaceColor = const Color(0xFF191D26);
+      }
+    }
 
-  // THE GLOBAL material ThemeData for DARK mode
-  static ThemeData get darkTheme {
+    final Brightness brightness = isDarkMode ? Brightness.dark : Brightness.light;
+    final Color textColor = isDarkMode ? darkTextPrimary : lightTextPrimary;
+    final Color textSecondary = isDarkMode ? darkTextSecondary : lightTextSecondary;
+    final Color borderColor = isDarkMode ? darkBorder : lightBorder;
+
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
+      brightness: brightness,
       primaryColor: primaryColor,
-      scaffoldBackgroundColor: darkBackground,
+      scaffoldBackgroundColor: backgroundColor,
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
-        brightness: Brightness.dark,
-        surface: darkSurface,
-        onSurface: darkTextPrimary,
+        brightness: brightness,
+        primary: primaryColor,
+        surface: surfaceColor,
+        onSurface: textColor,
         secondary: secondaryColor,
         onSecondary: Colors.white,
         error: errorColor,
-        surfaceVariant: darkSurfaceSecondary,
-        outline: darkBorder,
+        surfaceVariant: surfaceVariant,
+        outline: borderColor,
       ),
-      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme).copyWith(
-        displayLarge: GoogleFonts.inter(color: darkTextPrimary, fontWeight: FontWeight.bold),
-        titleLarge: GoogleFonts.inter(color: darkTextPrimary, fontWeight: FontWeight.w600),
-        bodyLarge: GoogleFonts.inter(color: darkTextPrimary),
-        bodyMedium: GoogleFonts.inter(color: darkTextSecondary),
+      textTheme: GoogleFonts.interTextTheme(isDarkMode ? ThemeData.dark().textTheme : ThemeData.light().textTheme).copyWith(
+        displayLarge: GoogleFonts.inter(color: textColor, fontWeight: FontWeight.bold),
+        titleLarge: GoogleFonts.inter(color: textColor, fontWeight: FontWeight.w600),
+        bodyLarge: GoogleFonts.inter(color: textColor),
+        bodyMedium: GoogleFonts.inter(color: textSecondary),
       ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: darkSurface,
+      appBarTheme: AppBarTheme(
+        backgroundColor: surfaceColor,
         elevation: 0,
         centerTitle: false,
-        iconTheme: IconThemeData(color: darkTextPrimary),
-        titleTextStyle: TextStyle(color: darkTextPrimary, fontSize: 18, fontWeight: FontWeight.bold),
+        iconTheme: IconThemeData(color: textColor),
+        titleTextStyle: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold),
       ),
-      dividerTheme: const DividerThemeData(color: darkBorder, thickness: 1),
-      cardTheme: const CardThemeData(
-        color: darkSurface,
+      dividerTheme: DividerThemeData(color: borderColor, thickness: 1),
+      cardTheme: CardTheme(
+        color: surfaceColor,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-          side: BorderSide(color: Color(0xFF344054)),
+          borderRadius: const BorderRadius.all(Radius.circular(16)),
+          side: BorderSide(color: borderColor),
         ),
       ),
     );

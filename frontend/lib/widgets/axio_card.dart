@@ -27,29 +27,35 @@ class AxioCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: margin,
-        padding: padding,
-        decoration: BoxDecoration(
-          color: color ?? theme.cardTheme.color ?? theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(borderRadius ?? 16),
-          border: Border.fromBorderSide(
-            borderSide ?? (theme.cardTheme.shape as RoundedRectangleBorder?)?.side ?? BorderSide(color: theme.dividerColor),
-          ),
-          boxShadow: showShadow 
-              ? [
-                  BoxShadow(
-                    color: isDark ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : null,
+    Widget card = Container(
+      margin: margin,
+      padding: padding,
+      decoration: BoxDecoration(
+        color: color ?? theme.cardTheme.color ?? theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(borderRadius ?? 16),
+        border: Border.fromBorderSide(
+          borderSide ?? (theme.cardTheme.shape as RoundedRectangleBorder?)?.side ?? BorderSide(color: theme.dividerColor),
         ),
-        child: child,
+        boxShadow: showShadow 
+            ? [
+                BoxShadow(
+                  color: isDark ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ]
+            : null,
       ),
+      child: child,
     );
+
+    if (onTap != null) {
+      return GestureDetector(
+        onTap: onTap,
+        child: card,
+      );
+    }
+    
+    return card;
   }
 }

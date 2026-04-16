@@ -1,0 +1,159 @@
+﻿docker : time="2026-04-15T22:01:05+05:30" level=warning msg="C:\\Users\\HP\\Axiovital\\docker-compose.yml: the 
+attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+At line:1 char:1
++ docker compose build frontend > total_build_log.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (time="2026-04-1...tial confusion":String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ Image axiovital-backend Building 
+ Image axiovital-ai_service Building 
+ Image axiovital-frontend Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.37kB done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 659B done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for ghcr.io/cirruslabs/flutter:3.24.2
+#3 ...
+
+#4 [internal] load metadata for docker.io/library/nginx:alpine
+#4 ...
+
+#3 [internal] load metadata for ghcr.io/cirruslabs/flutter:3.24.2
+#3 DONE 19.7s
+
+#4 [internal] load metadata for docker.io/library/nginx:alpine
+#4 DONE 20.3s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 2B done
+#5 DONE 0.0s
+
+#6 [build 1/8] FROM ghcr.io/cirruslabs/flutter:3.24.2@sha256:fc9e2fe81c890ef8118017e6d99e0d100a5282601a4a011a8e772b0011835e97
+#6 resolve ghcr.io/cirruslabs/flutter:3.24.2@sha256:fc9e2fe81c890ef8118017e6d99e0d100a5282601a4a011a8e772b0011835e97 0.0s done
+#6 DONE 0.0s
+
+#7 [stage-1 1/2] FROM docker.io/library/nginx:alpine@sha256:582c496ccf79d8aa6f8203a79d32aaf7ffd8b13362c60a701a2f9ac64886c93d
+#7 resolve docker.io/library/nginx:alpine@sha256:582c496ccf79d8aa6f8203a79d32aaf7ffd8b13362c60a701a2f9ac64886c93d 0.0s done
+#7 DONE 0.0s
+
+#8 [internal] load build context
+#8 transferring context: 14.41kB 0.0s done
+#8 DONE 0.0s
+
+#9 [build 2/8] WORKDIR /app
+#9 CACHED
+
+#10 [build 3/8] COPY . .
+#10 CACHED
+
+#11 [build 4/8] RUN git config --global --add safe.directory /app
+#11 CACHED
+
+#12 [build 5/8] RUN flutter config --no-analytics
+#12 CACHED
+
+#13 [build 6/8] RUN flutter clean
+#13 CACHED
+
+#14 [build 7/8] RUN flutter pub get
+#14 CACHED
+
+#15 [build 8/8] RUN flutter build web --release --no-tree-shake-icons
+#15 0.287    Woah! You appear to be trying to run flutter as root.
+#15 0.287    We strongly recommend running the flutter tool without superuser privileges.
+#15 0.287   /
+#15 0.287 ≡ƒôÄ
+#15 0.434 Downloading Web SDK...                                             61.3s
+#15 67.17 
+#15 67.28 Compiling lib/main.dart for the Web...                          
+#15 88.22 Target dart2js failed: ProcessException: Process exited abnormally with exit code 1:
+#15 88.22 lib/theme.dart:86:18:
+#15 88.22 Error: Method not found: 'CardThemeData'.
+#15 88.22       cardTheme: CardThemeData(
+#15 88.22                  ^^^^^^^^^^^^^
+#15 88.22 lib/account_settings_page.dart:173:51:
+#15 88.22 Error: Couldn't find constructor 'AppearancePopup'.
+#15 88.22                       builder: (context) => const AppearancePopup(),
+#15 88.22                                                   ^^^^^^^^^^^^^^^
+#15 88.22 Error: Compilation failed.
+#15 88.22   Command: /sdks/flutter/bin/cache/dart-sdk/bin/dart --disable-dart-dev /sdks/flutter/bin/cache/dart-sdk/bin/snapshots/dart2js.dart.snapshot --platform-binaries=/sdks/flutter/bin/cache/flutter_web_sdk/kernel --invoker=flutter_tool -Ddart.vm.product=true -DFLUTTER_WEB_AUTO_DETECT=false -DFLUTTER_WEB_USE_SKIA=true -DFLUTTER_WEB_CANVASKIT_URL=https://www.gstatic.com/flutter-canvaskit/a6bd3f1de158bb61090e0c8053df93a10cb548e1/ --native-null-assertions --no-source-maps -o /app/.dart_tool/flutter_build/ed05069301abd1c2fa25893ba86bd8e5/app.dill --packages=.dart_tool/package_config.json --cfe-only /app/.dart_tool/flutter_build/ed05069301abd1c2fa25893ba86bd8e5/main.dart
+#15 88.22 #0      RunResult.throwException (package:flutter_tools/src/base/process.dart:122:5)
+#15 88.22 #1      _DefaultProcessUtils.run (package:flutter_tools/src/base/process.dart:370:19)
+#15 88.22 <asynchronous suspension>
+#15 88.22 #2      Dart2JSTarget.build (package:flutter_tools/src/build_system/targets/web.dart:203:5)
+#15 88.22 <asynchronous suspension>
+#15 88.22 #3      _BuildInstance._invokeInternal (package:flutter_tools/src/build_system/build_system.dart:875:9)
+#15 88.22 <asynchronous suspension>
+#15 88.22 #4      Future.wait.<anonymous closure> (dart:async/future.dart:534:21)
+#15 88.22 <asynchronous suspension>
+#15 88.22 #5      _BuildInstance.invokeTarget (package:flutter_tools/src/build_system/build_system.dart:813:32)
+#15 88.22 <asynchronous suspension>
+#15 88.22 #6      Future.wait.<anonymous closure> (dart:async/future.dart:534:21)
+#15 88.22 <asynchronous suspension>
+#15 88.22 #7      _BuildInstance.invokeTarget (package:flutter_tools/src/build_system/build_system.dart:813:32)
+#15 88.22 <asynchronous suspension>
+#15 88.22 #8      FlutterBuildSystem.build (package:flutter_tools/src/build_system/build_system.dart:635:16)
+#15 88.22 <asynchronous suspension>
+#15 88.22 #9      WebBuilder.buildWeb (package:flutter_tools/src/web/compile.dart:92:34)
+#15 88.22 <asynchronous suspension>
+#15 88.22 #10     BuildWebCommand.runCommand (package:flutter_tools/src/commands/build_web.dart:230:5)
+#15 88.22 <asynchronous suspension>
+#15 88.22 #11     FlutterCommand.run.<anonymous closure> (package:flutter_tools/src/runner/flutter_command.dart:1408:27)
+#15 88.22 <asynchronous suspension>
+#15 88.22 #12     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:153:19)
+#15 88.22 <asynchronous suspension>
+#15 88.22 #13     CommandRunner.runCommand (package:args/command_runner.dart:212:13)
+#15 88.22 <asynchronous suspension>
+#15 88.22 #14     FlutterCommandRunner.runCommand.<anonymous closure> (package:flutter_tools/src/runner/flutter_command_runner.dart:420:9)
+#15 88.22 <asynchronous suspension>
+#15 88.22 #15     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:153:19)
+#15 88.22 <asynchronous suspension>
+#15 88.22 #16     FlutterCommandRunner.runCommand (package:flutter_tools/src/runner/flutter_command_runner.dart:364:5)
+#15 88.22 <asynchronous suspension>
+#15 88.22 #17     run.<anonymous closure>.<anonymous closure> (package:flutter_tools/runner.dart:130:9)
+#15 88.22 <asynchronous suspension>
+#15 88.22 #18     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:153:19)
+#15 88.22 <asynchronous suspension>
+#15 88.22 #19     main (package:flutter_tools/executable.dart:93:3)
+#15 88.22 <asynchronous suspension>
+#15 88.22 
+#15 88.22 Compiling lib/main.dart for the Web...                             20.6s
+#15 88.23 Error: Failed to compile application for the Web.
+#15 ERROR: process "/bin/sh -c flutter build web --release --no-tree-shake-icons" did not complete successfully: exit code: 1
+------
+ > [build 8/8] RUN flutter build web --release --no-tree-shake-icons:
+88.22 <asynchronous suspension>
+88.22 #17     run.<anonymous closure>.<anonymous closure> (package:flutter_tools/runner.dart:130:9)
+88.22 <asynchronous suspension>
+88.22 #18     AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:153:19)
+88.22 <asynchronous suspension>
+88.22 #19     main (package:flutter_tools/executable.dart:93:3)
+88.22 <asynchronous suspension>
+88.22 
+88.22 Compiling lib/main.dart for the Web...                             20.6s
+88.23 Error: Failed to compile application for the Web.
+------
+Dockerfile:17
+
+--------------------
+
+  15 |     
+
+  16 |     # Build the Flutter app for the web
+
+  17 | >>> RUN flutter build web --release --no-tree-shake-icons
+
+  18 |     
+
+  19 |     # Serve the app using Nginx
+
+--------------------
+
+failed to solve: process "/bin/sh -c flutter build web --release --no-tree-shake-icons" did not complete successfully: 
+exit code: 1
+

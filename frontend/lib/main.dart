@@ -54,8 +54,8 @@ class MyApp extends StatelessWidget {
       title: 'AxioVital',
       debugShowCheckedModeBanner: false,
       themeMode: themeProvider.themeMode,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      theme: AppTheme.getTheme(false, themeProvider.primaryColor, preset: themeProvider.presetName),
+      darkTheme: AppTheme.getTheme(true, themeProvider.primaryColor, preset: themeProvider.presetName),
       builder: (context, child) => MobileWrapper(child: child!),
       home: const SplashScreen(),
     );

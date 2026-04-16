@@ -4,7 +4,9 @@ import 'user_provider.dart';
 import 'theme_provider.dart';
 import 'widgets/axio_avatar.dart';
 import 'widgets/axio_card.dart';
+import 'widgets/appearance_popup.dart';
 import 'update_profile_page.dart';
+import 'language_page.dart';
 
 class AccountSettingsPage extends StatelessWidget {
   const AccountSettingsPage({super.key});
@@ -12,32 +14,31 @@ class AccountSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final userProvider = Provider.of<UserProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final userProvider = Provider.of<UserProvider>(context);
 
     // Dynamic user data
     final String userName = userProvider.name;
     final String axioId = userProvider.axioId;
-    final String avatarUrl = userProvider.avatarUrl;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        centerTitle: true,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: Icon(Icons.arrow_back_ios, size: 18, color: theme.colorScheme.onSurface),
+          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface, size: 28),
         ),
         title: Text(
-          'Profile',
+          userProvider.translate('account_settings'),
           style: TextStyle(
             color: theme.colorScheme.onSurface,
             fontWeight: FontWeight.bold,
-            fontSize: 18,
+            fontSize: 24,
           ),
         ),
+        centerTitle: false,
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -49,7 +50,7 @@ class AccountSettingsPage extends StatelessWidget {
               children: [
                 AxioAvatar(
                   radius: 36,
-                  imageUrl: avatarUrl,
+                  imageUrl: userProvider.avatarUrl,
                   name: userName,
                 ),
                 const SizedBox(width: 16),
@@ -86,7 +87,7 @@ class AccountSettingsPage extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Account Section
-          _buildSectionHeader('Account', theme: theme),
+          _buildSectionHeader(userProvider.translate('account'), theme: theme),
           const SizedBox(height: 12),
           AxioCard(
             padding: EdgeInsets.zero,
@@ -94,7 +95,7 @@ class AccountSettingsPage extends StatelessWidget {
               children: [
                 _buildSettingsItem(
                   icon: Icons.account_circle_outlined,
-                  title: 'Manage Profile',
+                  title: userProvider.translate('manage_profile'),
                   theme: theme,
                   onTap: () {
                     Navigator.push(
@@ -106,27 +107,33 @@ class AccountSettingsPage extends StatelessWidget {
                 _buildDivider(theme),
                 _buildSettingsItem(
                   icon: Icons.lock_outline,
-                  title: 'Password & Security',
+                  title: userProvider.translate('password_security'),
                   theme: theme,
                 ),
                 _buildDivider(theme),
                 _buildSettingsItem(
                   icon: Icons.notifications_none_outlined,
-                  title: 'Notifications',
+                  title: userProvider.translate('notifications'),
                   theme: theme,
                 ),
                 _buildDivider(theme),
                 _buildSettingsItem(
                   icon: Icons.language_outlined,
-                  title: 'Language',
+                  title: userProvider.translate('language'),
                   trailing: Text(
-                    'English',
+                    userProvider.language,
                     style: TextStyle(
                       color: theme.colorScheme.onSurface.withOpacity(0.4),
                       fontSize: 13,
                     ),
                   ),
                   theme: theme,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const LanguagePage()),
+                    );
+                  },
                 ),
               ],
             ),
@@ -134,7 +141,7 @@ class AccountSettingsPage extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Preferences Section
-          _buildSectionHeader('Preferences', theme: theme),
+          _buildSectionHeader(userProvider.translate('preferences'), theme: theme),
           const SizedBox(height: 12),
           AxioCard(
             padding: EdgeInsets.zero,
@@ -142,26 +149,35 @@ class AccountSettingsPage extends StatelessWidget {
               children: [
                 _buildSettingsItem(
                   icon: Icons.list_alt_rounded,
-                  title: 'About Us',
+                  title: userProvider.translate('about_us'),
                   theme: theme,
                 ),
                 _buildDivider(theme),
                 _buildSettingsItem(
                   icon: Icons.track_changes_outlined,
-                  title: 'Theme',
+                  title: userProvider.translate('theme'),
                   trailing: Text(
-                    themeProvider.isDarkMode ? 'Dark' : 'Light',
+                    themeProvider.presetName,
                     style: TextStyle(
-                      color: theme.colorScheme.onSurface.withOpacity(0.4),
-                      fontSize: 13,
+                      fontSize: 14,
+                      color: theme.primaryColor,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   theme: theme,
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => const AppearancePopup(),
+                    );
+                  },
                 ),
                 _buildDivider(theme),
                 _buildSettingsItem(
                   icon: Icons.calendar_month_outlined,
-                  title: 'Appointments',
+                  title: userProvider.translate('appointments'),
                   theme: theme,
                 ),
               ],
@@ -170,13 +186,13 @@ class AccountSettingsPage extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Support Section
-          _buildSectionHeader('Support', theme: theme),
+          _buildSectionHeader(userProvider.translate('support'), theme: theme),
           const SizedBox(height: 12),
           AxioCard(
             padding: EdgeInsets.zero,
             child: _buildSettingsItem(
               icon: Icons.help_outline_rounded,
-              title: 'Help Center',
+              title: userProvider.translate('help_center'),
               theme: theme,
             ),
           ),

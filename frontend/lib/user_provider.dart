@@ -24,6 +24,103 @@ class UserProvider with ChangeNotifier {
   bool _isTwoFactorEnabled = true;
   String _digitalTwinStatus = 'Active';
   String _wearableStatus = 'CONNECTED';
+  String _language = 'English (United States)';
+  
+  final Map<String, Map<String, String>> _translations = {
+    'English (United States)': {
+      'profile': 'Profile',
+      'account': 'Account',
+      'manage_profile': 'Manage Profile',
+      'password_security': 'Password & Security',
+      'notifications': 'Notifications',
+      'language': 'Language',
+      'preferences': 'Preferences',
+      'about_us': 'About Us',
+      'theme': 'Theme',
+      'appointments': 'Appointments',
+      'support': 'Support',
+      'help_center': 'Help Center',
+      'settings': 'Settings',
+      'settings_hub': 'Settings Hub',
+      'account_management': 'Account Management',
+      'delete_account': 'Delete Account',
+      'support_faqs': 'Support & FAQs',
+      'app': 'App',
+      'app_updates': 'App Updates',
+      'home': 'Home',
+      'doctors': 'Doctors',
+      'labs': 'Labs',
+      'insights': 'Insights',
+      'appearance': 'Appearance',
+      'theme_presets': 'Theme Presets',
+      'custom_primary': 'Custom Primary Color',
+      'glass_nav': 'Glass Bottom Bar',
+      'apply': 'Apply Theme',
+      'hex_code': 'Hex Code',
+    },
+    'Nederlands (Belgie)': {
+      'profile': 'Profiel',
+      'account': 'Account',
+      'manage_profile': 'Profiel beheren',
+      'password_security': 'Wachtwoord & Beveiliging',
+      'notifications': 'Meldingen',
+      'language': 'Taal',
+      'preferences': 'Voorkeuren',
+      'about_us': 'Over ons',
+      'theme': 'Thema',
+      'appointments': 'Afspraken',
+      'support': 'Ondersteuning',
+      'help_center': 'Helpcentrum',
+      'settings': 'Instellingen',
+      'settings_hub': 'Instellingen Hub',
+      'account_management': 'Accountbeheer',
+      'delete_account': 'Account verwijderen',
+      'support_faqs': 'Ondersteuning & Veelgestelde vragen',
+      'app': 'App',
+      'app_updates': 'App-updates',
+      'home': 'Home',
+      'doctors': 'Artsen',
+      'labs': 'Labs',
+      'insights': 'Inzichten',
+      'appearance': 'Uiterlijk',
+      'theme_presets': 'Thema Voorinstellingen',
+      'custom_primary': 'Aangepaste Kleur',
+      'glass_nav': 'Glazen Balk',
+      'apply': 'Thema Toepassen',
+      'hex_code': 'Hex-code',
+    },
+    'Hindi': {
+      'profile': 'प्रोफ़ाइल',
+      'account': 'खाता',
+      'manage_profile': 'प्रोफ़ाइल प्रबंधित करें',
+      'password_security': 'पासवर्ड और सुरक्षा',
+      'notifications': 'सूचनाएं',
+      'language': 'भाषा',
+      'preferences': 'प्राथमिकताएं',
+      'about_us': 'हमारे बारे में',
+      'theme': 'थीम',
+      'appointments': 'अपॉइंटमेंट',
+      'support': 'सहायता',
+      'help_center': 'सहायता केंद्र',
+      'settings': 'सेटिंग्स',
+      'settings_hub': 'सेटिंग्स हब',
+      'account_management': 'खाता प्रबंधन',
+      'delete_account': 'खाता हटाएँ',
+      'support_faqs': 'सहायता और अक्सर पूछे जाने वाले प्रश्न',
+      'app': 'ऐप',
+      'app_updates': 'ऐप अपडेट',
+      'home': 'होम',
+      'doctors': 'डॉक्टर',
+      'labs': 'लैब्स',
+      'insights': 'इनसाइट्स',
+      'appearance': 'दिखावट',
+      'theme_presets': 'थीम प्रीसेट',
+      'custom_primary': 'कस्टम प्राथमिक रंग',
+      'glass_nav': 'ग्लास बॉटम बार',
+      'apply': 'थीम लागू करें',
+      'hex_code': 'हेक्स कोड',
+    },
+  };
 
   List<dynamic> _conditions = [];
   bool _isLoadingConditions = false;
@@ -64,6 +161,7 @@ class UserProvider with ChangeNotifier {
     _weight = prefs.getString('user_weight') ?? _weight;
     _bloodGroup = prefs.getString('user_blood_group') ?? _bloodGroup;
     _isTwoFactorEnabled = prefs.getBool('user_2fa') ?? _isTwoFactorEnabled;
+    _language = prefs.getString('user_language') ?? _language;
     notifyListeners();
   }
 
@@ -80,6 +178,7 @@ class UserProvider with ChangeNotifier {
     await prefs.setString('user_weight', _weight);
     await prefs.setString('user_blood_group', _bloodGroup);
     await prefs.setBool('user_2fa', _isTwoFactorEnabled);
+    await prefs.setString('user_language', _language);
   }
 
   Future<void> syncProfileWithBackend() async {
@@ -140,6 +239,7 @@ class UserProvider with ChangeNotifier {
   bool get isTwoFactorEnabled => _isTwoFactorEnabled;
   String get digitalTwinStatus => _digitalTwinStatus;
   String get wearableStatus => _wearableStatus;
+  String get language => _language;
   List<dynamic> get conditions => _conditions;
   bool get isLoadingConditions => _isLoadingConditions;
   
@@ -224,6 +324,7 @@ class UserProvider with ChangeNotifier {
     String? height,
     String? weight,
     String? bloodGroup,
+    String? language,
   }) {
     if (name != null) _name = name;
     if (avatarUrl != null) _avatarUrl = avatarUrl;
@@ -235,6 +336,7 @@ class UserProvider with ChangeNotifier {
     if (gender != null) _gender = gender;
     if (weight != null) _weight = weight;
     if (bloodGroup != null) _bloodGroup = bloodGroup;
+    if (language != null) _language = language;
     
     // Auto-calculate age from DOB if needed, for now just keeping it simple
     if (dob != null) {
@@ -253,6 +355,16 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
     _saveToPrefs();
     _pushToBackend();
+  }
+
+  void updateLanguage(String newLanguage) {
+    _language = newLanguage;
+    notifyListeners();
+    _saveToPrefs();
+  }
+
+  String translate(String key) {
+    return _translations[_language]?[key] ?? _translations['English (United States)']?[key] ?? key;
   }
 
   Future<void> _pushToBackend() async {

@@ -5,6 +5,7 @@ import 'user_provider.dart';
 import 'location_provider.dart';
 import 'permission_service.dart';
 import 'package:geocoding/geocoding.dart';
+import 'dart:io';
 
 class UpdateProfilePage extends StatefulWidget {
   const UpdateProfilePage({super.key});
@@ -29,21 +30,27 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
   @override
   void initState() {
     super.initState();
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    _nameController = TextEditingController(text: userProvider.name);
-    _dobController = TextEditingController(text: userProvider.dob);
-    _emailController = TextEditingController(text: userProvider.email);
-    _phoneController = TextEditingController(text: userProvider.phone);
-    _addressController = TextEditingController(text: userProvider.address);
-    _heightController = TextEditingController(text: userProvider.height);
-    _weightController = TextEditingController(text: userProvider.weight);
-    _bloodGroup = userProvider.bloodGroup;
-    _avatarUrl = userProvider.avatarUrl;
+    try {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      _nameController = TextEditingController(text: userProvider.name);
+      _dobController = TextEditingController(text: userProvider.dob);
+      _emailController = TextEditingController(text: userProvider.email);
+      _phoneController = TextEditingController(text: userProvider.phone);
+      _addressController = TextEditingController(text: userProvider.address ?? '');
+      _heightController = TextEditingController(text: userProvider.height);
+      _weightController = TextEditingController(text: userProvider.weight);
+      
+      _bloodGroup = userProvider.bloodGroup;
+      _gender = userProvider.gender;
+      _avatarUrl = userProvider.avatarUrl;
 
-    // Listen to name changes to update the header in real-time
-    _nameController.addListener(() {
-      setState(() {});
-    });
+      // Listen to name changes to update the header in real-time
+      _nameController.addListener(() {
+        if (mounted) setState(() {});
+      });
+    } catch (e) {
+      debugPrint("Error initializing UpdateProfilePage: $e");
+    }
   }
 
   @override
@@ -60,18 +67,19 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F9FE),
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Color(0xFF344054), size: 28),
+          icon: Icon(Icons.chevron_left, color: theme.colorScheme.onSurface, size: 28),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Update Profile',
-          style: TextStyle(color: Color(0xFF1D2939), fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18),
         ),
         centerTitle: true,
       ),
@@ -91,7 +99,9 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                       shape: BoxShape.circle,
                       border: Border.all(color: const Color(0xFFD1E9FF), width: 8),
                       image: DecorationImage(
-                        image: NetworkImage(_avatarUrl),
+                        image: _avatarUrl.startsWith('http') 
+                          ? NetworkImage(_avatarUrl) 
+                          : FileImage(File(_avatarUrl)) as ImageProvider,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -132,41 +142,42 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
             const SizedBox(height: 16),
             Text(
               _nameController.text,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1D2939)),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
             ),
             Text(
               'PATIENT ID: ${Provider.of<UserProvider>(context, listen: false).clinicalId}',
-              style: const TextStyle(fontSize: 14, color: Color(0xFF667085), fontWeight: FontWeight.w500),
+              style: TextStyle(fontSize: 14, color: theme.colorScheme.onSurface.withOpacity(0.6), fontWeight: FontWeight.w500),
             ),
             
             const SizedBox(height: 32),
 
             // Basic Details
-            _buildSectionHeader(Icons.person, 'BASIC DETAILS'),
+            _buildSectionHeader(Icons.person, 'BASIC DETAILS', theme),
             _buildSectionCard([
-              _buildTextField('Full Name', _nameController),
+              _buildTextField('Full Name', _nameController, theme),
               const SizedBox(height: 16),
               Row(
                 children: [
-                  Expanded(child: _buildTextField('Date of Birth', _dobController, icon: Icons.calendar_today_outlined)),
+                  Expanded(child: _buildTextField('Date of Birth', _dobController, theme, icon: Icons.calendar_today_outlined)),
                   const SizedBox(width: 16),
-                  Expanded(child: _buildDropdownField('Gender', _gender, ['Male', 'Female', 'Other'], (val) => setState(() => _gender = val!))),
+                  Expanded(child: _buildDropdownField('Gender', _gender, ['Male', 'Female', 'Other'], (val) => setState(() => _gender = val!), theme)),
                 ],
               ),
-            ]),
+            ], theme),
 
             const SizedBox(height: 24),
 
             // Contact Info
-            _buildSectionHeader(Icons.contact_mail, 'CONTACT INFO'),
+            _buildSectionHeader(Icons.contact_mail, 'CONTACT INFO', theme),
             _buildSectionCard([
-              _buildTextField('Email Address', _emailController, icon: Icons.email_outlined),
+              _buildTextField('Email Address', _emailController, theme, icon: Icons.email_outlined),
               const SizedBox(height: 16),
-              _buildTextField('Phone Number', _phoneController, icon: Icons.phone_outlined),
+              _buildTextField('Phone Number', _phoneController, theme, icon: Icons.phone_outlined),
               const SizedBox(height: 16),
               _buildTextField(
                 'Primary Address', 
                 _addressController, 
+                theme,
                 icon: Icons.location_on_outlined, 
                 maxLines: 2,
                 suffix: TextButton.icon(
@@ -214,23 +225,23 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                   label: const Text('Use GPS', style: TextStyle(fontSize: 10)),
                 ),
               ),
-            ]),
+            ], theme),
 
             const SizedBox(height: 24),
 
             // Biometrics
-            _buildSectionHeader(Icons.bar_chart, 'BIOMETRICS'),
+            _buildSectionHeader(Icons.bar_chart, 'BIOMETRICS', theme),
             _buildSectionCard([
               Row(
                 children: [
-                  Expanded(child: _buildTextField('Height (cm)', _heightController, icon: Icons.height)),
+                  Expanded(child: _buildTextField('Height (cm)', _heightController, theme, icon: Icons.height)),
                   const SizedBox(width: 16),
-                  Expanded(child: _buildTextField('Weight (kg)', _weightController, icon: Icons.monitor_weight_outlined)),
+                  Expanded(child: _buildTextField('Weight (kg)', _weightController, theme, icon: Icons.monitor_weight_outlined)),
                 ],
               ),
               const SizedBox(height: 16),
-              _buildDropdownField('Blood Group', _bloodGroup, ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'], (val) => setState(() => _bloodGroup = val!), icon: Icons.opacity),
-            ]),
+              _buildDropdownField('Blood Group', _bloodGroup, ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'], (val) => setState(() => _bloodGroup = val!), theme, icon: Icons.opacity),
+            ], theme),
 
             const SizedBox(height: 48),
 
@@ -259,21 +270,29 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2E90FA),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+                        backgroundColor: theme.primaryColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                         elevation: 0,
                       ),
                       child: const Text(
-                        'Save Changes',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                        'Update Profile',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
+                  const SizedBox(height: 12),
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text(
+                    child: Text(
                       'Cancel',
-                      style: TextStyle(color: Color(0xFF667085), fontSize: 14),
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurface.withOpacity(0.5),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                 ],
@@ -286,17 +305,17 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
     );
   }
 
-  Widget _buildSectionHeader(IconData icon, String title) {
+  Widget _buildSectionHeader(IconData icon, String title, ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
       child: Row(
         children: [
-          Icon(icon, color: const Color(0xFF2E90FA), size: 18),
+          Icon(icon, color: theme.primaryColor, size: 18),
           const SizedBox(width: 12),
           Text(
             title,
-            style: const TextStyle(
-              color: Color(0xFF2E90FA),
+            style: TextStyle(
+              color: theme.primaryColor,
               fontWeight: FontWeight.w800,
               fontSize: 12,
               letterSpacing: 1.2,
@@ -307,14 +326,14 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
     );
   }
 
-  Widget _buildSectionCard(List<Widget> children) {
+  Widget _buildSectionCard(List<Widget> children, ThemeData theme) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF2F4F7)),
+        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.1)),
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
         ],
@@ -326,14 +345,14 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, {IconData? icon, int maxLines = 1, Widget? suffix}) {
+  Widget _buildTextField(String label, TextEditingController controller, ThemeData theme, {IconData? icon, int maxLines = 1, Widget? suffix}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: const TextStyle(color: Color(0xFF667085), fontSize: 12, fontWeight: FontWeight.w500)),
+            Text(label, style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 12, fontWeight: FontWeight.w500)),
             if (suffix != null) suffix,
           ],
         ),
@@ -341,11 +360,11 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
         TextField(
           controller: controller,
           maxLines: maxLines,
-          style: const TextStyle(color: Color(0xFF1D2939), fontWeight: FontWeight.w500, fontSize: 14),
+          style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.w500, fontSize: 14),
           decoration: InputDecoration(
-            prefixIcon: icon != null ? Icon(icon, color: const Color(0xFF98A2B3), size: 20) : null,
+            prefixIcon: icon != null ? Icon(icon, color: theme.colorScheme.onSurface.withOpacity(0.4), size: 20) : null,
             filled: true,
-            fillColor: const Color(0xFFF8F9FE),
+            fillColor: theme.colorScheme.surfaceVariant.withOpacity(0.1),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -357,33 +376,34 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
     );
   }
 
-  Widget _buildDropdownField(String label, String value, List<String> items, ValueChanged<String?> onChanged, {IconData? icon}) {
+  Widget _buildDropdownField(String label, String value, List<String> items, ValueChanged<String?> onChanged, ThemeData theme, {IconData? icon}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Color(0xFF667085), fontSize: 12, fontWeight: FontWeight.w500)),
+        Text(label, style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 12, fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: const Color(0xFFF8F9FE),
+            color: theme.colorScheme.surfaceVariant.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: value,
               isExpanded: true,
-              icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xFF98A2B3)),
+              dropdownColor: theme.colorScheme.surface,
+              icon: Icon(Icons.keyboard_arrow_down, color: theme.colorScheme.onSurface.withOpacity(0.4)),
               items: items.map((String item) {
                 return DropdownMenuItem<String>(
                   value: item,
                   child: Row(
                     children: [
                       if (icon != null) ...[
-                        Icon(icon, color: const Color(0xFF98A2B3), size: 18),
+                        Icon(icon, color: theme.colorScheme.onSurface.withOpacity(0.4), size: 18),
                         const SizedBox(width: 12),
                       ],
-                      Text(item, style: const TextStyle(color: Color(0xFF1D2939), fontWeight: FontWeight.w500, fontSize: 14)),
+                      Text(item, style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.w500, fontSize: 14)),
                     ],
                   ),
                 );

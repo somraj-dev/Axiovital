@@ -26,7 +26,7 @@ class SettingsPage extends StatelessWidget {
           icon: Icon(Icons.arrow_back_ios, size: 20, color: theme.primaryColor),
         ),
         title: Text(
-          'Settings',
+          userProvider.translate('settings'),
           style: TextStyle(
             color: theme.colorScheme.onSurface,
             fontWeight: FontWeight.bold,
@@ -38,7 +38,7 @@ class SettingsPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         children: [
-          _buildSectionHeader('Settings Hub', theme: theme),
+          _buildSectionHeader(userProvider.translate('settings_hub'), theme: theme),
           const SizedBox(height: 12),
           AxioCard(
             padding: EdgeInsets.zero,
@@ -46,7 +46,7 @@ class SettingsPage extends StatelessWidget {
               children: [
                 _buildSettingsItem(
                   icon: Icons.person_outline,
-                  title: 'Account',
+                  title: userProvider.translate('account'),
                   theme: theme,
                   onTap: () {
                     Navigator.push(
@@ -79,7 +79,7 @@ class SettingsPage extends StatelessWidget {
           const SizedBox(height: 32),
           Row(
             children: [
-              _buildSectionHeader('Account Management', theme: theme),
+              _buildSectionHeader(userProvider.translate('account_management'), theme: theme),
               const SizedBox(width: 8),
               _buildNewBadge(),
             ],
@@ -113,15 +113,15 @@ class SettingsPage extends StatelessWidget {
                 _buildDivider(theme),
                 _buildSettingsItem(
                   icon: Icons.delete_outline,
-                  title: 'Delete Account',
-                  textColor: Colors.redAccent,
+                  title: userProvider.translate('delete_account'),
+                  textColor: theme.colorScheme.error,
                   theme: theme,
                 ),
               ],
             ),
           ),
           const SizedBox(height: 32),
-          _buildSectionHeader('Support & FAQs', theme: theme),
+          _buildSectionHeader(userProvider.translate('support_faqs'), theme: theme),
           const SizedBox(height: 12),
           AxioCard(
             padding: EdgeInsets.zero,
@@ -142,13 +142,13 @@ class SettingsPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 32),
-          _buildSectionHeader('App', theme: theme),
+          _buildSectionHeader(userProvider.translate('app'), theme: theme),
           const SizedBox(height: 12),
           AxioCard(
             padding: EdgeInsets.zero,
             child: _buildSettingsItem(
               icon: Icons.system_update_outlined,
-              title: 'App Updates',
+              title: userProvider.translate('app_updates'),
               theme: theme,
             ),
           ),
@@ -247,7 +247,7 @@ class SettingsPage extends StatelessWidget {
       child: const Text(
         'NEW',
         style: TextStyle(
-          color: Colors.white,
+          color: Colors.white, // Keep white text on red/rose badge for contrast
           fontSize: 9,
           fontWeight: FontWeight.w900,
           letterSpacing: 0.5,
