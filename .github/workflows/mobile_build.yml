@@ -81,25 +81,23 @@ jobs:
           # Force all subprojects (plugins) to use SDK 35
           # This is the "God mode" fix for plugin compatibility issues
           if [ -f "$ROOT_BUILD_GRADLE" ]; then
-            cat >> "$ROOT_BUILD_GRADLE" <<EOF
-
-            allprojects {
-                subprojects {
-                    afterEvaluate { project ->
-                        if (project.hasProperty('android')) {
-                            project.android {
-                                compileSdk 35
-                                buildToolsVersion "35.0.0"
-                                defaultConfig {
-                                    minSdk 23
-                                    targetSdk 35
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-EOF
+            echo "" >> "$ROOT_BUILD_GRADLE"
+            echo "allprojects {" >> "$ROOT_BUILD_GRADLE"
+            echo "    subprojects {" >> "$ROOT_BUILD_GRADLE"
+            echo "        afterEvaluate { project ->" >> "$ROOT_BUILD_GRADLE"
+            echo "            if (project.hasProperty('android')) {" >> "$ROOT_BUILD_GRADLE"
+            echo "                project.android {" >> "$ROOT_BUILD_GRADLE"
+            echo "                    compileSdk 35" >> "$ROOT_BUILD_GRADLE"
+            echo "                    buildToolsVersion \"35.0.0\"" >> "$ROOT_BUILD_GRADLE"
+            echo "                    defaultConfig {" >> "$ROOT_BUILD_GRADLE"
+            echo "                        minSdk 23" >> "$ROOT_BUILD_GRADLE"
+            echo "                        targetSdk 35" >> "$ROOT_BUILD_GRADLE"
+            echo "                    }" >> "$ROOT_BUILD_GRADLE"
+            echo "                }" >> "$ROOT_BUILD_GRADLE"
+            echo "            }" >> "$ROOT_BUILD_GRADLE"
+            echo "        }" >> "$ROOT_BUILD_GRADLE"
+            echo "    }" >> "$ROOT_BUILD_GRADLE"
+            echo "}" >> "$ROOT_BUILD_GRADLE"
             echo "Injected global overrides into $ROOT_BUILD_GRADLE"
           fi
 
