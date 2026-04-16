@@ -71,32 +71,46 @@ jobs:
           ROOT_BUILD_GRADLE="android/build.gradle"
           LOCAL_PROPERTIES="android/local.properties"
           
-          # Initialize local.properties with guaranteed values
+          # Initialize local.properties with guaranteed values, but APPEND so we don't erase sdk.dir
           # This resolves the "null object / substring" errors in plugins
-          echo "flutter.sdk=$FLUTTER_ROOT" > "$LOCAL_PROPERTIES"
+          if [ -n "$FLUTTER_ROOT" ]; then
+            echo "flutter.sdk=$FLUTTER_ROOT" >> "$LOCAL_PROPERTIES"
+          fi
           echo "flutter.compileSdkVersion=35" >> "$LOCAL_PROPERTIES"
           echo "flutter.targetSdkVersion=35" >> "$LOCAL_PROPERTIES"
           echo "flutter.minSdkVersion=21" >> "$LOCAL_PROPERTIES"
           
           # Force all subprojects (plugins) to use SDK 35
-          # This is the "God mode" fix for plugin compatibility issues
+          # This is the "God mode" fix for plugin compatibility issues.
+          # We PREPEND it to ensure it registers before evaluation finishes!
           if [ -f "$ROOT_BUILD_GRADLE" ]; then
-            echo "" >> "$ROOT_BUILD_GRADLE"
-            echo "allprojects {" >> "$ROOT_BUILD_GRADLE"
-            echo "    subprojects { project ->" >> "$ROOT_BUILD_GRADLE"
-            echo "        if (project.hasProperty('android')) {" >> "$ROOT_BUILD_GRADLE"
-            echo "            project.android {" >> "$ROOT_BUILD_GRADLE"
-            echo "                compileSdk 35" >> "$ROOT_BUILD_GRADLE"
-            echo "                buildToolsVersion \"35.0.0\"" >> "$ROOT_BUILD_GRADLE"
-            echo "                defaultConfig {" >> "$ROOT_BUILD_GRADLE"
-            echo "                    minSdk 23" >> "$ROOT_BUILD_GRADLE"
-            echo "                    targetSdk 35" >> "$ROOT_BUILD_GRADLE"
-            echo "                }" >> "$ROOT_BUILD_GRADLE"
-            echo "            }" >> "$ROOT_BUILD_GRADLE"
-            echo "        }" >> "$ROOT_BUILD_GRADLE"
-            echo "    }" >> "$ROOT_BUILD_GRADLE"
-            echo "}" >> "$ROOT_BUILD_GRADLE"
-            echo "Injected global overrides into $ROOT_BUILD_GRADLE"
+            TMP_GRADLE="temp.gradle"
+            echo "allprojects {" > "$TMP_GRADLE"
+            echo "    subprojects {" >> "$TMP_GRADLE"
+            echo "        ext.flutter = [" >> "$TMP_GRADLE"
+            echo "            compileSdkVersion: 35," >> "$TMP_GRADLE"
+            echo "            targetSdkVersion: 35," >> "$TMP_GRADLE"
+            echo "            minSdkVersion: 23" >> "$TMP_GRADLE"
+            echo "        ]" >> "$TMP_GRADLE"
+            echo "        afterEvaluate { project ->" >> "$TMP_GRADLE"
+            echo "            if (project.hasProperty('android')) {" >> "$TMP_GRADLE"
+            echo "                project.android {" >> "$TMP_GRADLE"
+            echo "                    compileSdk 35" >> "$TMP_GRADLE"
+            echo "                    buildToolsVersion \"35.0.0\"" >> "$TMP_GRADLE"
+            echo "                    defaultConfig {" >> "$TMP_GRADLE"
+            echo "                        minSdk 23" >> "$TMP_GRADLE"
+            echo "                        targetSdk 35" >> "$TMP_GRADLE"
+            echo "                    }" >> "$TMP_GRADLE"
+            echo "                }" >> "$TMP_GRADLE"
+            echo "            }" >> "$TMP_GRADLE"
+            echo "        }" >> "$TMP_GRADLE"
+            echo "    }" >> "$TMP_GRADLE"
+            echo "}" >> "$TMP_GRADLE"
+            
+            # Prepend block to the original build.gradle
+            cat "$ROOT_BUILD_GRADLE" >> "$TMP_GRADLE"
+            mv "$TMP_GRADLE" "$ROOT_BUILD_GRADLE"
+            echo "Prepended global overrides to $ROOT_BUILD_GRADLE"
           fi
 
           if [ -f "$APP_BUILD_GRADLE" ]; then
