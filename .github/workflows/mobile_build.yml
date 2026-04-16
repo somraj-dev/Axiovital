@@ -66,18 +66,31 @@ jobs:
             echo "Updated Gradle wrapper to 8.2.1"
           fi
 
-          # 4. Ensure SDK versions are set correctly (required by geolocator and modern Android)
+          # 4. Ensure SDK versions are set correctly (Required for geolocator and SDK 35)
           APP_BUILD_GRADLE="android/app/build.gradle"
+          LOCAL_PROPERTIES="android/local.properties"
+          
+          # Initialize/Update local.properties (forces versions for all plugins)
+          # This is the most reliable way to propagate versions in Flutter
+          touch "$LOCAL_PROPERTIES"
+          echo "flutter.compileSdkVersion=35" >> "$LOCAL_PROPERTIES"
+          echo "flutter.targetSdkVersion=35" >> "$LOCAL_PROPERTIES"
+          echo "flutter.minSdkVersion=21" >> "$LOCAL_PROPERTIES"
+          if [ -n "$FLUTTER_ROOT" ]; then
+            # Use the environment variable from flutter-action to prevent "null object" crashes in plugins
+            echo "flutter.sdk=$FLUTTER_ROOT" >> "$LOCAL_PROPERTIES"
+          fi
+
           if [ -f "$APP_BUILD_GRADLE" ]; then
-            # Replace the entire line for each SDK setting to ensure no leftovers
-            sed -i 's/compileSdk .*/compileSdk 34/' "$APP_BUILD_GRADLE"
-            sed -i 's/compileSdkVersion .*/compileSdkVersion 34/' "$APP_BUILD_GRADLE"
-            sed -i 's/targetSdk .*/targetSdk 34/' "$APP_BUILD_GRADLE"
-            sed -i 's/targetSdkVersion .*/targetSdkVersion 34/' "$APP_BUILD_GRADLE"
+            # Update main app build.gradle to avoid version mismatches
+            sed -i 's/compileSdk .*/compileSdk 35/' "$APP_BUILD_GRADLE"
+            sed -i 's/compileSdkVersion .*/compileSdkVersion 35/' "$APP_BUILD_GRADLE"
+            sed -i 's/targetSdk .*/targetSdk 35/' "$APP_BUILD_GRADLE"
+            sed -i 's/targetSdkVersion .*/targetSdkVersion 35/' "$APP_BUILD_GRADLE"
             sed -i 's/minSdk .*/minSdk 21/' "$APP_BUILD_GRADLE"
             sed -i 's/minSdkVersion .*/minSdkVersion 21/' "$APP_BUILD_GRADLE"
             
-            echo "Updated SDK versions in $APP_BUILD_GRADLE"
+            echo "Updated SDK versions to 35 in $APP_BUILD_GRADLE and local.properties"
           fi
         working-directory: frontend
 
