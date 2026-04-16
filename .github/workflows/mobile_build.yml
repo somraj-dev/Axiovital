@@ -83,22 +83,22 @@ jobs:
           if [ -f "$ROOT_BUILD_GRADLE" ]; then
             cat >> "$ROOT_BUILD_GRADLE" <<EOF
 
-allprojects {
-    subprojects {
-        afterEvaluate { project ->
-            if (project.hasProperty('android')) {
-                project.android {
-                    compileSdk 35
-                    buildToolsVersion "35.0.0"
-                    defaultConfig {
-                        minSdk 23
-                        targetSdk 35
+            allprojects {
+                subprojects {
+                    afterEvaluate { project ->
+                        if (project.hasProperty('android')) {
+                            project.android {
+                                compileSdk 35
+                                buildToolsVersion "35.0.0"
+                                defaultConfig {
+                                    minSdk 23
+                                    targetSdk 35
+                                }
+                            }
+                        }
                     }
                 }
             }
-        }
-    }
-}
 EOF
             echo "Injected global overrides into $ROOT_BUILD_GRADLE"
           fi
