@@ -5,6 +5,7 @@ import 'theme.dart';
 import 'package:provider/provider.dart';
 import 'cart_provider.dart';
 import 'cart_page.dart';
+import 'lab_test_details_page.dart';
 
 class LabTestsPage extends StatelessWidget {
   const LabTestsPage({super.key});
@@ -376,8 +377,23 @@ class LabTestsPage extends StatelessWidget {
   }
 
   Widget _buildPackageCard(BuildContext context, String title, String discount, String imgUrl, String tests, String currentPrice, String originalPrice) {
-    return Container(
-      width: 210,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LabTestDetailsPage(
+              title: title,
+              currentPrice: double.tryParse(currentPrice) ?? 0.0,
+              originalPrice: double.tryParse(originalPrice) ?? 0.0,
+              discountPercentage: discount,
+              testCount: tests.replaceAll(RegExp(r'[^0-9]'), ''),
+            ),
+          ),
+        );
+      },
+      child: Container(
+        width: 210,
       margin: const EdgeInsets.only(right: 14),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -470,6 +486,7 @@ class LabTestsPage extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }
