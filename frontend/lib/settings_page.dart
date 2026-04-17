@@ -5,6 +5,7 @@ import 'widgets/axio_avatar.dart';
 import 'widgets/axio_card.dart';
 import 'theme.dart';
 import 'account_settings_page.dart';
+import 'family_hub_page.dart';
 
 
 class SettingsPage extends StatelessWidget {
@@ -69,9 +70,12 @@ class SettingsPage extends StatelessWidget {
                 ),
                 _buildDivider(theme),
                 _buildSettingsItem(
-                  icon: Icons.link_rounded,
-                  title: 'Links',
+                  icon: Icons.hub_outlined,
+                  title: 'Family Hub',
                   theme: theme,
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const FamilyHubPage()));
+                  },
                 ),
               ],
             ),
@@ -91,7 +95,7 @@ class SettingsPage extends StatelessWidget {
               children: [
                 _buildSettingsItem(
                   icon: Icons.people_outline,
-                  title: 'Account Switching',
+                  title: 'Manage Parents',
                   subtitle: 'Take care of your parents remotely',
                   trailing: Container(
                     padding: const EdgeInsets.all(2),
