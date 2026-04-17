@@ -57,6 +57,7 @@ class UserProvider with ChangeNotifier {
       'glass_nav': 'Glass Bottom Bar',
       'apply': 'Apply Theme',
       'hex_code': 'Hex Code',
+      'logout': 'Logout',
     },
     'Nederlands (Belgie)': {
       'profile': 'Profiel',
@@ -88,6 +89,7 @@ class UserProvider with ChangeNotifier {
       'glass_nav': 'Glazen Balk',
       'apply': 'Thema Toepassen',
       'hex_code': 'Hex-code',
+      'logout': 'Uitloggen',
     },
     'Hindi': {
       'profile': 'प्रोफ़ाइल',
@@ -119,6 +121,7 @@ class UserProvider with ChangeNotifier {
       'glass_nav': 'ग्लास बॉटम बार',
       'apply': 'थीम लागू करें',
       'hex_code': 'हेक्स कोड',
+      'logout': 'लॉग आउट',
     },
   };
 

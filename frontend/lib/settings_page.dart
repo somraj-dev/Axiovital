@@ -6,6 +6,8 @@ import 'widgets/axio_card.dart';
 import 'theme.dart';
 import 'account_settings_page.dart';
 import 'family_hub_page.dart';
+import 'auth_service.dart';
+import 'login_page.dart';
 
 
 class SettingsPage extends StatelessWidget {
@@ -114,12 +116,19 @@ class SettingsPage extends StatelessWidget {
                     _showAccountSwitchingDialog(context, userProvider, theme);
                   },
                 ),
-                _buildDivider(theme),
                 _buildSettingsItem(
                   icon: Icons.delete_outline,
                   title: userProvider.translate('delete_account'),
                   textColor: theme.colorScheme.error,
                   theme: theme,
+                ),
+                _buildDivider(theme),
+                _buildSettingsItem(
+                  icon: Icons.logout,
+                  title: userProvider.translate('logout'),
+                  textColor: theme.colorScheme.error,
+                  theme: theme,
+                  onTap: () => _showLogoutConfirmation(context, userProvider, theme),
                 ),
               ],
             ),
@@ -158,6 +167,98 @@ class SettingsPage extends StatelessWidget {
           ),
           const SizedBox(height: 40),
         ],
+      ),
+    );
+  }
+
+  void _showLogoutConfirmation(BuildContext context, UserProvider userProvider, ThemeData theme) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        child: Padding(
+          padding: const EdgeInsets.all(28.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.08),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 36),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Logout',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Are you sure you want to log out\nof your account?',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.black54,
+                  fontSize: 15,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await AuthService().signOut();
+                    if (context.mounted) {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) => const LoginPage()),
+                        (route) => false,
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Logout',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    side: BorderSide(color: Colors.black.withOpacity(0.1)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
