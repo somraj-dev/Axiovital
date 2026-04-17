@@ -4,8 +4,13 @@ brain/
 logs/
 # Build and environment files
 *.log
-build_logs.txt
-build_logs_2.txt
+*_build.txt
+*_build_output.txt
+*_log*.txt
+*build_output.txt
+docker_build*.txt
+doctor_flow*.txt
+total_build*.txt
 *.db
 __pycache__/
 
