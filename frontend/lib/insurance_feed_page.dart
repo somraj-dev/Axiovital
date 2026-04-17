@@ -6,7 +6,6 @@ import 'policy_customization_page.dart';
 import 'widgets/insurance/insurance_policy_card.dart';
 import 'widgets/insurance/sticky_filter_bar.dart';
 import 'widgets/insurance/compare_tray.dart';
-import 'insurance_quote_page.dart';
 import 'insurance_details_page.dart';
 import 'search_page.dart';
 
