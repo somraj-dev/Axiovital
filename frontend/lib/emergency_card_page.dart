@@ -1,9 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
+import 'scan_duration.dart';
 
-class EmergencyCardPage extends StatelessWidget {
+class EmergencyCardPage extends StatefulWidget {
   const EmergencyCardPage({super.key});
+
+  @override
+  State<EmergencyCardPage> createState() => _EmergencyCardPageState();
+}
+
+class _EmergencyCardPageState extends State<EmergencyCardPage> {
+
+  @override
+  void initState() {
+    super.initState();
+    // Simulate a friend scanning the QR code from another device after a 3-second delay
+    Future.delayed(const Duration(seconds: 3), () {
+      if (!mounted) return;
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => const ScanDurationSheet(), // The dynamic logic inside the sheet already handles assignments
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -152,15 +175,27 @@ class EmergencyCardPage extends StatelessWidget {
                     ),
                     
                     // QR Code Right
-                    Container(
-                      width: 85,
-                      height: 85,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black12),
-                      ),
-                      child: Image.network(
-                        'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Axio-ID:${userProvider.axioId}',
-                        fit: BoxFit.cover,
+                    GestureDetector(
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) => ScanDurationSheet(
+                            sourceDevice: "${userProvider.name}'s iPhone",
+                          ),
+                        );
+                      },
+                      child: Container(
+                        width: 85,
+                        height: 85,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black12),
+                        ),
+                        child: Image.network(
+                          'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Axio-ID:${userProvider.axioId}',
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ],

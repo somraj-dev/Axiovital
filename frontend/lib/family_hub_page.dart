@@ -1,7 +1,27 @@
 import 'package:flutter/material.dart';
 
-class FamilyHubPage extends StatelessWidget {
+class FamilyHubPage extends StatefulWidget {
   const FamilyHubPage({super.key});
+
+  @override
+  State<FamilyHubPage> createState() => _FamilyHubPageState();
+}
+
+class _FamilyHubPageState extends State<FamilyHubPage> {
+  String _selectedMember = 'Family View';
+
+  double _getPointerOffset() {
+    switch (_selectedMember) {
+      case 'Family View':
+        return 42.0;
+      case 'Sathi':
+        return 135.0;
+      case 'Somraj':
+        return 219.0;
+      default:
+        return 42.0;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,29 +46,142 @@ class FamilyHubPage extends StatelessWidget {
             const SizedBox(height: 16),
             _buildYourFamilySection(),
             // Remove the 24 spacing here because we use translation/overlap for the pointer
-            _buildLeaderboardSection(),
-            const SizedBox(height: 40),
-            _buildHealthOverviewSection(),
-            const SizedBox(height: 48),
-            _buildBodySystemSection(),
-            const SizedBox(height: 40),
-            _buildInsightsPromo(context),
-            const SizedBox(height: 48),
-            const Center(
-              child: Text(
-                'Family: Always Together,\nForever',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.black26,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  height: 1.2,
+            if (_selectedMember == 'Family View') ...[
+              _buildLeaderboardSection(),
+              const SizedBox(height: 40),
+              _buildHealthOverviewSection(),
+              const SizedBox(height: 48),
+              _buildBodySystemSection(),
+              const SizedBox(height: 40),
+              _buildInsightsPromo(context),
+              const SizedBox(height: 48),
+              const Center(
+                child: Text(
+                  'Family: Always Together,\nForever',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.black26,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    height: 1.2,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 48),
+              const SizedBox(height: 48),
+            ] else ...[
+              _buildIndividualMemberContent(context),
+            ],
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildIndividualMemberContent(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: double.infinity,
+          constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height * 0.5),
+          color: const Color(0xFF45308A),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Health documents', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              const Text('Everything your health history needs, organised', style: TextStyle(color: Colors.white70, fontSize: 13)),
+              const SizedBox(height: 32),
+              Row(
+                children: [
+                  Expanded(child: _buildDocCard('0', 'Lab reports')),
+                  const SizedBox(width: 16),
+                  Expanded(child: _buildDocCard('0', 'Prescriptions')),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white24),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Text('Vaccines', style: TextStyle(color: Colors.white, fontSize: 16)),
+                    Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Row(
+                  children: [
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(width: 24, height: 8, decoration: BoxDecoration(color: const Color(0xFF7CB342), borderRadius: BorderRadius.circular(2))),
+                        Container(width: 8, height: 24, decoration: BoxDecoration(color: const Color(0xFF7CB342), borderRadius: BorderRadius.circular(2))),
+                      ],
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text('Upload more documents', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                          SizedBox(height: 4),
+                          Text('Lab report, prescription', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        // The Downward White Triangular Tab
+        Positioned(
+          top: -1,
+          left: _getPointerOffset(),
+          child: ClipPath(
+            clipper: _TriangleClipper(),
+            child: Container(
+              width: 24,
+              height: 16,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDocCard(String count, String title) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.white24),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(count, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+              const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(title, style: const TextStyle(color: Colors.white, fontSize: 14)),
+        ],
       ),
     );
   }
@@ -146,23 +279,32 @@ class FamilyHubPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start, // Align to top
               children: [
                 // Family View
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const CircleAvatar(
-                      radius: 26,
-                      backgroundColor: Color(0xFFF3E5F5),
-                      child: Icon(Icons.people, color: Color(0xFF7B1FA2)),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text('Family View', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                    const SizedBox(height: 12),
-                  ],
+                GestureDetector(
+                  onTap: () => setState(() => _selectedMember = 'Family View'),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircleAvatar(
+                        radius: 26,
+                        backgroundColor: _selectedMember == 'Family View' ? const Color(0xFFF3E5F5) : Colors.transparent,
+                        child: Icon(Icons.people, color: _selectedMember == 'Family View' ? const Color(0xFF7B1FA2) : Colors.grey),
+                      ),
+                      const SizedBox(height: 8),
+                      Text('Family View', style: TextStyle(fontWeight: _selectedMember == 'Family View' ? FontWeight.bold : FontWeight.normal, fontSize: 13, color: _selectedMember == 'Family View' ? Colors.black : Colors.black54)),
+                      const SizedBox(height: 12),
+                    ],
+                  ),
                 ),
                 Container(height: 50, width: 1, color: Colors.grey.shade300, margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 10)),
-                _buildFamilyMemberAvatar('Sathi', 'https://ui-avatars.com/api/?name=Sathi&background=random'),
+                GestureDetector(
+                  onTap: () => setState(() => _selectedMember = 'Sathi'),
+                  child: _buildFamilyMemberAvatar('Sathi', 'https://ui-avatars.com/api/?name=Sathi&background=random', _selectedMember == 'Sathi'),
+                ),
                 const SizedBox(width: 32),
-                _buildFamilyMemberAvatar('Somraj', 'https://ui-avatars.com/api/?name=Somraj&background=random'),
+                GestureDetector(
+                  onTap: () => setState(() => _selectedMember = 'Somraj'),
+                  child: _buildFamilyMemberAvatar('Somraj', 'https://ui-avatars.com/api/?name=Somraj&background=random', _selectedMember == 'Somraj'),
+                ),
                 const SizedBox(width: 32),
                 Column(
                   mainAxisSize: MainAxisSize.min,
@@ -188,7 +330,7 @@ class FamilyHubPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFamilyMemberAvatar(String name, String url) {
+  Widget _buildFamilyMemberAvatar(String name, String url, bool isSelected) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -198,7 +340,7 @@ class FamilyHubPage extends StatelessWidget {
           backgroundImage: NetworkImage(url),
         ),
         const SizedBox(height: 8),
-        Text(name, style: const TextStyle(color: Colors.black54, fontSize: 13)),
+        Text(name, style: TextStyle(color: isSelected ? Colors.black : Colors.black54, fontSize: 13, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
       ],
     );
   }
@@ -253,7 +395,7 @@ class FamilyHubPage extends StatelessWidget {
         // The Downward White Triangular Tab perfectly positioned under "Family View"
         Positioned(
           top: -1,
-          left: 42, // Roughly aligns under Family View
+          left: _getPointerOffset(),
           child: ClipPath(
             clipper: _TriangleClipper(),
             child: Container(
