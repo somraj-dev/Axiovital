@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../product_provider.dart';
 import '../../cart_provider.dart';
+import '../../product_details_page.dart';
 
 class PremiumProductCard extends StatelessWidget {
   final Product product;
@@ -12,7 +13,16 @@ class PremiumProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     
-    return Container(
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductDetailsPage(product: product),
+          ),
+        );
+      },
+      child: Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -196,6 +206,7 @@ class PremiumProductCard extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }

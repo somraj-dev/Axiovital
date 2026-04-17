@@ -6,6 +6,7 @@ import 'coupons_page.dart';
 import 'new_address_page.dart';
 import 'checkout_sheets.dart';
 import 'payment_options_page.dart';
+import 'search_page.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -353,7 +354,9 @@ class _CartPageState extends State<CartPage> {
           const Text('Cart', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1D2939))),
           const Spacer(),
           GestureDetector(
-            onTap: () => _showSearchOverlay(context),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchPage()));
+            },
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(color: Colors.grey.shade100, shape: BoxShape.circle),

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'cart_provider.dart';
 import 'product_provider.dart';
 import 'cart_page.dart';
+import 'search_page.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   final Product product;
@@ -135,7 +136,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> with TickerProv
         onPressed: () => Navigator.pop(context),
       ),
       actions: [
-        IconButton(icon: const Icon(Icons.search_rounded, color: Colors.black87), onPressed: () {}),
+        IconButton(icon: const Icon(Icons.search_rounded, color: Colors.black87), onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchPage()));
+        }),
         IconButton(icon: const Icon(Icons.share_rounded, color: Colors.black87), onPressed: () {}),
         _buildCartBadge(),
       ],
@@ -279,12 +282,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> with TickerProv
             style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 28, color: Color(0xFF1D2939), letterSpacing: -0.8),
           ),
           const SizedBox(height: 20),
-          _buildPremiumTag('Official Abbott Partner', Icons.verified_rounded, Colors.blue),
+          _buildPremiumTag('Official ${widget.product.brand} Partner', Icons.verified_rounded, Colors.blue),
           const SizedBox(height: 32),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildFeatureIcon(Icons.star_rounded, '4.5 Rating', Colors.orange),
+              _buildFeatureIcon(Icons.star_rounded, '${widget.product.rating} Rating', Colors.orange),
               _buildFeatureIcon(Icons.shield_rounded, 'Clinical Safe', Colors.green),
               _buildFeatureIcon(Icons.trending_up_rounded, 'Top Choice', Colors.purple),
             ],
@@ -343,10 +346,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> with TickerProv
         children: [
           const Icon(Icons.flash_on_rounded, color: Colors.orange, size: 20),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Express Delivery by Tomorrow, 11 AM',
-              style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF1D2939), fontSize: 13),
+              'Express Delivery by ${widget.product.deliveryDate}',
+              style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF1D2939), fontSize: 13),
             ),
           ),
           const Icon(Icons.keyboard_arrow_right_rounded, color: Colors.grey, size: 18),
@@ -534,11 +537,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> with TickerProv
           labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15),
           tabs: const [Tab(text: 'Product Details'), Tab(text: 'User Reviews')],
         ),
-        const Padding(
-          padding: EdgeInsets.all(24),
+        Padding(
+          padding: const EdgeInsets.all(24),
           child: Text(
-            'Experience clinical-grade wellness with Limcee. Our chewable tablets are formulated for rapid absorption, supporting your immunity throughout the day. Trusted by millions for daily vitamin C excellence.',
-            style: TextStyle(color: Color(0xFF475457), height: 1.7, fontSize: 15),
+            widget.product.description.isEmpty 
+                ? 'Experience clinical-grade wellness with ${widget.product.name}. Carefully formulated to support your daily health needs and trusted by millions for daily excellence.' 
+                : widget.product.description,
+            style: const TextStyle(color: Color(0xFF475457), height: 1.7, fontSize: 15),
           ),
         ),
       ],
@@ -555,13 +560,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> with TickerProv
           const SizedBox(height: 24),
           Row(
             children: [
-              const Text('4.5', style: TextStyle(fontSize: 64, fontWeight: FontWeight.w900, letterSpacing: -3)),
+              Text('${widget.product.rating}', style: const TextStyle(fontSize: 64, fontWeight: FontWeight.w900, letterSpacing: -3)),
               const SizedBox(width: 16),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(children: List.generate(5, (i) => Icon(Icons.star_rounded, color: i < 4 ? Colors.green : Colors.grey.shade300, size: 24))),
-                  const Text('Based on 17.8K verified buyers', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w600, fontSize: 12)),
+                  Row(children: List.generate(5, (i) => Icon(Icons.star_rounded, color: i < widget.product.rating.floor() ? Colors.green : Colors.grey.shade300, size: 24))),
+                  Text('Based on ${widget.product.ratingCount} verified buyers', style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w600, fontSize: 12)),
                 ],
               ),
             ],
@@ -618,11 +623,11 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> with TickerProv
         children: [
           const Text('Recommended Bundle', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20)),
           const SizedBox(height: 24),
-          _bundleRow(widget.product.name, widget.product.imagePath, '₹23'),
+          _bundleRow(widget.product.name, widget.product.imagePath, '₹${widget.product.currentPrice.toInt()}'),
           const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Center(child: Icon(Icons.add_rounded, color: Color(0xFF8B1A4B)))),
           _bundleRow('Derma Co AHA+BHA Solution', 'assets/images/derma_co.png', '₹509'),
           const SizedBox(height: 32),
-          _buildTotalBundleCard('₹532'),
+          _buildTotalBundleCard('₹${(widget.product.currentPrice + 509).toInt()}'),
         ],
       ),
     );
@@ -696,7 +701,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> with TickerProv
         children: [
           const Text('Compliance & Manufacturing', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
           const SizedBox(height: 16),
-          _specRow('Licensed By', 'Abbott India Ltd.'),
+          _specRow('Licensed By', widget.product.brand),
           _specRow('Origin', 'Maharashtra, India'),
           _specRow('Certifications', 'GMP, ISO 9001'),
         ],

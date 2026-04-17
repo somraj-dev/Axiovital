@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'doctor_details_page.dart';
+import 'search_page.dart';
 
 class Doctor {
   final String id;
@@ -71,19 +72,24 @@ class FindDoctorPage extends StatelessWidget {
                   const Icon(Icons.arrow_back, color: Colors.black54),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: Container(
-                      height: 48,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: Row(
-                        children: const [
-                          Icon(Icons.search, color: Colors.black26),
-                          SizedBox(width: 8),
-                          Text('Find your doctor...', style: TextStyle(color: Colors.black38)),
-                        ],
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchPage()));
+                      },
+                      child: Container(
+                        height: 48,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: Row(
+                          children: const [
+                            Icon(Icons.search, color: Colors.black26),
+                            SizedBox(width: 8),
+                            Text('Find your doctor...', style: TextStyle(color: Colors.black38)),
+                          ],
+                        ),
                       ),
                     ),
                   ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'health_feed_provider.dart';
+import 'search_page.dart';
 
 class ReadAboutHealthPage extends StatelessWidget {
   const ReadAboutHealthPage({super.key});
@@ -122,7 +123,10 @@ class _HealthFeedShellState extends State<_HealthFeedShell> {
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
       child: TextField(
         controller: _searchCtrl,
-        onChanged: (val) => provider.setSearchQuery(val),
+        readOnly: true,
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchPage()));
+        },
         decoration: InputDecoration(
           hintText: 'Search diseases, symptoms, topics...',
           hintStyle: const TextStyle(color: Colors.black26, fontSize: 14),

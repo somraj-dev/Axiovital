@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'cart_provider.dart';
 import 'cart_page.dart';
+import 'search_page.dart';
 
 class LabTestDetailsPage extends StatefulWidget {
   final String title;
@@ -56,7 +57,9 @@ class _LabTestDetailsPageState extends State<LabTestDetailsPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.search, color: Colors.black87),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchPage()));
+            },
           ),
           IconButton(
             icon: const Icon(Icons.share_outlined, color: Colors.black87),

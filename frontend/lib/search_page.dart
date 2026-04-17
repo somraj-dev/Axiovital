@@ -17,7 +17,7 @@ class SearchPage extends StatelessWidget {
         children: [
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 120),
+              padding: const EdgeInsets.only(bottom: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -32,7 +32,6 @@ class SearchPage extends StatelessWidget {
               ),
             ),
           ),
-          _buildFloatingFooter(context),
         ],
       ),
     );
@@ -343,86 +342,4 @@ class SearchPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFloatingFooter(BuildContext context) {
-    final theme = Theme.of(context);
-    return Positioned(
-      left: 24,
-      right: 24,
-      bottom: 24,
-      child: Container(
-        height: 76,
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(40),
-          boxShadow: [
-            BoxShadow(
-              color: theme.primaryColor.withOpacity(0.15),
-              blurRadius: 30,
-              spreadRadius: 5,
-              offset: const Offset(0, 10),
-            ),
-          ],
-          border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.insights_outlined, color: theme.colorScheme.onSurface, size: 26),
-                const SizedBox(height: 4),
-                Text('Insights', style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 14)),
-              ],
-            ),
-            
-            GestureDetector(
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const HealthAssistantPage()));
-              },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: const RadialGradient(
-                        colors: [AppTheme.primaryColor, Color(0xFF903050)],
-                        center: Alignment.center,
-                        radius: 0.8,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primaryColor.withOpacity(0.5),
-                          blurRadius: 15,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: const Center(
-                      child: Icon(Icons.auto_awesome, color: Colors.white, size: 24),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text('Ask me', style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 14, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
-            
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.person_outline, color: theme.colorScheme.onSurface.withOpacity(0.6), size: 28),
-                const SizedBox(height: 4),
-                Text('Profile', style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 14)),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

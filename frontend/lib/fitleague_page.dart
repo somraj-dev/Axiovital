@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'search_page.dart';
 
 class FitLeaguePage extends StatefulWidget {
   const FitLeaguePage({super.key});
@@ -179,7 +180,9 @@ class _FitLeaguePageState extends State<FitLeaguePage> {
           ),
           IconButton(
             icon: const Icon(Icons.search, color: Colors.white, size: 24),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchPage()));
+            },
           ),
           Stack(
             children: [

@@ -4,6 +4,7 @@ import 'product_provider.dart';
 import 'cart_provider.dart';
 import 'cart_page.dart';
 import 'widgets/product/premium_product_card.dart';
+import 'search_page.dart';
 
 class ProductListPage extends StatefulWidget {
   const ProductListPage({super.key});
@@ -59,7 +60,9 @@ class _ProductListPageState extends State<ProductListPage> {
         onPressed: () => Navigator.pop(context),
       ),
       actions: [
-        IconButton(icon: const Icon(Icons.search, color: Colors.black), onPressed: () {}),
+        IconButton(icon: const Icon(Icons.search, color: Colors.black), onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchPage()));
+        }),
         _buildCartBadge(context),
         const SizedBox(width: 8),
       ],

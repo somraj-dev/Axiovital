@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'cart_provider.dart';
 import 'cart_page.dart';
 import 'lab_test_details_page.dart';
+import 'search_page.dart';
 
 class LabTestsPage extends StatelessWidget {
   const LabTestsPage({super.key});
@@ -75,8 +76,12 @@ class LabTestsPage extends StatelessWidget {
                     ],
                     border: Border.all(color: Colors.grey.shade200),
                   ),
-                  child: const TextField(
-                    decoration: InputDecoration(
+                  child: TextField(
+                    readOnly: true,
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchPage()));
+                    },
+                    decoration: const InputDecoration(
                       hintText: "Search for 'ultrasound'",
                       hintStyle: TextStyle(color: Colors.grey),
                       prefixIcon: SizedBox(width: 20),
