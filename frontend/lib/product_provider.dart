@@ -1,6 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Product {
   final String id;
@@ -35,27 +34,28 @@ class Product {
     this.description = '',
   });
 
-  factory Product.fromJson(Map<String, dynamic> json) {
+  factory Product.fromMap(Map<String, dynamic> map) {
     return Product(
-      id: json['id'],
-      name: json['name'],
-      brand: json['brand'],
-      quantity: json['quantity'],
-      rating: (json['rating'] as num).toDouble(),
-      ratingCount: json['ratingCount'],
-      deliveryDate: json['deliveryDate'],
-      currentPrice: (json['currentPrice'] as num).toDouble(),
-      originalPrice: (json['originalPrice'] as num).toDouble(),
-      discount: json['discount'],
-      imagePath: json['imagePath'],
-      category: json['category'],
-      isBestSeller: json['isBestSeller'] ?? false,
-      description: json['description'] ?? '',
+      id: map['id'].toString(),
+      name: map['name'] ?? '',
+      brand: map['brand'] ?? '',
+      quantity: map['quantity'] ?? '',
+      rating: (map['rating'] as num?)?.toDouble() ?? 5.0,
+      ratingCount: map['rating_count'] ?? 0,
+      deliveryDate: map['delivery_date'] ?? 'Tomorrow',
+      currentPrice: (map['current_price'] as num?)?.toDouble() ?? 0.0,
+      originalPrice: (map['original_price'] as num?)?.toDouble() ?? 0.0,
+      discount: map['discount'] ?? 0,
+      imagePath: map['image_path'] ?? '',
+      category: map['category'] ?? 'All',
+      isBestSeller: map['is_best_seller'] ?? false,
+      description: map['description'] ?? '',
     );
   }
 }
 
 class ProductProvider with ChangeNotifier {
+  final _supabase = Supabase.instance.client;
   List<Product> _allProducts = [];
   List<Product> _filteredProducts = [];
   List<String> _categories = ['All'];
@@ -72,17 +72,20 @@ class ProductProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final String response = await rootBundle.loadString('assets/data/products.json');
-      final data = await json.decode(response);
+      final List<dynamic> data = await _supabase
+          .from('products')
+          .select()
+          .order('created_at', ascending: false);
       
-      _categories = ['All', ...List<String>.from(data['categories'] ?? [])];
-      _allProducts = (data['products'] as List)
-          .map((item) => Product.fromJson(item))
-          .toList();
+      _allProducts = data.map((item) => Product.fromMap(item)).toList();
+      
+      // Extract unique categories
+      final uniqueCats = _allProducts.map((p) => p.category).toSet().toList();
+      _categories = ['All', ...uniqueCats];
       
       _filterProducts();
     } catch (e) {
-      debugPrint('Error loading products: $e');
+      debugPrint('Error loading products from Supabase: $e');
     } finally {
       _isLoading = false;
       notifyListeners();

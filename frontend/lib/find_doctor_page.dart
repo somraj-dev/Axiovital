@@ -1,60 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'dart:ui';
 import 'doctor_details_page.dart';
 import 'search_page.dart';
+import 'doctor_provider.dart';
 
-class Doctor {
-  final String id;
-  final String name;
-  final String specialty;
-  final String qualifications;
-  final String imageUrl;
-  final int sessionPrice;
-  final Color cardColor;
+class FindDoctorPage extends StatefulWidget {
+  const FindDoctorPage({super.key});
 
-  const Doctor({
-    required this.id,
-    required this.name,
-    required this.specialty,
-    required this.qualifications,
-    required this.imageUrl,
-    required this.sessionPrice,
-    required this.cardColor,
-  });
+  @override
+  State<FindDoctorPage> createState() => _FindDoctorPageState();
 }
 
-const List<Doctor> mockDoctors = [
-  Doctor(
-    id: '1',
-    name: 'Dr. Jessica Miller',
-    specialty: 'Cardiologist',
-    qualifications: 'MBBS, FCPS (Cardiology)',
-    imageUrl: 'https://ui-avatars.com/api/?name=Jessica+Miller&background=DBE7D6&color=444&size=400',
-    sessionPrice: 120,
-    cardColor: Color(0xFFDBE7D6), // Soft green
-  ),
-  Doctor(
-    id: '2',
-    name: 'Dr. William Harris',
-    specialty: 'ENT Specialist',
-    qualifications: 'ENT Specialist',
-    imageUrl: 'https://ui-avatars.com/api/?name=William+Harris&background=E4DDF5&color=444&size=400', 
-    sessionPrice: 130,
-    cardColor: Color(0xFFE4DDF5), // Soft purple
-  ),
-  Doctor(
-    id: '3',
-    name: 'Dr. Andreaw Jamison',
-    specialty: 'Neurologist',
-    qualifications: 'MD, PhD',
-    imageUrl: 'https://ui-avatars.com/api/?name=Andreaw+Jamison&background=E2E8F0&color=444&size=400',
-    sessionPrice: 180,
-    cardColor: Color(0xFFE2E8F0), 
-  ),
-];
-
-class FindDoctorPage extends StatelessWidget {
-  const FindDoctorPage({super.key});
+class _FindDoctorPageState extends State<FindDoctorPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Fetch doctors on load
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DoctorProvider>().loadDoctors();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -130,12 +96,24 @@ class FindDoctorPage extends StatelessWidget {
 
             // Doctor List
             Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-                itemCount: mockDoctors.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 20),
-                itemBuilder: (context, index) {
-                  return _DoctorCard(doctor: mockDoctors[index]);
+              child: Consumer<DoctorProvider>(
+                builder: (context, provider, child) {
+                  if (provider.isLoading && provider.doctors.isEmpty) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (provider.doctors.isEmpty) {
+                    return const Center(child: Text('No doctors found'));
+                  }
+
+                  return ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                    itemCount: provider.doctors.length,
+                    separatorBuilder: (context, index) => const SizedBox(height: 20),
+                    itemBuilder: (context, index) {
+                      return _DoctorCard(doctor: provider.doctors[index]);
+                    },
+                  );
                 },
               ),
             ),

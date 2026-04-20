@@ -193,12 +193,20 @@ class PaymentOptionsPage extends StatelessWidget {
                 onPressed: () {
                   if (cart.items.isNotEmpty) {
                     final notifProvider = Provider.of<NotificationProvider>(context, listen: false);
+                    final checkout = Provider.of<CheckoutProvider>(context, listen: false);
                     final cartItems = cart.items.values.toList();
                     final total = cart.totalAmount;
                     
                     // Start the 3-second processing sequence
-                    _showProcessingOverlay(context, () {
-                      orders.placeOrder(cartItems, total);
+                    _showProcessingOverlay(context, () async {
+                      await orders.placeOrder(
+                        cartItems, 
+                        total,
+                        paymentMethod: 'Paytm UPI',
+                        patientId: checkout.selectedPatientIds.first,
+                        appointmentDate: checkout.selectedDate.toIso8601String(),
+                        timeSlot: checkout.selectedTimeSlot,
+                      );
                       
                       // Trigger notification
                       notifProvider.addNotification(
@@ -213,7 +221,8 @@ class PaymentOptionsPage extends StatelessWidget {
                             'price': item.price,
                             'category': item.type.name,
                           }).toList(),
-                          'date': 'Tomorrow, 10:30 AM',
+                          'date': checkout.selectedDate.toString(),
+                          'slot': checkout.selectedTimeSlot,
                           'pin': '8842',
                           'confirmationNumber': 'CONF-7629-XB',
                         },

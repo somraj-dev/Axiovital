@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
+import 'consent_provider.dart';
 import 'report_vault_page.dart';
 import 'doctor_access_page.dart';
 import 'consent_manager_page.dart';
@@ -51,45 +52,50 @@ class HealthPassportPage extends StatelessWidget {
   }
 
   Widget _buildHeroHeader(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF7B3C8C), Color(0xFF4A148C)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
-      ),
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          const Icon(Icons.verified_user, color: Colors.white, size: 48),
-          const SizedBox(height: 12),
-          const Text(
-            'Blockchain Verified',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+    return Consumer<ConsentProvider>(
+      builder: (context, consent, _) {
+        return Container(
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF7B3C8C), Color(0xFF4A148C)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
           ),
-          const SizedBox(height: 4),
-          const Text(
-            'Your medical data, cryptographically secured.',
-            style: TextStyle(color: Colors.white70, fontSize: 13),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          padding: const EdgeInsets.all(24),
+          child: Column(
             children: [
-              _buildStat("14", "Records"),
-              Container(width: 1, height: 30, color: Colors.white24),
-              _buildStat("2", "Active Shares"),
-              Container(width: 1, height: 30, color: Colors.white24),
-              _buildStat("100%", "Verified"),
+              const Icon(Icons.verified_user, color: Colors.white, size: 48),
+              const SizedBox(height: 12),
+              const Text(
+                'Blockchain Verified',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'Your medical data, cryptographically secured.',
+                style: TextStyle(color: Colors.white70, fontSize: 13),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildStat('${consent.totalRecords}', 'Records'),
+                  Container(width: 1, height: 30, color: Colors.white24),
+                  _buildStat('${consent.activeShareCount}', 'Active Shares'),
+                  Container(width: 1, height: 30, color: Colors.white24),
+                  _buildStat('100%', 'Verified'),
+                ],
+              )
             ],
-          )
-        ],
-      ),
+          ),
+        );
+      },
     );
   }
+
 
   Widget _buildStat(String val, String label) {
     return Column(

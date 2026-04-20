@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'consent_provider.dart';
+import 'package:intl/intl.dart';
 
 class AccessHistoryPage extends StatelessWidget {
   const AccessHistoryPage({super.key});
@@ -12,22 +15,56 @@ class AccessHistoryPage extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          _buildAuditCard('VIEW', 'Dr. Alice Cooper viewed MRI Scan', 'Dec 12, 10:45 AM', 'TX: 0x8f...39a'),
-          _buildAuditCard('GRANT', 'Granted Dr. Alice Cooper access', 'Dec 12, 10:40 AM', 'TX: 0x2e...11c'),
-          _buildAuditCard('UPLOAD', 'Uploaded MRI Scan to IPFS', 'Oct 12, 09:00 AM', 'TX: 0x4a...92b'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => Provider.of<ConsentProvider>(context, listen: false).fetchAccessLogs(),
+          ),
         ],
+      ),
+      body: Consumer<ConsentProvider>(
+        builder: (context, provider, _) {
+          if (provider.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (provider.accessLogs.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.history, size: 64, color: Colors.grey.shade300),
+                  const SizedBox(height: 16),
+                  const Text('No activity yet', style: TextStyle(color: Color(0xFF667085), fontSize: 16)),
+                  const SizedBox(height: 8),
+                  const Text('All data access events will be logged here', style: TextStyle(color: Color(0xFF98A2B3), fontSize: 13)),
+                ],
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(20),
+            itemCount: provider.accessLogs.length,
+            itemBuilder: (context, index) {
+              final log = provider.accessLogs[index];
+              return _buildAuditCard(log);
+            },
+          );
+        },
       ),
     );
   }
 
-  Widget _buildAuditCard(String action, String desc, String time, String txHash) {
-    Color actionColor = Colors.blue;
-    if (action == 'UPLOAD') actionColor = Colors.green;
-    if (action == 'GRANT') actionColor = Colors.purple;
+  Widget _buildAuditCard(AccessLog log) {
+    final actionConfig = _getActionConfig(log.action);
+
+    String formattedTime;
+    try {
+      formattedTime = DateFormat('MMM dd, hh:mm a').format(log.createdAt.toLocal());
+    } catch (_) {
+      formattedTime = log.createdAt.toString();
+    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -45,24 +82,69 @@ class AccessHistoryPage extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(color: actionColor.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                child: Text(action, style: TextStyle(color: actionColor, fontSize: 10, fontWeight: FontWeight.bold)),
+                decoration: BoxDecoration(
+                  color: actionConfig['bg'] as Color,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(actionConfig['icon'] as IconData, size: 12, color: actionConfig['color'] as Color),
+                    const SizedBox(width: 4),
+                    Text(log.action, style: TextStyle(color: actionConfig['color'] as Color, fontSize: 10, fontWeight: FontWeight.bold)),
+                  ],
+                ),
               ),
-              Row(
-                children: [
-                  const Icon(Icons.link, size: 14, color: Colors.grey),
-                  const SizedBox(width: 4),
-                  Text(txHash, style: const TextStyle(fontSize: 12, color: Colors.grey, fontFamily: 'monospace')),
-                ],
-              ),
+              if (log.blockchainHash != null)
+                Row(
+                  children: [
+                    const Icon(Icons.link, size: 14, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Text(log.blockchainHash!, style: const TextStyle(fontSize: 11, color: Colors.grey, fontFamily: 'monospace')),
+                  ],
+                ),
             ],
           ),
           const SizedBox(height: 12),
-          Text(desc, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          Text(
+            log.details ?? '${log.actorName} performed ${log.action}',
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+          ),
           const SizedBox(height: 8),
-          Text(time, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          Row(
+            children: [
+              const Icon(Icons.access_time, size: 14, color: Colors.grey),
+              const SizedBox(width: 4),
+              Text(formattedTime, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              if (log.recordType != null) ...[
+                const SizedBox(width: 12),
+                const Icon(Icons.description_outlined, size: 14, color: Colors.grey),
+                const SizedBox(width: 4),
+                Text(log.recordType!.replaceAll('_', ' '), style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              ],
+            ],
+          ),
         ],
       ),
     );
+  }
+
+  Map<String, dynamic> _getActionConfig(String action) {
+    switch (action) {
+      case 'VIEW':
+        return {'color': const Color(0xFF1565C0), 'bg': const Color(0xFFE3F2FD), 'icon': Icons.visibility};
+      case 'GRANT':
+        return {'color': const Color(0xFF7B1FA2), 'bg': const Color(0xFFF3E5F5), 'icon': Icons.check_circle};
+      case 'DENY':
+        return {'color': const Color(0xFFD92D20), 'bg': const Color(0xFFFEF3F2), 'icon': Icons.cancel};
+      case 'REVOKE':
+        return {'color': const Color(0xFFD92D20), 'bg': const Color(0xFFFEF3F2), 'icon': Icons.block};
+      case 'UPLOAD':
+        return {'color': const Color(0xFF2E7D32), 'bg': const Color(0xFFE8F5E9), 'icon': Icons.cloud_upload};
+      case 'DOWNLOAD':
+        return {'color': const Color(0xFFEF6C00), 'bg': const Color(0xFFFFF3E0), 'icon': Icons.cloud_download};
+      default:
+        return {'color': Colors.grey, 'bg': Colors.grey.shade100, 'icon': Icons.info};
+    }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class TrackcoinTransaction {
   final String id;
@@ -10,8 +11,8 @@ class TrackcoinTransaction {
   final String status;
   final String? referenceId;
   final DateTime createdAt;
-  final IconData icon;
   final Color color;
+  final IconData icon;
 
   TrackcoinTransaction({
     required this.id,
@@ -23,130 +24,152 @@ class TrackcoinTransaction {
     this.status = 'completed',
     this.referenceId,
     required this.createdAt,
-    required this.icon,
-    required this.color,
+    this.color = Colors.blue,
+    this.icon = Icons.toll_rounded,
   });
 }
 
 class TrackcoinOffer {
-  final String id;
   final String title;
   final String description;
   final int coinsReward;
-  final int coinsRequired;
-  final String offerType; // earn, redeem, bonus
   final String? validity;
-  final String iconType;
-  final bool isClaimed;
 
-  TrackcoinOffer({
-    required this.id,
-    required this.title,
-    required this.description,
-    this.coinsReward = 0,
-    this.coinsRequired = 0,
-    this.offerType = 'earn',
-    this.validity,
-    this.iconType = 'star',
-    this.isClaimed = false,
-  });
+  TrackcoinOffer({required this.title, required this.description, required this.coinsReward, this.validity});
 }
 
 class TrackcoinsProvider extends ChangeNotifier {
-  int _availableBalance = 1250;
-  int _earnedTotal = 2480;
-  int _spentTotal = 1230;
-  int _lockedBalance = 150;
-  int _expiringBalance = 75;
-  String _expiringDate = '25 Apr 2026';
-  int _appliedCoins = 0;
+  final _supabase = Supabase.instance.client;
+  
+  int _availableBalance = 0;
+  int _earnedTotal = 0;
+  int _spentTotal = 0;
+  List<TrackcoinTransaction> _transactions = [];
+  bool _isLoading = false;
 
-  // Getters
   int get availableBalance => _availableBalance;
   int get earnedTotal => _earnedTotal;
   int get spentTotal => _spentTotal;
-  int get lockedBalance => _lockedBalance;
-  int get expiringBalance => _expiringBalance;
-  String get expiringDate => _expiringDate;
-  int get appliedCoins => _appliedCoins;
-  double get coinValue => _availableBalance * 0.5; // 1 coin = ₹0.50
+  int get lockedBalance => 0; // Mocked
+  int get expiringBalance => 0; // Mocked
+  String get expiringDate => '30 Jun 2026';
+  double get coinValue => _availableBalance * 0.5;
+  List<TrackcoinTransaction> get transactions => _transactions;
+  bool get isLoading => _isLoading;
 
-  // Earning rules
-  List<Map<String, dynamic>> get earningRules => [
-    {'activity': 'Daily Health Streak', 'coins': 10, 'icon': Icons.local_fire_department_rounded, 'color': const Color(0xFFFF6B35), 'status': 'available', 'progress': 0.7},
-    {'activity': 'Doctor Booking', 'coins': 50, 'icon': Icons.medical_services_rounded, 'color': const Color(0xFF2E90FA), 'status': 'available', 'progress': 1.0},
-    {'activity': 'Medicine Purchase', 'coins': 25, 'icon': Icons.medication_rounded, 'color': const Color(0xFF12B76A), 'status': 'available', 'progress': 1.0},
-    {'activity': 'Referral Reward', 'coins': 100, 'icon': Icons.group_add_rounded, 'color': const Color(0xFF7C3AED), 'status': 'available', 'progress': 1.0},
-    {'activity': 'Habit Tracker Completion', 'coins': 15, 'icon': Icons.check_circle_rounded, 'color': const Color(0xFF10B981), 'status': 'in_progress', 'progress': 0.4},
-    {'activity': 'Community Participation', 'coins': 20, 'icon': Icons.people_rounded, 'color': const Color(0xFFF59E0B), 'status': 'available', 'progress': 1.0},
-    {'activity': 'Wearable Sync Consistency', 'coins': 30, 'icon': Icons.watch_rounded, 'color': const Color(0xFF06B6D4), 'status': 'in_progress', 'progress': 0.6},
-    {'activity': 'Health Goal Completion', 'coins': 75, 'icon': Icons.flag_rounded, 'color': const Color(0xFFE11D48), 'status': 'locked', 'progress': 0.0},
-  ];
-
-  // Redemption options
-  List<Map<String, dynamic>> get redemptionOptions => [
-    {'title': 'Doctor Appointment Discount', 'coins': 200, 'description': 'Flat ₹100 off on next appointment', 'icon': Icons.medical_services_outlined, 'color': const Color(0xFF2E90FA)},
-    {'title': 'Medicine Order Discount', 'coins': 150, 'description': '15% off on medicine orders above ₹500', 'icon': Icons.medication_outlined, 'color': const Color(0xFF12B76A)},
-    {'title': 'Premium Consultation Unlock', 'coins': 500, 'description': '1 free premium video consultation', 'icon': Icons.videocam_outlined, 'color': const Color(0xFF7C3AED)},
-    {'title': 'Health Checkup Cashback', 'coins': 300, 'description': 'Get ₹150 cashback on health checkups', 'icon': Icons.science_outlined, 'color': const Color(0xFFF59E0B)},
-    {'title': 'Subscription Discount', 'coins': 400, 'description': '20% off on Premium Care Plan', 'icon': Icons.stars_rounded, 'color': const Color(0xFFE11D48)},
-    {'title': 'Community Program Pass', 'coins': 100, 'description': 'Access any paid community program', 'icon': Icons.groups_outlined, 'color': const Color(0xFF06B6D4)},
-  ];
-
-  // Transactions
-  List<TrackcoinTransaction> get transactions => [
-    TrackcoinTransaction(id: 'T001', type: 'earned', amount: 50, title: 'Daily health streak completed', source: 'streak', status: 'completed', createdAt: DateTime.now().subtract(const Duration(hours: 2)), icon: Icons.local_fire_department_rounded, color: const Color(0xFF12B76A)),
-    TrackcoinTransaction(id: 'T002', type: 'spent', amount: 200, title: 'Doctor appointment booked', source: 'booking', status: 'completed', referenceId: 'APT-2847', createdAt: DateTime.now().subtract(const Duration(hours: 8)), icon: Icons.medical_services_rounded, color: const Color(0xFFE11D48)),
-    TrackcoinTransaction(id: 'T003', type: 'earned', amount: 100, title: 'Referral reward credited', source: 'referral', status: 'completed', createdAt: DateTime.now().subtract(const Duration(days: 1)), icon: Icons.group_add_rounded, color: const Color(0xFF12B76A)),
-    TrackcoinTransaction(id: 'T004', type: 'spent', amount: 150, title: 'Medicine order discount', source: 'purchase', status: 'completed', referenceId: 'ORD-9382', createdAt: DateTime.now().subtract(const Duration(days: 2)), icon: Icons.medication_rounded, color: const Color(0xFFE11D48)),
-    TrackcoinTransaction(id: 'T005', type: 'bonus', amount: 250, title: 'Welcome bonus credited', source: 'admin', status: 'completed', createdAt: DateTime.now().subtract(const Duration(days: 3)), icon: Icons.card_giftcard_rounded, color: const Color(0xFF7C3AED)),
-    TrackcoinTransaction(id: 'T006', type: 'earned', amount: 25, title: 'Medicine purchased — cashback', source: 'purchase', status: 'completed', referenceId: 'ORD-8821', createdAt: DateTime.now().subtract(const Duration(days: 4)), icon: Icons.medication_rounded, color: const Color(0xFF12B76A)),
-    TrackcoinTransaction(id: 'T007', type: 'spent', amount: 500, title: 'Premium plan redeemed', source: 'subscription', status: 'completed', referenceId: 'SUB-1192', createdAt: DateTime.now().subtract(const Duration(days: 5)), icon: Icons.stars_rounded, color: const Color(0xFFE11D48)),
-    TrackcoinTransaction(id: 'T008', type: 'refund', amount: 200, title: 'Cancelled appointment refund', source: 'booking', status: 'completed', referenceId: 'APT-2201', createdAt: DateTime.now().subtract(const Duration(days: 6)), icon: Icons.replay_rounded, color: const Color(0xFF2E90FA)),
-    TrackcoinTransaction(id: 'T009', type: 'expired', amount: 30, title: 'Unused coins expired', source: 'system', status: 'completed', createdAt: DateTime.now().subtract(const Duration(days: 8)), icon: Icons.timer_off_rounded, color: const Color(0xFF98A2B3)),
-    TrackcoinTransaction(id: 'T010', type: 'earned', amount: 75, title: 'Health goal completed', source: 'goal', status: 'completed', createdAt: DateTime.now().subtract(const Duration(days: 10)), icon: Icons.flag_rounded, color: const Color(0xFF12B76A)),
-  ];
-
-  // Offers
   List<TrackcoinOffer> get offers => [
-    TrackcoinOffer(id: 'O1', title: '2x Coins on First Booking', description: 'Earn double Trackcoins on your first doctor booking', coinsReward: 100, offerType: 'earn', validity: 'Ends 30 Apr'),
-    TrackcoinOffer(id: 'O2', title: 'Bonus on Wearable Connect', description: 'Link your smartwatch and earn 200 bonus coins', coinsReward: 200, offerType: 'bonus', validity: 'Limited time'),
-    TrackcoinOffer(id: 'O3', title: 'Medicine Week Special', description: 'Get 50 extra coins on every medicine purchase this week', coinsReward: 50, offerType: 'earn', validity: 'Ends 20 Apr'),
-    TrackcoinOffer(id: 'O4', title: 'Wellness Season Rewards', description: 'Complete 7-day streak and earn 150 bonus coins', coinsReward: 150, offerType: 'bonus', validity: 'Seasonal'),
+    TrackcoinOffer(title: 'Complete Health Profile', description: 'Fill all details to earn bonus coins', coinsReward: 50, validity: 'Expires in 2 days'),
+    TrackcoinOffer(title: 'Sync Wearable', description: 'Connect your watch for daily rewards', coinsReward: 100),
   ];
 
-  // Filter transactions
+  List<Map<String, dynamic>> get earningRules => [
+    {'activity': 'Daily Steps (10k)', 'coins': 10, 'icon': Icons.directions_walk, 'color': Colors.green, 'status': 'available'},
+    {'activity': 'Upload Lab Report', 'coins': 20, 'icon': Icons.upload_file, 'color': Colors.blue, 'status': 'available'},
+  ];
+
+  List<Map<String, dynamic>> get redemptionOptions => [
+    {'title': 'Consultation Discount', 'description': 'Get ₹200 off on next visit', 'coins': 400, 'icon': Icons.local_hospital, 'color': Colors.red},
+    {'title': 'Amazon Gift Card', 'description': '₹100 Amazon Voucher', 'coins': 200, 'icon': Icons.shopping_bag, 'color': Colors.orange},
+  ];
+
+  TrackcoinsProvider() {
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    final user = _supabase.auth.currentUser;
+    if (user == null) return;
+
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final List<dynamic> data = await _supabase
+          .from('trackcoin_transactions')
+          .select()
+          .eq('user_id', user.id)
+          .order('created_at', ascending: false);
+
+      _transactions = data.map((json) {
+        final type = json['type'] ?? 'earned';
+        Color color = Colors.blue;
+        IconData icon = Icons.toll_rounded;
+        
+        if (type == 'earned') { color = Colors.green; icon = Icons.add_circle_outline; }
+        else if (type == 'spent') { color = Colors.red; icon = Icons.remove_circle_outline; }
+        else if (type == 'refund') { color = Colors.orange; icon = Icons.replay; }
+
+        return TrackcoinTransaction(
+          id: json['id'],
+          type: type,
+          amount: json['amount'],
+          title: json['title'] ?? 'Transaction',
+          source: json['source'],
+          status: json['status'] ?? 'completed',
+          referenceId: json['reference_id'],
+          createdAt: DateTime.parse(json['created_at']),
+          color: color,
+          icon: icon,
+        );
+      }).toList();
+
+      // Calculate aggregates
+      _earnedTotal = _transactions
+          .where((t) => t.type == 'earned' || t.type == 'bonus')
+          .fold(0, (sum, item) => sum + item.amount);
+      
+      _spentTotal = _transactions
+          .where((t) => t.type == 'spent')
+          .fold(0, (sum, item) => sum + item.amount);
+
+      _availableBalance = _earnedTotal - _spentTotal;
+
+    } catch (e) {
+      debugPrint('Error fetching Trackcoins: $e');
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> earnCoins(int amount, String title, String source) async {
+    final user = _supabase.auth.currentUser;
+    if (user == null) return;
+
+    try {
+      await _supabase.from('trackcoin_transactions').insert({
+        'user_id': user.id,
+        'type': 'earned',
+        'amount': amount,
+        'title': title,
+        'source': source,
+      });
+      await fetchData();
+    } catch (e) {
+      debugPrint('Error earning coins: $e');
+    }
+  }
+
+  Future<void> spendCoins(int amount, String title, String source, [String? refId]) async {
+    final user = _supabase.auth.currentUser;
+    if (user == null) return;
+
+    try {
+      await _supabase.from('trackcoin_transactions').insert({
+        'user_id': user.id,
+        'type': 'spent',
+        'amount': amount,
+        'title': title,
+        'source': source,
+        'reference_id': refId,
+      });
+      await fetchData();
+    } catch (e) {
+      debugPrint('Error spending coins: $e');
+    }
+  }
   List<TrackcoinTransaction> getFilteredTransactions(String filter) {
-    if (filter == 'All') return transactions;
-    return transactions.where((t) => t.type == filter.toLowerCase()).toList();
-  }
-
-  // Apply coins at checkout
-  void applyCoins(int amount) {
-    if (amount <= _availableBalance) {
-      _appliedCoins = amount;
-      notifyListeners();
-    }
-  }
-
-  void clearAppliedCoins() {
-    _appliedCoins = 0;
-    notifyListeners();
-  }
-
-  // Spend coins
-  void spendCoins(int amount) {
-    if (amount <= _availableBalance) {
-      _availableBalance -= amount;
-      _spentTotal += amount;
-      notifyListeners();
-    }
-  }
-
-  // Earn coins
-  void earnCoins(int amount) {
-    _availableBalance += amount;
-    _earnedTotal += amount;
-    notifyListeners();
+    if (filter == 'All') return _transactions;
+    return _transactions.where((t) => t.type.toLowerCase() == filter.toLowerCase()).toList();
   }
 }

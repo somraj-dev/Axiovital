@@ -506,7 +506,7 @@ class _TrackcoinsPageState extends State<TrackcoinsPage> with SingleTickerProvid
                 const SizedBox(width: 8),
                 GestureDetector(
                   onTap: canRedeem ? () {
-                    provider.spendCoins(item['coins'] as int);
+                    provider.spendCoins(item['coins'] as int, item['title'] as String, 'Marketplace');
                     _showSnack(context, '🎉 Redeemed ${item['title']}!');
                   } : null,
                   child: Container(

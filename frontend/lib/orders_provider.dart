@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'cart_provider.dart';
 
 class AxioOrder {
@@ -6,8 +7,8 @@ class AxioOrder {
   final List<CartItem> items;
   final double totalAmount;
   final DateTime orderDate;
-  final String status; // 'Delivered', 'Refund completed', 'Shipped', etc.
-  final String statusDate; // e.g., 'Oct 02, 2025'
+  final String status;
+  final String statusDate;
   final String sharedBy;
 
   AxioOrder({
@@ -15,113 +16,110 @@ class AxioOrder {
     required this.items,
     required this.totalAmount,
     required this.orderDate,
-    this.status = 'Delivered',
+    required this.status,
     required this.statusDate,
     this.sharedBy = 'Somraj lodhi',
   });
 }
 
 class OrdersProvider extends ChangeNotifier {
-  final List<AxioOrder> _orders = [
-    AxioOrder(
-      id: 'ord_ins_1',
-      items: [
-        CartItem(
-          id: 'ins_1',
-          name: 'Gold Family Health Insurance',
-          price: 15000,
-          imagePath: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=200&auto=format&fit=crop',
-          type: CartItemType.insurance,
-        )
-      ],
-      totalAmount: 15000,
-      orderDate: DateTime.now().subtract(const Duration(days: 2)),
-      status: 'Active',
-      statusDate: 'Apr 09, 2026',
-    ),
-    AxioOrder(
-      id: 'ord_sub_1',
-      items: [
-        CartItem(
-          id: 'sub_1',
-          name: 'Axio Pro Platinum Membership',
-          price: 999,
-          imagePath: 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=200&auto=format&fit=crop',
-          type: CartItemType.subscription,
-        )
-      ],
-      totalAmount: 999,
-      orderDate: DateTime.now().subtract(const Duration(days: 5)),
-      status: 'Active',
-      statusDate: 'Apr 06, 2026',
-    ),
-    AxioOrder(
-      id: 'ord_app_1',
-      items: [
-        CartItem(
-          id: 'app_1',
-          name: 'Appointment with Dr. Jessica Smith',
-          price: 500,
-          imagePath: 'https://images.unsplash.com/photo-1559839734-2b71f1e3c770?q=80&w=200&auto=format&fit=crop',
-          type: CartItemType.appointment,
-        )
-      ],
-      totalAmount: 500,
-      orderDate: DateTime.now().subtract(const Duration(hours: 4)),
-      status: 'Confirmed',
-      statusDate: 'Apr 11, 2026',
-    ),
-    AxioOrder(
-      id: 'ord_lab_1',
-      items: [
-        CartItem(
-          id: 'lab_1',
-          name: 'Full Body Health Checkup',
-          price: 2500,
-          imagePath: 'https://images.unsplash.com/photo-1579154236594-c199f3665e8d?q=80&w=200&auto=format&fit=crop',
-          type: CartItemType.labTest,
-        )
-      ],
-      totalAmount: 2500,
-      orderDate: DateTime.now().subtract(const Duration(days: 1)),
-      status: 'Processing',
-      statusDate: 'Apr 10, 2026',
-    ),
-    AxioOrder(
-      id: 'ord_ess_1',
-      items: [
-        CartItem(
-          id: 'test_1',
-          name: 'The Derma Co Kojic Acid + ...',
-          price: 204,
-          imagePath: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?q=80&w=200&auto=format&fit=crop',
-          type: CartItemType.essential,
-        )
-      ],
-      totalAmount: 204,
-      orderDate: DateTime(2025, 10, 2),
-      status: 'Delivered',
-      statusDate: 'Oct 02, 2025',
-    ),
-  ];
+  final _supabase = Supabase.instance.client;
+  List<AxioOrder> _orders = [];
+  bool _isLoading = false;
 
-  List<AxioOrder> get orders => [..._orders].reversed.toList();
+  List<AxioOrder> get orders => _orders;
+  bool get isLoading => _isLoading;
 
-  void placeOrder(List<CartItem> cartItems, double totalAmount) {
-    final now = DateTime.now();
-    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    final statusDate = '${months[now.month - 1]} ${now.day.toString().padLeft(2, '0')}, ${now.year}';
+  OrdersProvider() {
+    fetchOrders();
+  }
 
-    final newOrder = AxioOrder(
-      id: 'AXIO-${now.millisecondsSinceEpoch}',
-      items: List.from(cartItems),
-      totalAmount: totalAmount,
-      orderDate: now,
-      status: 'Processing',
-      statusDate: statusDate,
-    );
+  Future<void> fetchOrders() async {
+    final user = _supabase.auth.currentUser;
+    if (user == null) return;
 
-    _orders.add(newOrder);
+    _isLoading = true;
     notifyListeners();
+
+    try {
+      final List<dynamic> ordersData = await _supabase
+          .from('orders')
+          .select('*, order_items(*)')
+          .eq('user_id', user.id)
+          .order('order_date', ascending: false);
+
+      _orders = ordersData.map((o) {
+        final List<dynamic> itemsData = o['order_items'] ?? [];
+        final items = itemsData.map((i) => CartItem(
+          id: i['product_id'],
+          name: i['name'],
+          price: (i['price'] as num).toDouble(),
+          imagePath: '', // Usually stored in catalogs, not order history for brevity
+          type: _parseCartItemType(i['item_type']),
+          subtitle: i['time_slot'] ?? '',
+        )).toList();
+
+        final date = DateTime.parse(o['order_date']);
+        
+        return AxioOrder(
+          id: o['id'],
+          items: items,
+          totalAmount: (o['total_amount'] as num).toDouble(),
+          orderDate: date,
+          status: o['status'],
+          statusDate: '${_monthName(date.month)} ${date.day.toString().padLeft(2, '0')}, ${date.year}',
+        );
+      }).toList();
+
+    } catch (e) {
+      debugPrint('Error fetching orders: $e');
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> placeOrder(List<CartItem> cartItems, double totalAmount, {String? paymentMethod, String? patientId, String? appointmentDate, String? timeSlot}) async {
+    final user = _supabase.auth.currentUser;
+    if (user == null) return;
+
+    try {
+      // 1. Insert Order
+      final orderResponse = await _supabase.from('orders').insert({
+        'user_id': user.id,
+        'total_amount': totalAmount,
+        'payment_method': paymentMethod ?? 'UPI',
+        'status': 'Confirmed',
+      }).select().single();
+
+      final orderId = orderResponse['id'];
+
+      // 2. Insert Order Items
+      final itemsToInsert = cartItems.map((item) => {
+        'order_id': orderId,
+        'product_id': item.id,
+        'item_type': item.type.name,
+        'name': item.name,
+        'price': item.price,
+        'patient_id': patientId,
+        'appointment_date': appointmentDate,
+        'time_slot': timeSlot,
+      }).toList();
+
+      await _supabase.from('order_items').insert(itemsToInsert);
+
+      await fetchOrders();
+    } catch (e) {
+      debugPrint('Error placing order: $e');
+    }
+  }
+
+  CartItemType _parseCartItemType(String type) {
+    return CartItemType.values.firstWhere((e) => e.name == type, orElse: () => CartItemType.essential);
+  }
+
+  String _monthName(int month) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months[month - 1];
   }
 }

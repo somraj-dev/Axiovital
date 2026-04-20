@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
-import 'login_page.dart';
 import 'create_profile_page.dart';
+import 'login_page.dart';
+import 'main_screen.dart';
+import 'main.dart'; // To access kIsAuthBypass
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -25,12 +27,19 @@ class _SplashScreenState extends State<SplashScreen> {
 
     Timer(const Duration(milliseconds: 3000), () {
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => isOnboarded ? const LoginPage() : const CreateProfilePage(),
-          ),
-        );
+        if (kIsAuthBypass) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MainScreen()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => isOnboarded ? const LoginPage() : const CreateProfilePage(),
+            ),
+          );
+        }
       }
     });
   }

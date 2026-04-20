@@ -1,35 +1,67 @@
-import 'package:dio/dio.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class VitalsService {
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://localhost:7860'));
-  
-  // Singleton pattern
-  static final VitalsService _instance = VitalsService._internal();
-  factory VitalsService() => _instance;
-  VitalsService._internal();
+  final _supabase = Supabase.instance.client;
 
-  Future<Map<String, dynamic>?> getLatestVitals(String userId) async {
+  // Fetch the latest summarized vitals
+  Future<Map<String, dynamic>> getLatestVitals(String userId) async {
     try {
-      final response = await _dio.get('/api_v1/vitals/$userId', queryParameters: {'limit': 1});
-      if (response.statusCode == 200 && (response.data as List).isNotEmpty) {
-        return response.data[0];
+      final List<dynamic> data = await _supabase
+          .from('vitals')
+          .select()
+          .eq('user_id', userId)
+          .order('recorded_at', ascending: false)
+          .limit(10);
+      
+      final Map<String, dynamic> latest = {};
+      for (var row in data) {
+        final type = row['type']?.toString().toLowerCase();
+        if (type != null && !latest.containsKey(type)) {
+          latest[type] = row['value'];
+          // For BP, we often store heart_rate, systolic_bp, diastolic_bp
+        }
       }
-      return null;
+      return latest;
     } catch (e) {
-      print('Error fetching vitals: $e');
-      return null;
+      print('Error fetching latest vitals: $e');
+      return {};
     }
   }
 
-  Future<List<dynamic>> getVitalsHistory(String userId, {int limit = 10}) async {
+  // Add a new vital reading
+  Future<void> addVital(String type, String value, String unit) async {
+    final user = _supabase.auth.currentUser;
+    if (user == null) return;
+
     try {
-      final response = await _dio.get('/api_v1/vitals/$userId', queryParameters: {'limit': limit});
-      if (response.statusCode == 200) {
-        return response.data;
-      }
-      return [];
+      await _supabase.from('vitals').insert({
+        'user_id': user.id,
+        'type': type,
+        'value': value,
+        'unit': unit,
+        'recorded_at': DateTime.now().toIso8601String(),
+      });
     } catch (e) {
-      print('Error fetching vitals history: $e');
+      print('Error adding vital to Supabase: $e');
+    }
+  }
+
+  // Fetch history for a vital type
+  Future<List<Map<String, dynamic>>> getVitalHistory(String type) async {
+    final user = _supabase.auth.currentUser;
+    if (user == null) return [];
+
+    try {
+      final List<dynamic> data = await _supabase
+          .from('vitals')
+          .select()
+          .eq('user_id', user.id)
+          .eq('type', type)
+          .order('recorded_at', ascending: false);
+      
+      return List<Map<String, dynamic>>.from(data);
+    } catch (e) {
+      print('Error fetching vitals from Supabase: $e');
       return [];
     }
   }

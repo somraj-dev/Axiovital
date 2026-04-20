@@ -42,7 +42,7 @@ class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
     final userId = userProvider.clinicalId;
 
     final latest = await _vitalsService.getLatestVitals(userId);
-    final history = await _vitalsService.getVitalsHistory(userId);
+    final history = await _vitalsService.getVitalHistory('heart_rate'); // Defaulting to heart_rate for history list
 
     if (mounted) {
       setState(() {

@@ -1,74 +1,52 @@
-// Mock Authentication Service
-// Previously using firebase_auth and google_sign_in
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthService {
-  // Mock current user info
-  Map<String, dynamic>? _mockUser;
+  final _supabase = Supabase.instance.client;
 
-  AuthService() {
-    // Optional: Seed mock user
-    // _mockUser = {'uid': 'VS-99283', 'email': 'julian.v@vitalsync.ai'};
+  // Get current user
+  User? get currentUser => _supabase.auth.currentUser;
+
+  // Auth state changes stream
+  Stream<AuthState> get authStateChanges => _supabase.auth.onAuthStateChange;
+
+  // Sign in with Google
+  Future<void> signInWithGoogle() async {
+    await _supabase.auth.signInWithOAuth(OAuthProvider.google);
   }
 
-  // Get current user (mock)
-  dynamic get currentUser => _mockUser;
-
-  // Auth state changes stream (mock)
-  Stream<dynamic> get authStateChanges => Stream.value(_mockUser);
-
-  // Sign in with Google (mock)
-  Future<dynamic> signInWithGoogle() async {
-    print('Mock: Signing in with Google...');
-    await Future.delayed(const Duration(seconds: 1));
-    _mockUser = {
-      'uid': 'VS-99283',
-      'email': 'julian.v@vitalsync.ai',
-      'displayName': 'Dr. Julian Vance'
-    };
-    return _mockUser;
+  // Sign in with Email and Password
+  Future<AuthResponse> signInWithEmail(String email, String password) async {
+    return await _supabase.auth.signInWithPassword(email: email, password: password);
   }
 
-  // Sign in with Email and Password (mock)
-  Future<dynamic> signInWithEmail(String email, String password) async {
-    print('Mock: Signing in with $email...');
-    await Future.delayed(const Duration(seconds: 1));
-    _mockUser = {
-      'uid': 'VS-99283',
-      'email': email,
-      'displayName': 'Axiovital User'
-    };
-    return _mockUser;
+  // Sign up with Email and Password
+  Future<AuthResponse> signUpWithEmail(String email, String password, {String? name}) async {
+    return await _supabase.auth.signUp(
+      email: email, 
+      password: password,
+      data: {'name': name},
+    );
   }
 
-  // Sign up with Email and Password (mock)
-  Future<dynamic> signUpWithEmail(String email, String password) async {
-    print('Mock: Signing up with $email...');
-    await Future.delayed(const Duration(seconds: 1));
-    _mockUser = {
-      'uid': 'VS-99283',
-      'email': email,
-      'displayName': 'New Axiovital User'
-    };
-    return _mockUser;
-  }
-
-  // Sign out (mock)
+  // Sign out
   Future<void> signOut() async {
-    print('Mock: Signing out...');
-    _mockUser = null;
+    await _supabase.auth.signOut();
   }
 
-  // Verify OTP (mock)
-  Future<bool> verifyOtp(String code) async {
-    print('Mock: Verifying OTP $code...');
-    await Future.delayed(const Duration(seconds: 1));
-    // Let's say all 6-digit codes are valid for the mock
-    return code.length == 6;
+  // Send OTP for Phone login
+  Future<void> signInWithPhone(String phone) async {
+    await _supabase.auth.signInWithOtp(phone: phone);
   }
 
-  // Get ID Token (mock)
-  Future<String?> getIdToken() async {
-    // Return a dummy static token that the backend can ignore or accept
-    return "MOCK_TOKEN_VS-99283";
+  // Verify OTP for Phone login
+  Future<AuthResponse> verifyOtp(String phone, String token) async {
+    return await _supabase.auth.verifyOTP(
+      phone: phone,
+      token: token,
+      type: OtpType.sms,
+    );
   }
+
+  // Get current session token
+  String? get currentSessionToken => _supabase.auth.currentSession?.accessToken;
 }

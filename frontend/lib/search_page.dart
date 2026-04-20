@@ -1,345 +1,321 @@
 import 'package:flutter/material.dart';
-import 'health_assistant_page.dart';
+import 'package:provider/provider.dart';
+import 'search_provider.dart';
 import 'widgets/axio_card.dart';
-import 'widgets/axio_button.dart';
 import 'theme.dart';
 
-class SearchPage extends StatelessWidget {
+class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
+
+  @override
+  State<SearchPage> createState() => _SearchPageState();
+}
+
+class _SearchPageState extends State<SearchPage> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+    final searchProvider = Provider.of<SearchProvider>(context);
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: Stack(
-        children: [
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeaderBanner(context),
-                  const SizedBox(height: 16),
-                  _buildPrescriptionCard(context),
-                  const SizedBox(height: 24),
-                  _buildSectionTitle(context),
-                  const SizedBox(height: 16),
-                  _buildProductHorizontalList(context),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeaderBanner(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF903050), // Consistent medical maroon
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+      body: SafeArea(
         child: Column(
           children: [
-            Container(
-              height: 56,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5), width: 1.5),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    child: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
-                    onTap: () => Navigator.pop(context),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text(
-                      'Search medicines & health products',
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: theme.colorScheme.onSurface.withOpacity(0.6),
-                        fontWeight: FontWeight.w500,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: RichText(
-                text: const TextSpan(
-                  style: TextStyle(fontSize: 13, color: Colors.white),
-                  children: [
-                    TextSpan(
-                      text: 'EXTRA 15% OFF ',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(
-                      text: 'on medicines with coupon',
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPrescriptionCard(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: AxioCard(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        showShadow: false,
-        child: Row(
-          children: [
-            Icon(Icons.description_outlined, color: theme.primaryColor, size: 28),
-            const SizedBox(width: 16),
+            _buildSearchHeader(context, searchProvider),
             Expanded(
-              child: Text(
-                'Have a prescription? Order quickly!',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
-              ),
+              child: searchProvider.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _buildSearchResults(context, searchProvider),
             ),
-            Icon(Icons.arrow_forward_ios, size: 16, color: theme.primaryColor),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSectionTitle(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          Text(
-            'In the spotlight',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceVariant,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text('Ad', style: TextStyle(fontSize: 11, color: theme.colorScheme.onSurface.withOpacity(0.5), fontWeight: FontWeight.w600)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProductHorizontalList(BuildContext context) {
-    return SizedBox(
-      height: 310,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          _buildProductCard(
-            context,
-            imageUrl: 'https://m.media-amazon.com/images/I/61KpxBfokKL.jpg',
-            rating: '4.5',
-            isBestseller: false,
-            title: 'Prohance Mom Nutritional Drink for...',
-            volume: '400 gm Powder',
-            deliveryTime: 'Get by Wed, 8 Apr',
-            price: '₹523',
-            oldPrice: '₹630',
-            discount: '17% off',
-            tagPrice: '₹471',
-          ),
-          const SizedBox(width: 12),
-          _buildProductCard(
-            context,
-            imageUrl: 'https://m.media-amazon.com/images/I/41-qX36sN0L.jpg',
-            rating: '4.2',
-            isBestseller: true,
-            title: 'Minimalist SPF 50 PA++++ Sunscreen ...',
-            volume: '50 gm Cream',
-            deliveryTime: 'Get by Wed, 8 Apr',
-            price: '₹379',
-            oldPrice: '₹399',
-            discount: '5% off',
-            tagPrice: '₹341',
-          ),
-          const SizedBox(width: 12),
-          _buildProductCard(
-            context,
-            imageUrl: 'https://m.media-amazon.com/images/I/71uK5JbWeAL.jpg',
-            rating: '4.3',
-            isBestseller: false,
-            title: 'Organic India Liver-Kidney Care...',
-            volume: '60 capsules',
-            deliveryTime: 'Get by Wed, 8 Apr',
-            price: '₹222',
-            oldPrice: '₹285',
-            discount: '22% off',
-            tagPrice: '₹200',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProductCard(
-    BuildContext context, {
-    required String imageUrl,
-    required String rating,
-    required bool isBestseller,
-    required String title,
-    required String volume,
-    required String deliveryTime,
-    required String price,
-    required String oldPrice,
-    required String discount,
-    required String tagPrice,
-  }) {
+  Widget _buildSearchHeader(BuildContext context, SearchProvider provider) {
     final theme = Theme.of(context);
     return Container(
-      width: 160,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
+        color: const Color(0xFF903050), // Consistent medical maroon
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Stack(
-            children: [
-              Container(
-                height: 140,
-                width: 160,
-                decoration: BoxDecoration(
-                  color: theme.brightness == Brightness.light ? const Color(0xFFF9FAFB) : theme.colorScheme.surfaceVariant,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          Container(
+            height: 56,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              borderRadius: BorderRadius.circular(30),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.pop(context),
                 ),
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                  child: Image.network(imageUrl, fit: BoxFit.contain, errorBuilder: (c, e, s) => Icon(Icons.image, color: theme.dividerColor)),
-                ),
-              ),
-              Positioned(
-                bottom: 8,
-                left: 8,
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppTheme.successColor,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        children: [
-                          Text(rating, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                          const SizedBox(width: 2),
-                          const Icon(Icons.star, color: Colors.white, size: 10),
-                        ],
-                      ),
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: provider.onSearchChanged,
+                    decoration: InputDecoration(
+                      hintText: 'Search doctors, medicines, labs...',
+                      hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.5)),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                     ),
-                    if (isBestseller) ...[
-                      Container(
-                        margin: const EdgeInsets.only(left: 4),
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: theme.brightness == Brightness.light ? const Color(0xFFFFF7ED) : Colors.white10,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          'Bestseller', 
-                          style: TextStyle(
-                            color: theme.brightness == Brightness.light ? const Color(0xFFC2410C) : Colors.orangeAccent, 
-                            fontSize: 10, 
-                            fontWeight: FontWeight.bold
-                          )
-                        ),
-                      ),
-                    ]
-                  ],
+                  ),
                 ),
-              ),
-            ],
+                if (_searchController.text.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      _searchController.clear();
+                      provider.clearSearch();
+                    },
+                  ),
+                const SizedBox(width: 8),
+              ],
+            ),
           ),
-          
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          if (provider.intent != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const Icon(Icons.auto_awesome, color: Colors.amber, size: 16),
+                  const SizedBox(width: 8),
                   Text(
-                    title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: theme.colorScheme.onSurface, height: 1.2),
-                  ),
-                  Text(volume, style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurface.withOpacity(0.5))),
-                  Text(deliveryTime, style: TextStyle(fontSize: 11, color: theme.colorScheme.onSurface.withOpacity(0.5))),
-                  
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(price, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
-                          const SizedBox(width: 4),
-                          Text(oldPrice, style: TextStyle(fontSize: 11, color: theme.colorScheme.onSurface.withOpacity(0.3), decoration: TextDecoration.lineThrough)),
-                        ],
-                      ),
-                      Text(discount, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.successColor)),
-                    ],
-                  ),
-                  
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF903050),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      '$tagPrice order for ₹1200',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                    ),
+                    'Searching for ${provider.intent}...',
+                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchResults(BuildContext context, SearchProvider provider) {
+    if (provider.results.isEmpty && !provider.isLoading) {
+      if (_searchController.text.isEmpty) {
+        return _buildRecentSearches();
+      }
+      return _buildEmptyState();
+    }
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        if (provider.topResults.isNotEmpty) ...[
+          _buildSectionHeader('🔝 Top Results', context),
+          ...provider.topResults.map((r) => _buildResultItem(r, context)),
+          const SizedBox(height: 16),
+        ],
+        if (provider.doctors.isNotEmpty) ...[
+          _buildSectionHeader('👨‍⚕️ Doctors', context),
+          ...provider.doctors.map((r) => _buildResultItem(r, context)),
+          const SizedBox(height: 16),
+        ],
+        if (provider.medicines.isNotEmpty) ...[
+          _buildSectionHeader('💊 Medicines', context),
+          ...provider.medicines.map((r) => _buildResultItem(r, context)),
+          const SizedBox(height: 16),
+        ],
+        if (provider.labs.isNotEmpty) ...[
+          _buildSectionHeader('🧪 Labs', context),
+          ...provider.labs.map((r) => _buildResultItem(r, context)),
+          const SizedBox(height: 16),
+        ],
+        if (provider.users.isNotEmpty) ...[
+          _buildSectionHeader('👤 People', context),
+          ...provider.users.map((r) => _buildResultItem(r, context)),
+          const SizedBox(height: 16),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildSectionHeader(String title, BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4),
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildResultItem(SearchResult result, BuildContext context) {
+    final theme = Theme.of(context);
+    return AxioCard(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: _getIconColor(result.type).withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(_getIcon(result.type), color: _getIconColor(result.type), size: 24),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  result.name,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  result.subtitle,
+                  style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 13),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (result.price != null) ...[
+                Text('₹${result.price!.toInt()}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                const SizedBox(height: 4),
+              ],
+              Row(
+                children: [
+                  const Icon(Icons.star, color: Colors.amber, size: 14),
+                  const SizedBox(width: 4),
+                  Text(
+                    result.rating.toString(),
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              if (result.type == 'user')
+                TextButton(
+                  onPressed: () {},
+                  child: const Text('Connect', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF903050))),
+                ),
+            ],
           ),
         ],
       ),
     );
   }
 
+  IconData _getIcon(String type) {
+    switch (type) {
+      case 'doctor': return Icons.local_hospital_rounded;
+      case 'medicine': return Icons.medication_rounded;
+      case 'lab': return Icons.science_rounded;
+      case 'user': return Icons.person_rounded;
+      default: return Icons.search;
+    }
+  }
+
+  Color _getIconColor(String type) {
+    switch (type) {
+      case 'doctor': return Colors.blue;
+      case 'medicine': return Colors.green;
+      case 'lab': return Colors.orange;
+      case 'user': return Colors.purple;
+      default: return Colors.grey;
+    }
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.search_off_rounded, size: 80, color: Colors.grey.withOpacity(0.3)),
+          const SizedBox(height: 16),
+          const Text('No results found', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+          const SizedBox(height: 8),
+          const Text('Try adjusting your search query', style: TextStyle(color: Colors.grey)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecentSearches() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(20, 24, 20, 12),
+          child: Text('Recent Searches', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        ),
+        _buildRecentItem('Dr. Julian Vance'),
+        _buildRecentItem('Vitamin C Zinc'),
+        _buildRecentItem('Blood test Bhopal'),
+        _buildRecentItem('Paracetamol'),
+        const Padding(
+          padding: EdgeInsets.fromLTRB(20, 24, 20, 12),
+          child: Text('Trending Now', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              _buildTrendChip('Heart Specialist'),
+              _buildTrendChip('CBC Test'),
+              _buildTrendChip('Protein Powder'),
+              _buildTrendChip('Health Insurance'),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRecentItem(String text) {
+    return ListTile(
+      leading: const Icon(Icons.history, color: Colors.grey),
+      title: Text(text),
+      trailing: const Icon(Icons.arrow_outward, size: 18, color: Colors.grey),
+      onTap: () {
+        _searchController.text = text;
+        Provider.of<SearchProvider>(context, listen: false).performSearch(text);
+      },
+    );
+  }
+
+  Widget _buildTrendChip(String text) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      child: ActionChip(
+        label: Text(text),
+        onPressed: () {
+          _searchController.text = text;
+          Provider.of<SearchProvider>(context, listen: false).performSearch(text);
+        },
+      ),
+    );
+  }
 }

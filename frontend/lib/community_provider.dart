@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum ChatType { oneOnOne, group }
 enum ChatUserRole { patient, doctor, contact }
@@ -47,7 +48,7 @@ class ChatThread {
   final List<ChatUser> participants;
   final List<ChatMessage> messages;
   int unreadCount;
-  final ChatUserRole? specificRole; // Doctor etc label
+  final ChatUserRole? specificRole;
 
   ChatThread({
     required this.id,
@@ -62,7 +63,8 @@ class ChatThread {
 }
 
 class CommunityProvider extends ChangeNotifier {
-  final String currentUserId = 'user_me';
+  final _supabase = Supabase.instance.client;
+  RealtimeChannel? _subscription;
   
   List<ChatThread> _threads = [];
   List<ChatUser> _contacts = [];
@@ -70,93 +72,120 @@ class CommunityProvider extends ChangeNotifier {
   List<ChatThread> get threads => _threads;
   List<ChatUser> get contacts => _contacts;
 
+  String? get currentUserId => _supabase.auth.currentUser?.id;
+
   CommunityProvider() {
-    _initMockData();
+    _initialize();
   }
 
-  void _initMockData() {
-    // Mock contacts including doctors and group members
-    final drSaad = ChatUser(id: 'dr_1', name: 'Dr. Saad Shaikh', avatarUrl: 'https://cdn-icons-png.flaticon.com/512/3774/3774299.png', role: ChatUserRole.doctor, isOnline: true);
-    final rafael = ChatUser(id: 'usr_1', name: 'Rafael Mante', avatarUrl: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png', role: ChatUserRole.contact);
-    final katherine = ChatUser(id: 'usr_2', name: 'Katherine Bernhard', avatarUrl: 'https://cdn-icons-png.flaticon.com/512/3135/3135768.png', role: ChatUserRole.contact, isOnline: true);
-    
-    _contacts = [drSaad, rafael, katherine];
-
-    _threads = [
-      ChatThread(
-        id: 'thread_1',
-        title: 'Rafael Mante',
-        avatarUrl: rafael.avatarUrl,
-        type: ChatType.oneOnOne,
-        participants: [rafael],
-        messages: [
-          ChatMessage(id: 'm1', senderId: 'usr_1', text: 'Thanks for adding me to the FitLeague group!', timestamp: DateTime.now().subtract(const Duration(minutes: 45))),
-        ],
-        unreadCount: 0,
-      ),
-      ChatThread(
-        id: 'thread_2',
-        title: 'Katherine Bernhard',
-        avatarUrl: katherine.avatarUrl,
-        type: ChatType.oneOnOne,
-        participants: [katherine],
-        messages: [
-          ChatMessage(id: 'm2', senderId: 'usr_2', text: 'Are we still walking tomorrow?', timestamp: DateTime.now().subtract(const Duration(hours: 1))),
-          ChatMessage(id: 'm3', senderId: 'user_me', text: 'Yes, 8 AM!', timestamp: DateTime.now().subtract(const Duration(minutes: 58))),
-        ],
-        unreadCount: 0,
-      ),
-      ChatThread(
-        id: 'thread_3',
-        title: 'Dr. Saad Shaikh',
-        avatarUrl: drSaad.avatarUrl,
-        type: ChatType.oneOnOne,
-        participants: [drSaad],
-        specificRole: ChatUserRole.doctor,
-        messages: [
-          ChatMessage(id: 'm4', senderId: 'dr_1', text: 'Please remember to take your fasting blood test tomorrow.', timestamp: DateTime.now().subtract(const Duration(minutes: 5))),
-        ],
-        unreadCount: 1, // Has unread
-      ),
-      ChatThread(
-        id: 'thread_4',
-        title: 'Diabetes Support Community',
-        avatarUrl: 'https://cdn-icons-png.flaticon.com/512/3214/3214539.png',
-        type: ChatType.group,
-        participants: [drSaad, rafael, katherine],
-        messages: [
-          ChatMessage(id: 'm5', senderId: 'usr_1', text: 'Has anyone tried the new sugar alternative?', timestamp: DateTime.now().subtract(const Duration(days: 1))),
-        ],
-        unreadCount: 2,
-      ),
-    ];
+  Future<void> _initialize() async {
+    await fetchThreads();
+    _setupRealtime();
   }
 
-  void sendMessage(String threadId, String text) {
-    final thread = _threads.firstWhere((t) => t.id == threadId);
-    thread.messages.insert(0, ChatMessage(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      senderId: currentUserId,
-      text: text,
-      timestamp: DateTime.now(),
-      status: MessageStatus.sent,
-    ));
-    
-    notifyListeners();
+  void _setupRealtime() {
+    _subscription = _supabase
+        .channel('public:community_messages')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.insert,
+          schema: 'public',
+          table: 'community_messages',
+          callback: (payload) {
+            final newMessage = payload.newRecord;
+            _handleIncomingMessage(newMessage);
+          },
+        )
+        .subscribe();
+  }
 
-    // Mock bot reply after 1.5 seconds for interaction feel
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (thread.title.startsWith("Dr.") || thread.type == ChatType.group) {
-        thread.messages.insert(0, ChatMessage(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          senderId: thread.participants.first.id,
-          text: 'This is an automated mock response to: "$text".',
-          timestamp: DateTime.now(),
-        ));
-        thread.unreadCount++;
-        notifyListeners();
+  void _handleIncomingMessage(Map<String, dynamic> data) {
+    final threadId = data['thread_id'];
+    final threadIndex = _threads.indexWhere((t) => t.id == threadId);
+    
+    if (threadIndex != -1) {
+      final message = ChatMessage(
+        id: data['id'],
+        senderId: data['sender_id'],
+        text: data['text'],
+        timestamp: DateTime.parse(data['created_at']),
+        status: MessageStatus.delivered,
+        isCallLog: data['is_call_log'] ?? false,
+      );
+      
+      _threads[threadIndex].messages.insert(0, message);
+      if (message.senderId != currentUserId) {
+        _threads[threadIndex].unreadCount++;
       }
-    });
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchThreads() async {
+    try {
+      final List<dynamic> data = await _supabase
+          .from('community_threads')
+          .select('*, community_messages(*)');
+
+      _threads = data.map((json) {
+        final List<dynamic> msgData = json['community_messages'] ?? [];
+        final messages = msgData.map((m) => ChatMessage(
+          id: m['id'],
+          senderId: m['sender_id'],
+          text: m['text'],
+          timestamp: DateTime.parse(m['created_at']),
+          status: _parseStatus(m['status']),
+          isCallLog: m['is_call_log'] ?? false,
+        )).toList();
+
+        // Sort messages by time descending
+        messages.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+        return ChatThread(
+          id: json['id'],
+          title: json['title'],
+          avatarUrl: json['avatar_url'],
+          type: json['type'] == 'group' ? ChatType.group : ChatType.oneOnOne,
+          participants: [], // In real app, fetch from community_participants
+          messages: messages,
+          unreadCount: 0,
+        );
+      }).toList();
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error fetching threads: $e');
+    }
+  }
+
+  Future<void> sendMessage(String threadId, String text) async {
+    if (currentUserId == null) return;
+
+    try {
+      await _supabase.from('community_messages').insert({
+        'thread_id': threadId,
+        'sender_id': currentUserId,
+        'text': text,
+        'status': 'sent',
+      });
+      // UI will update via Realtime subscription
+    } catch (e) {
+      debugPrint('Error sending message: $e');
+    }
+  }
+
+  Future<void> addCallLog(String threadId, String text) async {
+    if (currentUserId == null) return;
+    try {
+      await _supabase.from('community_messages').insert({
+        'thread_id': threadId,
+        'sender_id': currentUserId,
+        'text': text,
+        'is_call_log': true,
+        'status': 'sent',
+      });
+    } catch (e) {
+      debugPrint('Error adding call log: $e');
+    }
   }
 
   void markThreadAsRead(String threadId) {
@@ -164,24 +193,21 @@ class CommunityProvider extends ChangeNotifier {
     if (thread.unreadCount > 0) {
       thread.unreadCount = 0;
       notifyListeners();
+      // In real app, update DB as well
     }
   }
 
-  void addCallLog(String threadId, String logText) {
-    final thread = _threads.firstWhere((t) => t.id == threadId);
-    thread.messages.insert(0, ChatMessage(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      senderId: currentUserId,
-      text: logText,
-      timestamp: DateTime.now(),
-      isCallLog: true,
-    ));
-    notifyListeners();
+  MessageStatus _parseStatus(String? status) {
+    switch (status) {
+      case 'read': return MessageStatus.read;
+      case 'delivered': return MessageStatus.delivered;
+      default: return MessageStatus.sent;
+    }
   }
 
-  // Access Control Simulation
-  bool canCreateNewChatWith(ChatUser user) {
-    // Logic: Only allowed with active doctor or approved group members
-    return user.role == ChatUserRole.doctor || user.role == ChatUserRole.contact;
+  @override
+  void dispose() {
+    _subscription?.unsubscribe();
+    super.dispose();
   }
 }

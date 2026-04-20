@@ -1,6 +1,9 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'search_page.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'user_provider.dart';
+import 'club_provider.dart';
+import 'create_club_page.dart';
 
 class FitLeaguePage extends StatefulWidget {
   const FitLeaguePage({super.key});
@@ -10,677 +13,552 @@ class FitLeaguePage extends StatefulWidget {
 }
 
 class _FitLeaguePageState extends State<FitLeaguePage> {
-  int _selectedTabIndex = 1; // Challenges selected by default
-  String _selectedFilter = 'Run';
+  final TextEditingController _searchController = TextEditingController();
+  String _selectedCategory = 'All';
 
-  final List<String> _tabs = ['Active', 'Challenges', 'Clubs'];
-  final List<Map<String, dynamic>> _filters = [
-    {'name': 'Run', 'icon': Icons.directions_run},
-    {'name': 'Ride', 'icon': Icons.directions_bike},
-    {'name': 'Swim', 'icon': Icons.pool},
-    {'name': 'Walk', 'icon': Icons.directions_walk},
-  ];
+  final List<String> _categories = ['All', 'Sport', 'Health', 'Education', 'Club'];
 
-  // All challenges data matching the screenshots
-  final List<Map<String, String>> _recommendedChallenges = [
-    {
-      'title': 'April 400-minute x Runna Challenge',
-      'description': 'Complete 400 mins of activity in April - any sport counts!',
-      'date': 'Apr 1 to Apr 30, 2026',
-      'badge': '400\'',
-      'type': 'run',
-    },
-    {
-      'title': 'HOKA Speedgoat 7 Vert Challenge',
-      'description': 'Log 7,000 feet (2,134 meters) of elevation gain',
-      'date': 'Apr 9 to May 8, 2026',
-      'badge': 'HOKA',
-      'type': 'hike',
-    },
-  ];
-
-  final List<Map<String, String>> _allChallenges = [
-    {
-      'title': 'April 5K x Brooks Challenge',
-      'description': 'Complete a 5 km (3.1 mi) run.',
-      'date': 'Apr 1 to Apr 30, 2026',
-      'badge': '5K',
-      'type': 'run',
-    },
-    {
-      'title': 'April Ten Days Active Challenge',
-      'description': 'Do 10 minutes of activity for 10 days this month. Any activity counts!',
-      'date': 'Apr 1 to Apr 30, 2026',
-      'badge': '10x',
-      'type': 'walk',
-    },
-    {
-      'title': 'April 180 Minute Sweat Challenge',
-      'description': 'Complete a single activity that is 180-minutes long',
-      'date': 'Apr 1 to Apr 30, 2026',
-      'badge': '180\'',
-      'type': 'run',
-    },
-    {
-      'title': 'April Ride 200K Challenge',
-      'description': 'Bike a total of 200 km (124.3 mi) in April.',
-      'date': 'Apr 1 to Apr 30, 2026',
-      'badge': '200K',
-      'type': 'ride',
-    },
-    {
-      'title': 'April Gran Fondo Challenge',
-      'description': 'Complete a 100 km (62.1 mi) ride.',
-      'date': 'Apr 1 to Apr 30, 2026',
-      'badge': '100K',
-      'type': 'ride',
-    },
-    {
-      'title': 'April Elevation Challenge',
-      'description': 'Climb a total of 2,000 m (6,561.7 ft) in April.',
-      'date': 'Apr 1 to Apr 30, 2026',
-      'badge': '2000M',
-      'type': 'hike',
-    },
-    {
-      'title': 'April Run 100K Challenge',
-      'description': 'Run a total of 100 km (62.1 mi) in April.',
-      'date': 'Apr 1 to Apr 30, 2026',
-      'badge': '100K',
-      'type': 'run',
-    },
-    {
-      'title': 'April 10K Challenge',
-      'description': 'Complete a 10 km (6.2 mi) run.',
-      'date': 'Apr 1 to Apr 30, 2026',
-      'badge': '10K',
-      'type': 'run',
-    },
-    {
-      'title': 'April Cycling 7000M Challenge',
-      'description': 'Cycle a total of 7,000 m elevation in April.',
-      'date': 'Apr 1 to Apr 30, 2026',
-      'badge': '7000M',
-      'type': 'ride',
-    },
-    {
-      'title': 'April Ride 800K Challenge',
-      'description': 'Bike a total of 800 km in April.',
-      'date': 'Apr 1 to Apr 30, 2026',
-      'badge': '800K',
-      'type': 'ride',
-    },
+  final List<Map<String, String>> _topCreators = [
+    {'name': 'Jay Mato', 'image': 'https://i.pravatar.cc/150?u=jay'},
+    {'name': 'Jane Doe', 'image': 'https://i.pravatar.cc/150?u=jane'},
+    {'name': 'Sophie', 'image': 'https://i.pravatar.cc/150?u=sophie'},
+    {'name': 'Johnson', 'image': 'https://i.pravatar.cc/150?u=johnson'},
+    {'name': 'Alex', 'image': 'https://i.pravatar.cc/150?u=alex'},
   ];
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+    final userName = userProvider.name;
+    final userAvatar = userProvider.avatarUrl;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0F0F),
+      backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              // Search Bar
+              _buildSearchBar(),
+              const SizedBox(height: 24),
+              // Categories
+              _buildCategories(),
+              const SizedBox(height: 32),
+              // Create Club Button
+              _buildCreateButton(),
+              const SizedBox(height: 40),
+              // Trending Club
+              _buildSectionHeader('Trending Club'),
+              const SizedBox(height: 20),
+              _buildTrendingList(),
+              const SizedBox(height: 40),
+              // Top Creators
+              _buildSectionHeader('Top Creator'),
+              const SizedBox(height: 20),
+              _buildCreatorsList(),
+              const SizedBox(height: 40),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(String name, String avatar) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
-            _buildHeader(),
-            // Tabs
-            _buildTabs(),
-            const SizedBox(height: 12),
-            // Content
-            Expanded(
-              child: _buildChallengesContent(),
+
+            Text(
+              name,
+              style: GoogleFonts.inter(
+                fontSize: 24,
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        CircleAvatar(
+          radius: 24,
+          backgroundImage: avatar.isNotEmpty 
+            ? NetworkImage(avatar) 
+            : const NetworkImage('https://i.pravatar.cc/150?u=insan'),
+          backgroundColor: Colors.grey[200],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: TextField(
+        controller: _searchController,
+        decoration: InputDecoration(
+          hintText: 'Search',
+          hintStyle: TextStyle(color: Colors.grey[400]),
+          prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 16),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategories() {
+    return SizedBox(
+      height: 40,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: _categories.length,
+        itemBuilder: (context, index) {
+          final isSelected = _selectedCategory == _categories[index];
+          return GestureDetector(
+            onTap: () => setState(() => _selectedCategory = _categories[index]),
+            child: Container(
+              margin: const EdgeInsets.only(right: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: isSelected ? const Color(0xFF1A1A1A) : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isSelected ? Colors.transparent : const Color(0xFFEEEEEE),
+                ),
+              ),
+              child: Text(
+                _categories[index],
+                style: GoogleFonts.inter(
+                  color: isSelected ? Colors.white : Colors.grey[400],
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildCreateButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CreateClubPage()),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF1A1A1A),
+          elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.add, color: Colors.white, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'Create Club',
+              style: GoogleFonts.inter(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(),
     );
   }
 
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 8, 0),
-      child: Row(
-        children: [
-          // Back button
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
+  Widget _buildSectionHeader(String title) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.inter(
+            fontSize: 18,
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
           ),
-          const SizedBox(width: 12),
-          // Title
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Groups',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                if (_selectedTabIndex == 1)
-                  const Text(
-                    'Challenges',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-              ],
+        ),
+        TextButton(
+          onPressed: () {},
+          child: Text(
+            'View All',
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: Colors.grey[400],
+              fontWeight: FontWeight.w500,
             ),
           ),
-          // Action icons
-          IconButton(
-            icon: const Icon(Icons.chat_bubble_outline, color: Colors.white, size: 22),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.white, size: 24),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchPage()));
-            },
-          ),
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 24),
-                onPressed: () {},
-              ),
-              Positioned(
-                right: 10,
-                top: 10,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFF4D00),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  Widget _buildTabs() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-      child: Row(
-        children: List.generate(_tabs.length, (index) {
-          final isSelected = _selectedTabIndex == index;
-          return Expanded(
-            child: GestureDetector(
-              onTap: () => setState(() => _selectedTabIndex = index),
+  Widget _buildTrendingList() {
+    final clubProvider = Provider.of<ClubProvider>(context);
+    final trendingClubs = clubProvider.clubs;
+
+    return SizedBox(
+      height: 250,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: trendingClubs.length,
+        clipBehavior: Clip.none,
+        itemBuilder: (context, index) {
+          final club = trendingClubs[index];
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ClubDetailPage(club: club),
+                ),
+              );
+            },
+            child: Container(
+              width: 220,
+              margin: const EdgeInsets.only(right: 20),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(
-                      _tabs[index],
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.white54,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                        fontSize: 16,
+                  Stack(
+                    children: [
+                      Container(
+                        height: 140,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          image: DecorationImage(
+                            image: NetworkImage(club['image']),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
+                      Positioned(
+                        top: 12,
+                        left: 12,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.white24),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.people, color: Colors.white, size: 14),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${club['members']}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    club['title'],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Container(
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFFFF5722) : Colors.transparent,
-                      borderRadius: BorderRadius.circular(2),
+                  const SizedBox(height: 4),
+                  Text(
+                    club['description'],
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: Colors.grey[500],
+                      height: 1.4,
                     ),
                   ),
                 ],
               ),
             ),
           );
-        }),
+        },
       ),
     );
   }
 
-  Widget _buildChallengesContent() {
-    if (_selectedTabIndex == 0) {
-      return _buildActiveContent();
-    } else if (_selectedTabIndex == 2) {
-      return _buildClubsContent();
-    }
-
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Filter Chips
-          SizedBox(
-            height: 44,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: _filters.length,
-              itemBuilder: (context, index) => _buildFilterChip(_filters[index]),
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Recommended For You section
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
+  Widget _buildCreatorsList() {
+    return SizedBox(
+      height: 100,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: _topCreators.length,
+        itemBuilder: (context, index) {
+          final creator = _topCreators[index];
+          return Container(
+            margin: const EdgeInsets.only(right: 20),
+            width: 70,
+            child: Column(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(12),
+                CircleAvatar(
+                  radius: 30,
+                  backgroundImage: NetworkImage(creator['image']!),
+                  backgroundColor: Colors.grey[100],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  creator['name']!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500,
                   ),
-                  child: const Icon(Icons.person_pin_circle_outlined, color: Colors.white60, size: 24),
-                ),
-                const SizedBox(width: 12),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Recommended For You',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 17),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Based on your activities',
-                      style: TextStyle(color: Colors.white54, fontSize: 13),
-                    ),
-                  ],
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 16),
-
-          // Recommended challenges grid (2 cards)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              children: [
-                Expanded(child: _buildChallengeCard(_recommendedChallenges[0])),
-                const SizedBox(width: 12),
-                Expanded(child: _buildChallengeCard(_recommendedChallenges[1])),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // All challenges in 2-column grid
-          ..._buildChallengeGrid(_allChallenges),
-
-          const SizedBox(height: 80),
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _buildChallengeGrid(List<Map<String, String>> challenges) {
-    final List<Widget> rows = [];
-    for (int i = 0; i < challenges.length; i += 2) {
-      rows.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
-          child: Row(
-            children: [
-              Expanded(child: _buildChallengeCard(challenges[i])),
-              const SizedBox(width: 12),
-              if (i + 1 < challenges.length)
-                Expanded(child: _buildChallengeCard(challenges[i + 1]))
-              else
-                const Expanded(child: SizedBox()),
-            ],
-          ),
-        ),
-      );
-    }
-    return rows;
-  }
-
-  Widget _buildChallengeCard(Map<String, String> challenge) {
-    final badge = challenge['badge'] ?? '';
-    final type = challenge['type'] ?? 'run';
-
-    // Choose icon based on type
-    IconData typeIcon;
-    switch (type) {
-      case 'ride':
-        typeIcon = Icons.directions_bike;
-        break;
-      case 'swim':
-        typeIcon = Icons.pool;
-        break;
-      case 'walk':
-        typeIcon = Icons.directions_walk;
-        break;
-      case 'hike':
-        typeIcon = Icons.terrain;
-        break;
-      default:
-        typeIcon = Icons.directions_run;
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1C1C1E),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Badge icon
-          _buildBadgeIcon(badge),
-          const SizedBox(height: 14),
-
-          // Title
-          Text(
-            challenge['title'] ?? '',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
-              height: 1.3,
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Activity type icon
-          Icon(typeIcon, color: Colors.white54, size: 18),
-          const SizedBox(height: 8),
-
-          // Description
-          Text(
-            challenge['description'] ?? '',
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(color: Colors.white60, fontSize: 12, height: 1.4),
-          ),
-          const SizedBox(height: 4),
-
-          // Date
-          Text(
-            challenge['date'] ?? '',
-            style: const TextStyle(color: Colors.white38, fontSize: 11),
-          ),
-          const SizedBox(height: 16),
-
-          // Join Button
-          SizedBox(
-            width: double.infinity,
-            height: 40,
-            child: ElevatedButton(
-              onPressed: () {
-                _showJoinedSnackbar(challenge['title'] ?? '');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF4D00),
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              child: const Text(
-                'Join',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBadgeIcon(String badge) {
-    return Container(
-      width: 56,
-      height: 56,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFFF8A00), Color(0xFFFF4D00)],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFFF4D00).withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Hexagon-like shape hint
-          CustomPaint(
-            size: const Size(56, 56),
-            painter: _HexBadgePainter(),
-          ),
-          // Badge text
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.emoji_events, color: Colors.white, size: 14),
-              const SizedBox(height: 2),
-              Text(
-                badge,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 11,
-                  letterSpacing: -0.5,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(Map<String, dynamic> filter) {
-    bool isSelected = _selectedFilter == filter['name'];
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
-      child: GestureDetector(
-        onTap: () => setState(() => _selectedFilter = filter['name']),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.white : const Color(0xFF2C2C2E),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isSelected ? Colors.white : Colors.white24,
-              width: 1,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                filter['icon'],
-                size: 18,
-                color: isSelected ? Colors.black : Colors.white70,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                filter['name'],
-                style: TextStyle(
-                  color: isSelected ? Colors.black : Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActiveContent() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.emoji_events_outlined, color: Colors.white24, size: 80),
-          const SizedBox(height: 16),
-          const Text(
-            'No active challenges yet',
-            style: TextStyle(color: Colors.white54, fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Join a challenge to get started!',
-            style: TextStyle(color: Colors.white38, fontSize: 14),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () => setState(() => _selectedTabIndex = 1),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFF4D00),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            ),
-            child: const Text('Browse Challenges', style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildClubsContent() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.groups_outlined, color: Colors.white24, size: 80),
-          const SizedBox(height: 16),
-          const Text(
-            'Clubs coming soon',
-            style: TextStyle(color: Colors.white54, fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Join clubs to connect with others!',
-            style: TextStyle(color: Colors.white38, fontSize: 14),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomNav() {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF1C1C1E),
-        border: Border(top: BorderSide(color: Colors.white.withOpacity(0.08))),
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildBottomNavItem(Icons.home_outlined, 'Home', false),
-              _buildBottomNavItem(Icons.terrain, 'Maps', false),
-              _buildBottomNavItem(Icons.radio_button_checked, 'Record', false),
-              _buildBottomNavItem(Icons.diamond_outlined, 'Groups', true),
-              _buildBottomNavItem(Icons.grid_view_rounded, 'You', false),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomNavItem(IconData icon, String label, bool isSelected) {
-    return GestureDetector(
-      onTap: () {
-        if (label == 'Home') {
-          Navigator.pop(context);
-        }
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: isSelected ? const Color(0xFFFF4D00) : Colors.white38,
-            size: 24,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? const Color(0xFFFF4D00) : Colors.white38,
-              fontSize: 10,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showJoinedSnackbar(String title) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Joined: $title'),
-        backgroundColor: const Color(0xFFFF4D00),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        duration: const Duration(seconds: 2),
+          );
+        },
       ),
     );
   }
 }
 
-class _HexBadgePainter extends CustomPainter {
+class ClubDetailPage extends StatelessWidget {
+  final Map<String, dynamic> club;
+
+  const ClubDetailPage({super.key, required this.club});
+
   @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withOpacity(0.15)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-
-    final path = Path();
-    final cx = size.width / 2;
-    final cy = size.height / 2;
-    final r = size.width * 0.4;
-
-    for (int i = 0; i < 6; i++) {
-      final angle = (i * 60 - 30) * math.pi / 180;
-      final x = cx + r * math.cos(angle);
-      final y = cy + r * math.sin(angle);
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-    path.close();
-    canvas.drawPath(path, paint);
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // App Bar
+                  SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back, color: Colors.black),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Club Detail',
+                            style: GoogleFonts.inter(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const Spacer(),
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundImage: Provider.of<UserProvider>(context, listen: false).avatarUrl.isNotEmpty
+                              ? NetworkImage(Provider.of<UserProvider>(context, listen: false).avatarUrl)
+                              : const NetworkImage('https://i.pravatar.cc/150?u=insan'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  // Hero Image
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Hero(
+                      tag: club['title'],
+                      child: Container(
+                        height: 240,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24),
+                          image: DecorationImage(
+                            image: NetworkImage(club['image']),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  // Content
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          club['title'],
+                          style: GoogleFonts.inter(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          club['description'],
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: Colors.grey[500],
+                            height: 1.5,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        // Stats
+                        _buildSectionLabel('Members'),
+                        const SizedBox(height: 8),
+                        Text(
+                          '${club['members']}',
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        // Categories
+                        _buildSectionLabel('Categories'),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          children: (club['categories'] as List<String>)
+                              .map((cat) => _buildCategoryChip(cat))
+                              .toList(),
+                        ),
+                        const SizedBox(height: 32),
+                        // About
+                        _buildSectionLabel('About'),
+                        const SizedBox(height: 12),
+                        Text(
+                          club['about'],
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                            height: 1.6,
+                          ),
+                        ),
+                        const SizedBox(height: 100), // Spacing for bottom button
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Join Button
+          _buildJoinButton(context),
+        ],
+      ),
+    );
   }
 
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  Widget _buildSectionLabel(String label) {
+    return Text(
+      label,
+      style: GoogleFonts.inter(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        color: Colors.black,
+      ),
+    );
+  }
+
+  Widget _buildCategoryChip(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A1A),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.inter(
+          color: Colors.white,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildJoinButton(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: ElevatedButton(
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Joined ${club['title']}!'),
+                behavior: SnackBarBehavior.floating,
+                backgroundColor: const Color(0xFF1A1A1A),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF1A1A1A),
+            elevation: 0,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          ),
+          child: Text(
+            'Join Club',
+            style: GoogleFonts.inter(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

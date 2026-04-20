@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'services/supabase_service.dart';
 import 'checkout_provider.dart';
 import 'orders_provider.dart';
 import 'login_page.dart';
@@ -18,9 +19,21 @@ import 'notification_provider.dart';
 import 'trackcoins_provider.dart';
 import 'insurance_provider.dart';
 import 'product_provider.dart';
+import 'search_provider.dart';
+import 'doctor_provider.dart';
+import 'lab_provider.dart';
+import 'consent_provider.dart';
+import 'club_provider.dart';
 
+// Set to true to bypass login and use a mock developer profile on localhost
+const bool kIsAuthBypass = true;
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Supabase Cloud
+  await SupabaseService.initialize();
+  
   runApp(
     MultiProvider(
       providers: [
@@ -37,6 +50,11 @@ void main() {
         ChangeNotifierProvider(create: (_) => TrackcoinsProvider()),
         ChangeNotifierProvider(create: (_) => InsuranceProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => SearchProvider()),
+        ChangeNotifierProvider(create: (_) => DoctorProvider()),
+        ChangeNotifierProvider(create: (_) => LabProvider()),
+        ChangeNotifierProvider(create: (_) => ConsentProvider()),
+        ChangeNotifierProvider(create: (_) => ClubProvider()),
       ],
       child: const MyApp(),
     ),

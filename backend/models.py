@@ -270,3 +270,71 @@ class TrackcoinRewardRule(Base):
     description = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
     max_per_day = Column(Integer, default=1)
+# ─── KAVAAN SEARCH ECOSYSTEM ────────────────────────────────────
+
+class Medicine(Base):
+    __tablename__ = "medicines"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    composition = Column(String)
+    brand = Column(String)
+    price = Column(Float)
+    description = Column(Text)
+    popularity = Column(Integer, default=0) # Interaction count
+    rating = Column(Float, default=0.0)
+    review_count = Column(Integer, default=0)
+    image_url = Column(String, nullable=True)
+
+class Lab(Base):
+    __tablename__ = "labs"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    test_type = Column(String) # CBC, PCR, etc
+    city = Column(String)
+    rating = Column(Float, default=0.0)
+    review_count = Column(Integer, default=0)
+    popularity = Column(Integer, default=0)
+    description = Column(Text)
+
+class InsurancePlan(Base):
+    __tablename__ = "insurance_plans"
+    id = Column(Integer, primary_key=True, index=True)
+    provider_name = Column(String, index=True)
+    plan_name = Column(String)
+    monthly_premium = Column(Float)
+    popularity = Column(Integer, default=0)
+    description = Column(Text)
+
+class Competition(Base):
+    __tablename__ = "competitions"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    category = Column(String) # Run, Ride, etc
+    date = Column(String)
+    description = Column(Text)
+    popularity = Column(Integer, default=0)
+
+class Product(Base):
+    __tablename__ = "products"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    category = Column(String) # Nutrients, Skin Care, etc
+    price = Column(Float)
+    description = Column(Text)
+    popularity = Column(Integer, default=0)
+    rating = Column(Float, default=0.0)
+    image_url = Column(String, nullable=True)
+
+# ─── SEARCH INDEX ────────────────────────────────────────────────
+
+class SearchIndex(Base):
+    """ Centralized table for semantic vector search across all entities """
+    __tablename__ = "search_index"
+    id = Column(Integer, primary_key=True, index=True)
+    entity_id = Column(String) # Reference ID in original table
+    entity_type = Column(String) # doctor, medicine, lab, etc
+    name = Column(String)
+    content = Column(Text) # Rich text description for embedding
+    # In a real Supabase/Postgres setup, this would be a VECTOR(1536)
+    # For local SQL/Mock, we'll store as JSON or String representation
+    embedding = Column(Text, nullable=True) 

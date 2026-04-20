@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'find_doctor_page.dart';
+import 'doctor_provider.dart';
 import 'widgets/axio_avatar.dart';
 import 'widgets/axio_verified_badge.dart';
 import 'package:provider/provider.dart';

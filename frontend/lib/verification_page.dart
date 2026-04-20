@@ -100,11 +100,11 @@ class _VerificationPageState extends State<VerificationPage> {
     final otp = _controllers.map((c) => c.text).join();
     setState(() => _isLoading = true);
 
-    final success = await _authService.verifyOtp(otp);
+    final response = await _authService.verifyOtp(widget.targetValue, otp);
 
     if (mounted) {
       setState(() => _isLoading = false);
-      if (success) {
+      if (response.session != null) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const MainScreen()),
           (route) => false,

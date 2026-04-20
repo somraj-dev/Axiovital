@@ -10,7 +10,10 @@ from datetime import datetime
 from backend.database import engine, Base, get_db
 from backend.redis_client import redis_client, check_rate_limit
 from backend.websocket import manager
-from backend.models import User, Vitals, MedicalHistoryForm, Condition, LocationRecord
+from backend.models import (
+    User, Vitals, MedicalHistoryForm, Condition, LocationRecord,
+    Medicine, Lab, InsurancePlan, Competition, Product, SearchIndex, DoctorProfile
+)
 from backend.health_passport import router as passport_router
 import firebase_admin
 from firebase_admin import auth, credentials
@@ -164,6 +167,43 @@ async def lifespan(app: FastAPI):
                 )
                 session.add(new_user)
                 await session.commit()
+
+            # Seed Kavaan Search Data if empty
+            medi_check = await session.execute(select(Medicine).limit(1))
+            if not medi_check.scalar_one_or_none():
+                # 1. Medicines
+                session.add_all([
+                    Medicine(name="Vitamin C Zinc", composition="Ascorbic Acid, Zinc", brand="Limcee", price=120.0, popularity=500, rating=4.8, review_count=200, description="Immunity booster for cold and flu prevention."),
+                    Medicine(name="Paracetamol 500mg", composition="Paracetamol", brand="Dolo", price=30.0, popularity=1000, rating=4.5, review_count=1500, description="Common medicine for fever and mild pain relief (bukhar ki dawai)."),
+                    Medicine(name="Biotin Forte", composition="Biotin, Zinc", brand="HealthKart", price=450.0, popularity=300, rating=4.2, review_count=50, description="Nutritional supplement for hair fall and skin health."),
+                ])
+                # 2. Labs
+                session.add_all([
+                    Lab(name="Anuj Pathology Lab", test_type="CBC, PCR", city="Bhopal", rating=4.9, review_count=800, popularity=600, description="Top-rated lab for blood tests and pathology in Bhopal."),
+                    Lab(name="City Diagnostic Center", test_type="X-Ray, MRI", city="Mumbai", rating=4.6, review_count=1200, popularity=900, description="Comprehensive diagnostic center with advanced imaging."),
+                ])
+                # 3. Doctors (Seed Profiles for existing user)
+                doc_check = await session.execute(select(DoctorProfile).where(DoctorProfile.user_id == "VS-99283"))
+                if not doc_check.scalar_one_or_none():
+                     session.add(DoctorProfile(user_id="VS-99283", specialty="General Physician", hospital_name="Vance Clinics", license_number="AX-123", is_axio_verified=True))
+                
+                # 4. Products / Essentials
+                session.add_all([
+                    Product(name="Whey Protein Isolate", category="Nutrition", price=2500.0, popularity=400, rating=4.7, description="Premium protein supplement for muscle recovery."),
+                    Product(name="N95 Medical Mask", category="Safety", price=50.0, popularity=2000, rating=4.4, description="High-protection face mask for virus prevention."),
+                ])
+                
+                # 5. Competitions / FitLeague
+                session.add_all([
+                    Competition(name="Bhopal Marathon 2026", category="Run", date="Oct 15, 2026", popularity=150, description="Annual city run for fitness enthusiasts in Bhopal."),
+                ])
+                
+                # 6. Insurance
+                session.add_all([
+                    InsurancePlan(provider_name="Axio Shield", plan_name="Family Optima", monthly_premium=800.0, popularity=50, description="Comprehensive health cover for entire family with zero co-pay."),
+                ])
+                
+                await session.commit()
     
     yield
     
@@ -303,6 +343,99 @@ async def get_location_history(user_id: str, limit: int = 20, db: AsyncSession =
     query = select(LocationRecord).where(LocationRecord.user_id == user_id).order_by(LocationRecord.timestamp.desc()).limit(limit)
     result = await db.execute(query)
     return result.scalars().all()
+
+# ─── KAVAAN SEARCH ENDPOINTS ──────────────────────────────────────
+
+class SearchRequest(BaseModel):
+    query: str
+    location: Optional[str] = "bhopal"
+    user_id: Optional[str] = None
+
+@app.post("/api/v1/semantic-search")
+async def kavaan_search(req: SearchRequest, db: AsyncSession = Depends(get_db)):
+    query = req.query.lower().strip()
+    
+    # 1. Preprocessing (Hinglish/Synonyms)
+    synonyms = {"bukhar": "fever", "khansi": "cough", "dawai": "medicine", "dr": "doctor"}
+    for k, v in synonyms.items():
+        if k in query:
+            query = query.replace(k, v)
+
+    # 2. Intent Detection (Rules-based)
+    intent = "unknown"
+    if any(k in query for k in ["doctor", "physician", "surgeon", "clinic"]): intent = "doctor"
+    elif any(k in query for k in ["lab", "test", "pathology", "blood"]): intent = "lab"
+    elif any(k in query for k in ["medicine", "tablet", "capsule", "syrup"]): intent = "medicine"
+    elif any(k in query for k in ["insurance", "policy", "plan"]): intent = "insurance"
+    elif any(k in query for k in ["competition", "league", "run", "ride"]): intent = "competition"
+    elif any(k in query for k in ["product", "protein", "mask", "essential"]): intent = "product"
+
+    results = []
+
+    # Helper for scoring
+    def calculate_score(item_name, item_desc, popularity, rating, review_count, type_intent):
+        text_relevance = 0.0
+        name_lower = item_name.lower()
+        if query in name_lower: text_relevance = 1.0 # Exact match
+        elif any(word in name_lower for word in query.split()): text_relevance = 0.6 # Partial
+        
+        # Mock Semantic Score (using keyword presence in description/content for demo)
+        semantic_score = 0.5
+        if any(word in item_desc.lower() for word in query.split()): semantic_score = 0.9
+        
+        # Performance Signals
+        import math
+        pop_score = math.log10(1 + popularity) / 4.0 # Normalize roughly 0-1
+        rate_score = (rating / 5.0) * (math.log10(1 + review_count) / 4.0)
+        
+        # Category Boost
+        intent_boost = 1.5 if type_intent == intent else 1.0
+        
+        final_score = (
+            (0.40 * semantic_score) + 
+            (0.30 * text_relevance) + 
+            (0.15 * pop_score) + 
+            (0.10 * rate_score) + 
+            (0.05 * 0.5) # Personalization mock
+        ) * intent_boost
+        
+        return round(final_score, 3)
+
+    # 3. Search Across Entities (Simulated Hybrid Search)
+    # Note: In a real app, this would be a single vector query or parallel SQL queries
+    
+    # Doctors
+    docs_query = await db.execute(select(DoctorProfile).join(User))
+    for d in docs_query.scalars().all():
+        score = calculate_score(d.user.name, f"{d.specialty} {d.hospital_name}", 500, 4.8, 100, "doctor")
+        if score > 0.3:
+            results.append({"id": f"doc_{d.id}", "type": "doctor", "name": d.user.name, "subtitle": d.specialty, "rating": 4.8, "score": score})
+
+    # Medicines
+    meds_query = await db.execute(select(Medicine))
+    for m in meds_query.scalars().all():
+        score = calculate_score(m.name, m.description, m.popularity, m.rating, m.review_count, "medicine")
+        if score > 0.3:
+            results.append({"id": f"med_{m.id}", "type": "medicine", "name": m.name, "subtitle": m.brand, "rating": m.rating, "price": m.price, "score": score})
+
+    # Labs
+    labs_query = await db.execute(select(Lab))
+    for l in labs_query.scalars().all():
+        score = calculate_score(l.name, l.description, l.popularity, l.rating, l.review_count, "lab")
+        if score > 0.3:
+            results.append({"id": f"lab_{l.id}", "type": "lab", "name": l.name, "subtitle": l.test_type, "rating": l.rating, "score": score})
+
+    # Users (Social Search)
+    users_query = await db.execute(select(User))
+    for u in users_query.scalars().all():
+        # Search by name or Axio-ID
+        if query in u.name.lower() or query in u.id.lower():
+            results.append({"id": f"user_{u.id}", "type": "user", "name": u.name, "subtitle": f"Axio-ID: {u.id}", "rating": 5.0, "score": 1.0})
+
+    # 4. Ranking & Sorting
+    results = sorted(results, key=lambda x: x["score"], reverse=True)[:20]
+
+    return {"results": results, "intent": intent}
 
 @app.get("/api/v1/admin/users", response_model=List[UserResponse])
 async def get_all_users(db: AsyncSession = Depends(get_db)):
