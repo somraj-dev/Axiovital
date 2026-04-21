@@ -7,6 +7,7 @@ import 'widgets/axio_card.dart';
 import 'widgets/appearance_popup.dart';
 import 'update_profile_page.dart';
 import 'language_page.dart';
+import 'about_me_page.dart';
 
 class AccountSettingsPage extends StatelessWidget {
   const AccountSettingsPage({super.key});
@@ -151,6 +152,12 @@ class AccountSettingsPage extends StatelessWidget {
                   icon: Icons.list_alt_rounded,
                   title: userProvider.translate('about_us'),
                   theme: theme,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AboutMePage()),
+                    );
+                  },
                 ),
                 _buildDivider(theme),
                 _buildSettingsItem(

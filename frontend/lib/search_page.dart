@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'search_provider.dart';
 import 'widgets/axio_card.dart';
 import 'theme.dart';
+import 'other_user_profile_page.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -171,6 +172,20 @@ class _SearchPageState extends State<SearchPage> {
     return AxioCard(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
+      onTap: result.type == 'user'
+          ? () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => OtherUserProfilePage(
+                    userId: result.id,
+                    name: result.name,
+                    subtitle: result.subtitle,
+                  ),
+                ),
+              );
+            }
+          : null,
       child: Row(
         children: [
           Container(
