@@ -4,6 +4,7 @@ import 'search_provider.dart';
 import 'widgets/axio_card.dart';
 import 'theme.dart';
 import 'other_user_profile_page.dart';
+import 'food_analysis_page.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -45,73 +46,68 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget _buildSearchHeader(BuildContext context, SearchProvider provider) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF903050), // Consistent medical maroon
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: theme.scaffoldBackgroundColor,
+        border: Border(bottom: BorderSide(color: theme.dividerColor.withOpacity(0.1))),
       ),
-      child: Column(
+      child: Row(
         children: [
-          Container(
-            height: 56,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(30),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: provider.onSearchChanged,
-                    decoration: InputDecoration(
-                      hintText: 'Search doctors, medicines, labs...',
-                      hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.5)),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+          IconButton(
+            icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
+            onPressed: () => Navigator.pop(context),
+          ),
+          Expanded(
+            child: Container(
+              height: 40,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                children: [
+                  Icon(Icons.search, size: 20, color: theme.colorScheme.onSurface.withOpacity(0.5)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: provider.onSearchChanged,
+                      style: const TextStyle(fontSize: 16),
+                      decoration: InputDecoration(
+                        hintText: 'Search',
+                        hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.5)),
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
                     ),
                   ),
-                ),
-                if (_searchController.text.isNotEmpty)
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      _searchController.clear();
-                      provider.clearSearch();
-                    },
-                  ),
-                const SizedBox(width: 8),
-              ],
-            ),
-          ),
-          if (provider.intent != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.auto_awesome, color: Colors.amber, size: 16),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Searching for ${provider.intent}...',
-                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                  ),
+                  if (_searchController.text.isNotEmpty)
+                    GestureDetector(
+                      onTap: () {
+                        _searchController.clear();
+                        provider.clearSearch();
+                      },
+                      child: Icon(Icons.cancel, size: 20, color: theme.colorScheme.onSurface.withOpacity(0.5)),
+                    ),
                 ],
               ),
             ),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: Icon(Icons.send_rounded, color: theme.colorScheme.onSurface),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FoodAnalysisPage()),
+              );
+            },
+          ),
         ],
       ),
     );
@@ -169,9 +165,7 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget _buildResultItem(SearchResult result, BuildContext context) {
     final theme = Theme.of(context);
-    return AxioCard(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+    return InkWell(
       onTap: result.type == 'user'
           ? () {
               Navigator.push(
@@ -181,63 +175,88 @@ class _SearchPageState extends State<SearchPage> {
                     userId: result.id,
                     name: result.name,
                     subtitle: result.subtitle,
+                    avatarUrl: result.avatarUrl,
                   ),
                 ),
               );
             }
           : null,
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: _getIconColor(result.type).withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(_getIcon(result.type), color: _getIconColor(result.type), size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  result.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Row(
+          children: [
+            // Avatar
+            Container(
+              padding: result.id.contains('mock') ? const EdgeInsets.all(2) : EdgeInsets.zero,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: result.id.contains('mock') 
+                    ? const LinearGradient(
+                        colors: [Color(0xFFF9CE34), Color(0xFFEE2A7B), Color(0xFF6228D7)],
+                        begin: Alignment.bottomLeft,
+                        end: Alignment.topRight,
+                      )
+                    : null,
+              ),
+              child: Container(
+                padding: result.id.contains('mock') ? const EdgeInsets.all(2) : EdgeInsets.zero,
+                decoration: BoxDecoration(
+                  color: theme.scaffoldBackgroundColor,
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  result.subtitle,
-                  style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 13),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(30),
+                  child: Image.network(
+                    result.avatarUrl ?? 'https://ui-avatars.com/api/?name=${result.name}&background=903050&color=fff',
+                    width: 56,
+                    height: 56,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ],
+              ),
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if (result.price != null) ...[
-                Text('₹${result.price!.toInt()}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                const SizedBox(height: 4),
-              ],
-              Row(
+            const SizedBox(width: 12),
+            // Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.star, color: Colors.amber, size: 14),
-                  const SizedBox(width: 4),
+                  Row(
+                    children: [
+                      Text(
+                        result.name,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
+                      if (result.rating > 4.5) ...[
+                        const SizedBox(width: 4),
+                        const Icon(Icons.verified, color: Colors.blue, size: 14),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 2),
                   Text(
-                    result.rating.toString(),
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    result.subtitle,
+                    style: TextStyle(
+                      color: theme.colorScheme.onSurface.withOpacity(0.5),
+                      fontSize: 13,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
-              if (result.type == 'user')
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('Connect', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF903050))),
-                ),
-            ],
-          ),
-        ],
+            ),
+            // Optional Rating/Connect for others
+            if (result.type != 'user')
+              Icon(Icons.chevron_right, color: theme.colorScheme.onSurface.withOpacity(0.3))
+            else if (result.id.contains('mock'))
+               IconButton(
+                 icon: const Icon(Icons.close, size: 18),
+                 color: theme.colorScheme.onSurface.withOpacity(0.4),
+                 onPressed: () {},
+               ),
+          ],
+        ),
       ),
     );
   }

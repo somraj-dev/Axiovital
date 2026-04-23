@@ -196,7 +196,7 @@ class _HealthPostCard extends StatelessWidget {
       onTap: () {
         provider.incrementView(post.id);
         Navigator.push(context, MaterialPageRoute(builder: (_) =>
-          ChangeNotifierProvider.value(value: provider, child: _PostDetailScreen(postId: post.id)),
+          ChangeNotifierProvider.value(value: provider, child: PostDetailScreen(postId: post.id)),
         ));
       },
       child: Container(
@@ -571,9 +571,9 @@ class _HealthPostCard extends StatelessWidget {
 // ────────────────────────────────────────────────────────────────
 // POST DETAIL SCREEN (Full content + comments panel)
 // ────────────────────────────────────────────────────────────────
-class _PostDetailScreen extends StatelessWidget {
+class PostDetailScreen extends StatelessWidget {
   final String postId;
-  const _PostDetailScreen({required this.postId});
+  const PostDetailScreen({super.key, required this.postId});
 
   @override
   Widget build(BuildContext context) {

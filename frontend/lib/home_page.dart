@@ -7,8 +7,9 @@ import 'user_provider.dart';
 import 'bluetooth_provider.dart';
 import 'location_provider.dart';
 import 'search_page.dart';
-import 'notification_page.dart';
 import 'health_passport_page.dart';
+import 'lab_tests_page.dart';
+import 'find_doctor_page.dart';
 import 'widgets/axio_avatar.dart';
 import 'widgets/axio_card.dart';
 import 'widgets/axio_button.dart';
@@ -125,10 +126,14 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   children: [
                     _buildCategory('Pharmacy', Icons.local_pharmacy, 'assets/pharmacy.png'),
-                    _buildCategory('Lab tests', Icons.biotech, 'assets/lab.png'),
+                    _buildCategory('Lab tests', Icons.biotech, 'assets/lab.png', onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const LabTestsPage()));
+                    }),
                     _buildCategory('Generics', Icons.science, 'assets/generics.png', isNew: true),
                     _buildCategory('Pet Care', Icons.pets, 'assets/pets.png', isNew: true),
-                    _buildCategory('Consult', Icons.chat, 'assets/consult.png'),
+                    _buildCategory('Consult', Icons.chat, 'assets/consult.png', onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const FindDoctorPage()));
+                    }),
                   ],
                 ),
               ),
@@ -231,7 +236,9 @@ class _HomePageState extends State<HomePage> {
                                 text: 'Explore Generics Now',
                                 height: 40,
                                 borderRadius: 4,
-                                onPressed: () {},
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Generics catalogue coming soon!'), behavior: SnackBarBehavior.floating));
+                                },
                                 color: Colors.black,
                               ),
                             ],
@@ -289,21 +296,23 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildCategory(String title, IconData icon, String assetPath, {bool isNew = false}) {
+  Widget _buildCategory(String title, IconData icon, String assetPath, {bool isNew = false, VoidCallback? onTap}) {
     final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(right: 12),
-      child: Column(
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              AxioCard(
-                padding: const EdgeInsets.all(12),
-                showShadow: false,
-                 color: theme.colorScheme.surface,
-                child: Icon(icon, color: AppTheme.primaryColor, size: 30),
-              ),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Column(
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                AxioCard(
+                  padding: const EdgeInsets.all(12),
+                  showShadow: false,
+                   color: theme.colorScheme.surface,
+                  child: Icon(icon, color: AppTheme.primaryColor, size: 30),
+                ),
               if (isNew)
                 Positioned(
                   top: -5,
@@ -316,9 +325,9 @@ class _HomePageState extends State<HomePage> {
                 ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: theme.colorScheme.onSurface)),
-        ],
+              Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: theme.colorScheme.onSurface)),
+          ],
+        ),
       ),
     );
   }

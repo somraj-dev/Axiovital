@@ -24,6 +24,8 @@ import 'doctor_provider.dart';
 import 'lab_provider.dart';
 import 'consent_provider.dart';
 import 'club_provider.dart';
+import 'appointment_provider.dart';
+import 'lab_booking_provider.dart';
 
 // Set to true to bypass login and use a mock developer profile on localhost
 const bool kIsAuthBypass = true;
@@ -55,6 +57,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => LabProvider()),
         ChangeNotifierProvider(create: (_) => ConsentProvider()),
         ChangeNotifierProvider(create: (_) => ClubProvider()),
+        ChangeNotifierProvider(create: (_) => AppointmentProvider()),
+        ChangeNotifierProvider(create: (_) => LabBookingProvider()),
       ],
       child: const MyApp(),
     ),

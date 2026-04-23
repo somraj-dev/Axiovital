@@ -5,6 +5,7 @@ import 'profile_page.dart';
 import 'habit_tracker_page.dart';
 import 'consultations_page.dart';
 import 'test_bookings_page.dart';
+import 'my_bookings_page.dart';
 import 'orders_page.dart';
 import 'help_center_page.dart';
 import 'communities_page.dart';
@@ -159,7 +160,15 @@ class ProfileDrawer extends StatelessWidget {
                       );
                     },
                   ),
-                  _buildDrawerItem(context, Icons.calendar_month_outlined, 'Appointments'),
+                  _buildDrawerItem(
+                    context,
+                    Icons.calendar_month_outlined, 
+                    'Appointments',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const MyBookingsPage()));
+                    },
+                  ),
                   _buildDrawerItem(
                     context,
                     Icons.science_outlined, 

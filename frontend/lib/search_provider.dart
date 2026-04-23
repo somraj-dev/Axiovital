@@ -10,6 +10,7 @@ class SearchResult {
   final String subtitle;
   final double rating;
   final double score;
+  final String? avatarUrl;
   final double? price;
 
   SearchResult({
@@ -19,6 +20,7 @@ class SearchResult {
     required this.subtitle,
     required this.rating,
     required this.score,
+    this.avatarUrl,
     this.price,
   });
 
@@ -30,6 +32,7 @@ class SearchResult {
       subtitle: map['subtitle'] ?? '',
       rating: (map['rating'] as num?)?.toDouble() ?? 5.0,
       score: (map['score'] as num?)?.toDouble() ?? 0.0,
+      avatarUrl: map['avatar_url'],
       price: map['price'] != null ? (map['price'] as num).toDouble() : null,
     );
   }
@@ -85,19 +88,67 @@ class SearchProvider with ChangeNotifier {
       } else {
         debugPrint('Cloud Search failed: ${response.status}');
       }
-
-      // Add mock user for verification (always add for testing)
-      _results.add(SearchResult(
-        id: 'mock-user-1',
-        type: 'user',
-        name: 'Ilya Miskov',
-        subtitle: 'Human interface designer at Clubs',
-        rating: 4.9,
-        score: 1.0,
-      ));
     } catch (e) {
       debugPrint('Error during Cloud Search: $e');
+      _results = []; // Ensure clear on error before adding mocks
     } finally {
+      // Add mock users for verification (always add for testing, filtered by query)
+      final allMocks = [
+        SearchResult(
+          id: 'mock-user-1',
+          type: 'user',
+          name: 'ilya.miskov',
+          subtitle: 'Ilya Miskov • Followed by alex_dev + 12 more',
+          avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop',
+          rating: 4.9,
+          score: 1.0,
+        ),
+        SearchResult(
+          id: 'mock-user-2',
+          type: 'user',
+          name: 'sarah_drasner',
+          subtitle: 'Sarah Drasner • Followed by netlify_team + 5 more',
+          avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1000&auto=format&fit=crop',
+          rating: 4.8,
+          score: 0.95,
+        ),
+        SearchResult(
+          id: 'mock-user-3',
+          type: 'user',
+          name: 'guillermo.rauch',
+          subtitle: 'Guillermo Rauch • Followed by vercel_fans + 8 more',
+          avatarUrl: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=1000&auto=format&fit=crop',
+          rating: 5.0,
+          score: 0.9,
+        ),
+        SearchResult(
+          id: 'mock-user-4',
+          type: 'user',
+          name: 'naval',
+          subtitle: 'Naval Ravikant • Followed by airbnb_ceo + 20 more',
+          avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=1000&auto=format&fit=crop',
+          rating: 4.7,
+          score: 0.85,
+        ),
+        SearchResult(
+          id: 'mock-user-5',
+          type: 'user',
+          name: 'lexfridman',
+          subtitle: 'Lex Fridman • Followed by joe_rogan + 15 more',
+          avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop',
+          rating: 4.9,
+          score: 0.8,
+        ),
+      ];
+
+      // Filter mocks based on query
+      final filteredMocks = allMocks.where((m) => 
+        m.name.toLowerCase().contains(query.toLowerCase()) || 
+        m.subtitle.toLowerCase().contains(query.toLowerCase())
+      ).toList();
+
+      _results.addAll(filteredMocks);
+
       _isLoading = false;
       notifyListeners();
     }

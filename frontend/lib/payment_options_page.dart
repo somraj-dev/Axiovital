@@ -5,6 +5,10 @@ import 'cart_provider.dart';
 import 'orders_provider.dart';
 import 'orders_page.dart';
 import 'notification_provider.dart';
+import 'appointment_provider.dart';
+import 'lab_booking_provider.dart';
+import 'appointment_slip_page.dart';
+import 'my_bookings_page.dart';
 
 class PaymentOptionsPage extends StatelessWidget {
   const PaymentOptionsPage({super.key});
@@ -194,51 +198,103 @@ class PaymentOptionsPage extends StatelessWidget {
                   if (cart.items.isNotEmpty) {
                     final notifProvider = Provider.of<NotificationProvider>(context, listen: false);
                     final checkout = Provider.of<CheckoutProvider>(context, listen: false);
+                    final appointmentProv = Provider.of<AppointmentProvider>(context, listen: false);
+                    final labBookingProv = Provider.of<LabBookingProvider>(context, listen: false);
                     final cartItems = cart.items.values.toList();
                     final total = cart.totalAmount;
                     
+                    final hasAppointments = cartItems.any((i) => i.type == CartItemType.appointment);
+                    final hasLabTests = cartItems.any((i) => i.type == CartItemType.labTest);
+                    
                     // Start the 3-second processing sequence
                     _showProcessingOverlay(context, () async {
+                      Appointment? bookedAppointment;
+                      LabBooking? bookedLabTest;
+                      
+                      // --- Book doctor appointments ---
+                      if (hasAppointments) {
+                        for (final item in cartItems.where((i) => i.type == CartItemType.appointment)) {
+                          // Set date/slot from checkout provider into appointment provider
+                          appointmentProv.setSelectedDate(checkout.selectedDate);
+                          if (checkout.selectedTimeSlot != null) {
+                            appointmentProv.setSelectedSlot(checkout.selectedTimeSlot!);
+                          }
+                          
+                          bookedAppointment = await appointmentProv.bookAppointment(
+                            doctorId: item.id.replaceFirst('apt_', ''),
+                            doctorName: item.name.replaceFirst('Appointment with ', ''),
+                            doctorSpecialty: item.subtitle,
+                            doctorImageUrl: '',
+                            patientId: checkout.selectedPatientIds.isNotEmpty ? checkout.selectedPatientIds.first : '',
+                            amount: item.price,
+                            paymentMethod: 'Paytm UPI',
+                          );
+                        }
+                        appointmentProv.resetBookingState();
+                      }
+                      
+                      // --- Book lab tests ---
+                      if (hasLabTests) {
+                        final dateStr = '${checkout.selectedDate.year}-${checkout.selectedDate.month.toString().padLeft(2, '0')}-${checkout.selectedDate.day.toString().padLeft(2, '0')}';
+                        for (final item in cartItems.where((i) => i.type == CartItemType.labTest)) {
+                          bookedLabTest = await labBookingProv.bookLabTest(
+                            packageName: item.name,
+                            amount: item.price,
+                            patientId: checkout.selectedPatientIds.isNotEmpty ? checkout.selectedPatientIds.first : '',
+                            collectionDate: dateStr,
+                            collectionSlot: checkout.selectedTimeSlot ?? '7:00 AM - 8:00 AM',
+                            collectionAddress: cart.fullAddress ?? cart.address,
+                            paymentMethod: 'Paytm UPI',
+                          );
+                        }
+                      }
+                      
+                      // --- Also place in orders for general tracking ---
                       await orders.placeOrder(
                         cartItems, 
                         total,
                         paymentMethod: 'Paytm UPI',
-                        patientId: checkout.selectedPatientIds.first,
+                        patientId: checkout.selectedPatientIds.isNotEmpty ? checkout.selectedPatientIds.first : null,
                         appointmentDate: checkout.selectedDate.toIso8601String(),
                         timeSlot: checkout.selectedTimeSlot,
                       );
                       
+                      // Build notification metadata
+                      final notifMeta = <String, dynamic>{
+                        'orderId': 'AXIO-${DateTime.now().millisecondsSinceEpoch}',
+                        'items': cartItems.map((item) => {
+                          'name': item.name,
+                          'price': item.price,
+                          'category': item.type.name,
+                        }).toList(),
+                        'date': checkout.selectedDate.toString(),
+                        'slot': checkout.selectedTimeSlot,
+                      };
+                      
+                      if (bookedAppointment != null) {
+                        notifMeta['pin'] = bookedAppointment.pinCode;
+                        notifMeta['confirmationNumber'] = bookedAppointment.confirmationCode;
+                      }
+                      
                       // Trigger notification
                       notifProvider.addNotification(
-                        title: 'Appointment Confirmed',
+                        title: hasAppointments ? 'Appointment Confirmed' : 'Lab Test Booked',
                         subtitle: 'Booking Successful',
-                        description: 'Your appointment for ${cartItems.first.name} has been confirmed.',
+                        description: hasAppointments
+                          ? 'Your appointment for ${cartItems.first.name} has been confirmed.'
+                          : 'Your lab test ${cartItems.first.name} has been booked.',
                         type: NotificationType.admin,
-                        metaData: {
-                          'orderId': 'AXIO-${DateTime.now().millisecondsSinceEpoch}',
-                          'items': cartItems.map((item) => {
-                            'name': item.name,
-                            'price': item.price,
-                            'category': item.type.name,
-                          }).toList(),
-                          'date': checkout.selectedDate.toString(),
-                          'slot': checkout.selectedTimeSlot,
-                          'pin': '8842',
-                          'confirmationNumber': 'CONF-7629-XB',
-                        },
-                      );
-                      
-                      // Immediate visual feedback for debugging and UX
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Appointment confirmed! Check your notifications.'),
-                          backgroundColor: Color(0xFF039855),
-                          duration: Duration(seconds: 2),
-                        ),
+                        metaData: notifMeta,
                       );
                       
                       cart.clear();
-                      _showSuccessSheet(context);
+                      
+                      // Navigate to appropriate confirmation page
+                      if (bookedAppointment != null) {
+                        _showAppointmentSuccessSheet(context, bookedAppointment);
+                      } else {
+                        _showSuccessSheet(context, isLabTest: hasLabTests);
+                      }
                     });
                   }
                 },
@@ -340,7 +396,7 @@ class PaymentOptionsPage extends StatelessWidget {
     );
   }
 
-  void _showSuccessSheet(BuildContext context) {
+  void _showSuccessSheet(BuildContext context, {bool isLabTest = false}) {
     showModalBottomSheet(
       context: context,
       isDismissible: false,
@@ -361,15 +417,17 @@ class PaymentOptionsPage extends StatelessWidget {
               child: const Icon(Icons.check_circle, color: Color(0xFF039855), size: 48),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Payment Successful!',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF1D2939)),
+            Text(
+              isLabTest ? 'Lab Test Booked!' : 'Payment Successful!',
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF1D2939)),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Your order has been placed successfully.\nYour cart is now empty.',
+            Text(
+              isLabTest
+                ? 'Your lab test has been booked successfully.\nWe\'ll collect the sample at your doorstep.'
+                : 'Your order has been placed successfully.\nYour cart is now empty.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Color(0xFF667085), height: 1.5),
+              style: const TextStyle(fontSize: 14, color: Color(0xFF667085), height: 1.5),
             ),
             const SizedBox(height: 32),
             SizedBox(
@@ -377,10 +435,14 @@ class PaymentOptionsPage extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context); // Close sheet
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const OrdersPage()));
+                  if (isLabTest) {
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MyBookingsPage(initialTab: 1)));
+                  } else {
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const OrdersPage()));
+                  }
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF5247), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                child: const Text('View My Orders', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16)),
+                child: Text(isLabTest ? 'View My Bookings' : 'View My Orders', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16)),
               ),
             ),
             const SizedBox(height: 12),
@@ -395,6 +457,116 @@ class PaymentOptionsPage extends StatelessWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: const Text('Go to Home', style: TextStyle(color: Color(0xFF344054), fontWeight: FontWeight.w900, fontSize: 16)),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAppointmentSuccessSheet(BuildContext context, Appointment appointment) {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      backgroundColor: Colors.transparent,
+      builder: (sheetCtx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(32), topRight: Radius.circular(32)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 80, height: 80,
+              decoration: const BoxDecoration(color: Color(0xFFE7FDF0), shape: BoxShape.circle),
+              child: const Icon(Icons.check_circle, color: Color(0xFF039855), size: 48),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Appointment Confirmed!',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF1D2939)),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Your appointment with ${appointment.doctorName}\nis confirmed for ${appointment.displayDate} at ${appointment.slotTime}.',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 14, color: Color(0xFF667085), height: 1.5),
+            ),
+            const SizedBox(height: 12),
+            // Confirmation & PIN
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF9FAFB),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFEAECF0)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Column(children: [
+                    const Text('Confirmation', style: TextStyle(color: Color(0xFF667085), fontSize: 11)),
+                    const SizedBox(height: 4),
+                    Text(appointment.confirmationCode, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
+                  ]),
+                  Container(width: 1, height: 32, color: const Color(0xFFEAECF0)),
+                  Column(children: [
+                    const Text('PIN', style: TextStyle(color: Color(0xFF667085), fontSize: 11)),
+                    const SizedBox(height: 4),
+                    Text(appointment.pinCode, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
+                  ]),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity, height: 54,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(sheetCtx);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AppointmentSlipPage(
+                        appointmentData: {
+                          'orderId': appointment.confirmationCode,
+                          'items': [{
+                            'name': appointment.doctorName,
+                            'price': appointment.amount,
+                            'category': 'appointment',
+                            'doctorName': appointment.doctorName,
+                          }],
+                          'date': '${appointment.displayDate}, ${appointment.slotTime}',
+                          'slot': appointment.slotTime,
+                          'pin': appointment.pinCode,
+                          'confirmationNumber': appointment.confirmationCode,
+                        },
+                      ),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF5247), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                child: const Text('View Appointment Slip', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity, height: 54,
+              child: OutlinedButton(
+                onPressed: () {
+                  Navigator.pop(sheetCtx);
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MyBookingsPage(initialTab: 0)));
+                },
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFFEAECF0)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('View My Bookings', style: TextStyle(color: Color(0xFF344054), fontWeight: FontWeight.w900, fontSize: 16)),
               ),
             ),
             const SizedBox(height: 20),

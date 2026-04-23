@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class FoodAnalysisPage extends StatefulWidget {
   const FoodAnalysisPage({super.key});
@@ -23,7 +24,8 @@ class _FoodAnalysisPageState extends State<FoodAnalysisPage> {
         _capturedImage = image;
         _isAnalyzing = true;
       });
-      Future.delayed(const Duration(seconds: 3), () {
+      // Simulate AI Processing
+      Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
           setState(() {
             _isAnalyzing = false;
@@ -36,78 +38,242 @@ class _FoodAnalysisPageState extends State<FoodAnalysisPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_capturedImage == null) {
-      return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(backgroundColor: Colors.white, elevation: 0, title: const Text('Capture Food', style: TextStyle(color: Colors.black))),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.fastfood_outlined, size: 80, color: Color(0xFF6366F1)),
-              const SizedBox(height: 32),
-              ElevatedButton.icon(
-                onPressed: _openCamera,
-                icon: const Icon(Icons.camera_alt, color: Colors.white),
-                label: const Text('Capture to Analyze', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6366F1), padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(backgroundColor: Colors.white, elevation: 0, leading: IconButton(icon: const Icon(Icons.close, color: Colors.black), onPressed: () => Navigator.pop(context))),
-      body: Column(
+      backgroundColor: Colors.black,
+      body: Stack(
         children: [
-          Expanded(child: _buildImageSection()),
-          if (_analysisComplete) _buildResultSection(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImageSection() {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(24)),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: kIsWeb ? Image.network(_capturedImage!.path, fit: BoxFit.cover) : Image.file(File(_capturedImage!.path), fit: BoxFit.cover),
+          // Background: Camera Preview or Captured Image
+          Positioned.fill(
+            child: _capturedImage == null
+                ? Container(
+                    color: Colors.grey.shade900,
+                    child: const Center(
+                      child: Icon(Icons.camera_alt_outlined, color: Colors.white24, size: 80),
+                    ),
+                  )
+                : kIsWeb
+                    ? Image.network(_capturedImage!.path, fit: BoxFit.cover)
+                    : Image.file(File(_capturedImage!.path), fit: BoxFit.cover),
           ),
-          if (_isAnalyzing)
-            Container(color: Colors.black.withOpacity(0.5), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: const [CircularProgressIndicator(color: Colors.white), SizedBox(height: 16), Text('AI Analyzing...', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))])),
+
+          // Header Overlay
+          Positioned(
+            top: 50,
+            left: 20,
+            right: 20,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(color: Colors.black26, shape: BoxShape.circle),
+                    child: const Icon(Icons.close, color: Colors.white, size: 20),
+                  ),
+                ),
+                Text(
+                  'AI Scaner',
+                  style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 18),
+                ),
+                const Icon(Icons.more_horiz, color: Colors.white),
+              ],
+            ),
+          ),
+
+          // Scanning Frame (Visible when no image or analyzing)
+          if (_capturedImage == null || _isAnalyzing)
+            Center(
+              child: Container(
+                width: 280,
+                height: 280,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white, width: 2),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Stack(
+                  children: [
+                    // Corner effects could be added here
+                    if (_isAnalyzing)
+                      const Center(child: CircularProgressIndicator(color: Colors.white)),
+                  ],
+                ),
+              ),
+            ),
+
+          // Scanning Controls (Visible only when no image)
+          if (_capturedImage == null)
+            Positioned(
+              bottom: 60,
+              left: 0,
+              right: 0,
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildControlButton(Icons.camera_alt, 'AI Camera', isActive: true, onTap: _openCamera),
+                      const SizedBox(width: 12),
+                      _buildControlButton(Icons.qr_code_scanner, '', isActive: false),
+                      const SizedBox(width: 12),
+                      _buildControlButton(Icons.image_outlined, '', isActive: false),
+                    ],
+                  ),
+                  const SizedBox(height: 30),
+                  GestureDetector(
+                    onTap: _openCamera,
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 4),
+                      ),
+                      child: Center(
+                        child: Container(
+                          width: 60,
+                          height: 60,
+                          decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                          child: const Icon(Icons.center_focus_strong, color: Colors.blue),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          // Results Bottom Sheet
+          if (_analysisComplete) _buildResultSheet(),
         ],
       ),
     );
   }
 
-  Widget _buildResultSection() {
+  Widget _buildControlButton(IconData icon, String label, {required bool isActive, VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isActive ? Colors.white : Colors.black45,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: isActive ? Colors.black : Colors.white, size: 18),
+            if (label.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              Text(label, style: TextStyle(color: isActive ? Colors.black : Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildResultSheet() {
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(24, 32, 24, 40),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Breakfast',
+                  style: GoogleFonts.inter(color: Colors.blueAccent, fontWeight: FontWeight.w500),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(15)),
+                  child: Row(
+                    children: const [
+                      Icon(Icons.remove, size: 16),
+                      SizedBox(width: 8),
+                      Text('1', style: TextStyle(fontWeight: FontWeight.bold)),
+                      SizedBox(width: 8),
+                      Icon(Icons.add, size: 16),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Kiwi Smoothie Bowl\nwith Granola',
+              style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w800, height: 1.2),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(child: _buildNutrientCard('🔥 Calories', '450', Colors.orange)),
+                const SizedBox(width: 12),
+                Expanded(child: _buildNutrientCard('🫙 Protein', '20gm', Colors.blue)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(child: _buildNutrientCard('🍇 Carbs', '140gm', Colors.purple)),
+                const SizedBox(width: 12),
+                Expanded(child: _buildNutrientCard('🥦 Fat', '12gm', Colors.green)),
+              ],
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black87,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                child: const Text('Done', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNutrientCard(String label, String value, Color color) {
     return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: const BorderRadius.vertical(top: Radius.circular(32)), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20)]),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.shade100),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: const [Text('84', style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold)), Text('/ 100', style: TextStyle(color: Colors.grey, fontSize: 18)), Spacer(), Text('Good choice!', style: TextStyle(color: Color(0xFF12B76A), fontWeight: FontWeight.bold))]),
-          const SizedBox(height: 24),
-          const Text('Nutritional Data (100g)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black)),
-          const SizedBox(height: 12),
-          _buildMacroRow('Carbs', '12g', Colors.orange),
-          _buildMacroRow('Protein', '8g', Colors.pink.shade200),
-          _buildMacroRow('Fat', '4g', Colors.blue),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(label, style: GoogleFonts.inter(color: color, fontWeight: FontWeight.w600, fontSize: 12)),
+              const Text('Edit', style: TextStyle(color: Colors.grey, fontSize: 10)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(value, style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w800)),
         ],
       ),
     );
   }
-
-  Widget _buildMacroRow(String label, String value, Color color) {
-    return Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Row(children: [Container(width: 10, height: 10, decoration: BoxDecoration(color: color, shape: BoxShape.circle)), const SizedBox(width: 8), Text(label, style: const TextStyle(color: Colors.grey)), const Spacer(), Text(value, style: const TextStyle(fontWeight: FontWeight.bold))]));
-  }
 }
+

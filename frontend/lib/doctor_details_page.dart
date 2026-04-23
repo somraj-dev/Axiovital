@@ -8,6 +8,7 @@ import 'cart_page.dart';
 import 'cart_provider.dart';
 import 'call_provider.dart';
 import 'call_screen.dart';
+import 'appointment_provider.dart';
 
 class DoctorDetailsPage extends StatelessWidget {
   final Doctor doctor;
@@ -39,8 +40,18 @@ class DoctorDetailsPage extends StatelessWidget {
           ],
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.star_border, color: Colors.white), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.share, color: Colors.white), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.star_border, color: Colors.white), 
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Added to favorites!'), behavior: SnackBarBehavior.floating));
+            }
+          ),
+          IconButton(
+            icon: const Icon(Icons.share, color: Colors.white), 
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Sharing coming soon!'), behavior: SnackBarBehavior.floating));
+            }
+          ),
         ],
       ),
       body: SafeArea(
@@ -99,13 +110,20 @@ class DoctorDetailsPage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text('NEXT AVAILABLE AT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black)),
-                Text('10:00 AM, tomorrow', style: TextStyle(color: Color(0xFF00B02A), fontSize: 12, fontWeight: FontWeight.w600)),
-              ],
+            Consumer<AppointmentProvider>(
+              builder: (context, provider, _) {
+                final slots = provider.availableSlots.where((s) => !s.isBooked).toList();
+                final String nextSlot = slots.isNotEmpty ? '${slots.first.time}, tomorrow' : 'Checking availability...';
+                
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('NEXT AVAILABLE AT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black)),
+                    Text(nextSlot, style: const TextStyle(color: Color(0xFF00B02A), fontSize: 12, fontWeight: FontWeight.w600)),
+                  ],
+                );
+              },
             ),
             ElevatedButton.icon(
               onPressed: () {

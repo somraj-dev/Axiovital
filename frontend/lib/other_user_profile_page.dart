@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import 'theme.dart';
 import 'widgets/axio_avatar.dart';
 import 'widgets/axio_card.dart';
+import 'read_about_health_page.dart';
+import 'health_feed_provider.dart';
+import 'user_clubs_page.dart';
 
 class OtherUserProfilePage extends StatelessWidget {
   final String userId;
@@ -41,9 +44,9 @@ class OtherUserProfilePage extends StatelessWidget {
                   const SizedBox(height: 20),
                   _buildMetaInfo(theme),
                   const SizedBox(height: 24),
-                  _buildStatsRow(theme, isDark),
+                  _buildStatsRow(context, theme, isDark),
                   const SizedBox(height: 32),
-                  _buildActivitySection(theme, isDark),
+                  _buildActivitySection(context, theme, isDark),
                   const SizedBox(height: 40),
                 ],
               ),
@@ -76,13 +79,6 @@ class OtherUserProfilePage extends StatelessWidget {
           child: CircleAvatar(
             backgroundColor: Colors.black.withOpacity(0.3),
             child: const Icon(Icons.ios_share, color: Colors.white, size: 20),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: CircleAvatar(
-            backgroundColor: Colors.black.withOpacity(0.3),
-            child: const Icon(Icons.settings, color: Colors.white, size: 20),
           ),
         ),
         const SizedBox(width: 8),
@@ -161,7 +157,7 @@ class OtherUserProfilePage extends StatelessWidget {
                     side: BorderSide(color: theme.dividerColor.withOpacity(0.1)),
                   ),
                 ),
-                child: const Text('Connect', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: const Text('Follow', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ),
           ],
@@ -233,38 +229,55 @@ class OtherUserProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsRow(ThemeData theme, bool isDark) {
+  Widget _buildStatsRow(BuildContext context, ThemeData theme, bool isDark) {
     return Row(
       children: [
         Expanded(
-          child: _buildStatCard('3 Clubs owned', theme, isDark),
+          child: _buildStatCard('3 Clubs owned', theme, isDark, onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => UserClubsPage(title: 'Clubs owned', userName: name),
+              ),
+            );
+          }),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _buildStatCard('23 Clubs joined', theme, isDark),
+          child: _buildStatCard('23 Clubs joined', theme, isDark, onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => UserClubsPage(title: 'Clubs joined', userName: name),
+              ),
+            );
+          }),
         ),
       ],
     );
   }
 
-  Widget _buildStatCard(String label, ThemeData theme, bool isDark) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        color: isDark ? Colors.white.withOpacity(0.03) : Colors.black.withOpacity(0.02),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.dividerColor.withOpacity(0.05)),
-      ),
-      child: Center(
-        child: Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+  Widget _buildStatCard(String label, ThemeData theme, bool isDark, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: isDark ? Colors.white.withOpacity(0.03) : Colors.black.withOpacity(0.02),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: theme.dividerColor.withOpacity(0.05)),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildActivitySection(ThemeData theme, bool isDark) {
+  Widget _buildActivitySection(BuildContext context, ThemeData theme, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -289,8 +302,10 @@ class OtherUserProfilePage extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         _buildActivityItem(
+          context: context,
           theme: theme,
           isDark: isDark,
+          postId: 'hp_1',
           title: 'Wellness Club Launch',
           subtitle: 'I\'ll make you WANT to be healthy.',
           time: '45m',
@@ -299,8 +314,10 @@ class OtherUserProfilePage extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         _buildActivityItem(
+          context: context,
           theme: theme,
           isDark: isDark,
+          postId: 'hp_2',
           title: 'Daily Health Tip',
           subtitle: 'Consistency is the key to longevity.',
           time: '2h',
@@ -312,47 +329,62 @@ class OtherUserProfilePage extends StatelessWidget {
   }
 
   Widget _buildActivityItem({
+    required BuildContext context,
     required ThemeData theme,
     required bool isDark,
+    required String postId,
     required String title,
     required String subtitle,
     required String time,
     required String views,
     required String image,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            AxioAvatar(radius: 12, imageUrl: avatarUrl, name: name),
-            const SizedBox(width: 8),
-            Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-            const Spacer(),
-            Icon(Icons.visibility_outlined, size: 14, color: theme.colorScheme.onSurface.withOpacity(0.4)),
-            const SizedBox(width: 4),
-            Text(views, style: TextStyle(fontSize: 11, color: theme.colorScheme.onSurface.withOpacity(0.4))),
-            const SizedBox(width: 12),
-            Icon(Icons.access_time, size: 14, color: theme.colorScheme.onSurface.withOpacity(0.4)),
-            const SizedBox(width: 4),
-            Text(time, style: TextStyle(fontSize: 11, color: theme.colorScheme.onSurface.withOpacity(0.4))),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const SizedBox(height: 4),
-        Text(subtitle, style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 13)),
-        const SizedBox(height: 12),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Image.network(
-            image,
-            width: double.infinity,
-            height: 200,
-            fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChangeNotifierProvider(
+              create: (_) => HealthFeedProvider(),
+              child: PostDetailScreen(postId: postId),
+            ),
           ),
-        ),
-      ],
+        );
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              AxioAvatar(radius: 12, imageUrl: avatarUrl, name: name),
+              const SizedBox(width: 8),
+              Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+              const Spacer(),
+              Icon(Icons.visibility_outlined, size: 14, color: theme.colorScheme.onSurface.withOpacity(0.4)),
+              const SizedBox(width: 4),
+              Text(views, style: TextStyle(fontSize: 11, color: theme.colorScheme.onSurface.withOpacity(0.4))),
+              const SizedBox(width: 12),
+              Icon(Icons.access_time, size: 14, color: theme.colorScheme.onSurface.withOpacity(0.4)),
+              const SizedBox(width: 4),
+              Text(time, style: TextStyle(fontSize: 11, color: theme.colorScheme.onSurface.withOpacity(0.4))),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const SizedBox(height: 4),
+          Text(subtitle, style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6), fontSize: 13)),
+          const SizedBox(height: 12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Image.network(
+              image,
+              width: double.infinity,
+              height: 200,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

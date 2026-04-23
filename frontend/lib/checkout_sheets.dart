@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'checkout_provider.dart';
 import 'cart_provider.dart';
 import 'payment_options_page.dart';
+import 'appointment_provider.dart';
 
 
 class CheckoutFlow {
@@ -221,6 +222,23 @@ class _SlotSelectionSheetState extends State<SlotSelectionSheet> {
   final List<DateTime> _dates = List.generate(5, (i) => DateTime.now().add(Duration(days: i)));
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchSlotsForSelectedDate();
+    });
+  }
+
+  void _fetchSlotsForSelectedDate() {
+    final cart = Provider.of<CartProvider>(context, listen: false);
+    final checkout = Provider.of<CheckoutProvider>(context, listen: false);
+    if (cart.appointments.isNotEmpty) {
+      final doctorId = cart.appointments.first.id.replaceFirst('apt_', '');
+      Provider.of<AppointmentProvider>(context, listen: false).fetchSlotsForDoctor(doctorId, checkout.selectedDate);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final checkout = Provider.of<CheckoutProvider>(context);
 
@@ -263,7 +281,10 @@ class _SlotSelectionSheetState extends State<SlotSelectionSheet> {
                   bool isSelected = checkout.selectedDate.day == d.day;
                   String label = i == 0 ? 'Today' : (i == 1 ? 'Tomorrow' : '${d.day} Apr');
                   return GestureDetector(
-                    onTap: () => checkout.setSelectedDate(d),
+                    onTap: () {
+                      checkout.setSelectedDate(d);
+                      _fetchSlotsForSelectedDate();
+                    },
                     child: Container(
                       width: 120,
                       margin: const EdgeInsets.only(right: 12),
@@ -276,7 +297,7 @@ class _SlotSelectionSheetState extends State<SlotSelectionSheet> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                          Text('9 slots', style: TextStyle(color: Colors.grey.shade500, fontSize: 11)),
+                          Text('Select', style: TextStyle(color: Colors.grey.shade500, fontSize: 11)),
                         ],
                       ),
                     ),
@@ -289,15 +310,44 @@ class _SlotSelectionSheetState extends State<SlotSelectionSheet> {
               children: [
                 Icon(Icons.wb_sunny_outlined, size: 18, color: Colors.green.shade700),
                 const SizedBox(width: 8),
-                Text('Morning', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.green.shade700)),
+                Text('Available Slots', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.green.shade700)),
                 const SizedBox(width: 8),
-                Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(4)), child: Text('High Demand', style: TextStyle(fontSize: 10, color: Colors.green.shade900))),
+                Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(4)), child: Text('Live', style: TextStyle(fontSize: 10, color: Colors.green.shade900))),
               ],
             ),
             const SizedBox(height: 16),
-            _slotItem('6:00 am - 7:00 am', 79, checkout),
-            _slotItem('7:00 am - 8:00 am', 79, checkout),
-            _slotItem('8:00 am - 9:00 am', 79, checkout),
+            Consumer<CartProvider>(
+              builder: (context, cart, _) {
+                if (cart.appointments.isNotEmpty) {
+                  return Consumer<AppointmentProvider>(
+                    builder: (context, aptProv, _) {
+                      if (aptProv.isSlotsLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      final availableSlots = aptProv.availableSlots.where((s) => !s.isBooked).toList();
+                      if (availableSlots.isEmpty) {
+                        return const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Text('No slots available for this date.', style: TextStyle(color: Colors.red)),
+                        );
+                      }
+                      return Column(
+                        children: availableSlots.map((slot) => _slotItem(slot.time, 0, checkout)).toList(),
+                      );
+                    },
+                  );
+                } else {
+                  // Fallback for Lab tests
+                  return Column(
+                    children: [
+                      _slotItem('6:00 am - 7:00 am', 79, checkout),
+                      _slotItem('7:00 am - 8:00 am', 79, checkout),
+                      _slotItem('8:00 am - 9:00 am', 79, checkout),
+                    ],
+                  );
+                }
+              },
+            ),
           ],
         ),
       ),
