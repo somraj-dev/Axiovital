@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'orders_provider.dart';
 import 'cart_provider.dart';
+import 'invoice_page.dart';
 
 class OrderDetailsPage extends StatelessWidget {
   final AxioOrder order;
@@ -26,6 +27,34 @@ class OrderDetailsPage extends StatelessWidget {
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.receipt_long_rounded, color: Colors.black),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => InvoicePage(
+                    invoiceData: {
+                      'invoiceNumber': 'AX-INV-${order.items.isNotEmpty ? order.items.first.name.substring(0,3).toUpperCase() : "ORD"}-${DateTime.now().millisecondsSinceEpoch.toString().substring(10)}',
+                      'items': order.items.map((item) => {
+                        'name': item.name,
+                        'qty': item.quantity,
+                        'cost': item.price,
+                        'total': item.price * item.quantity,
+                      }).toList(),
+                      'subtotal': order.totalAmount,
+                      'tax': order.totalAmount * 0.1,
+                      'total': order.totalAmount * 1.1,
+                    },
+                  ),
+                ),
+              );
+            },
+            tooltip: 'View Invoice',
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(

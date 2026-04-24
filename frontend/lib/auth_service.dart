@@ -11,7 +11,14 @@ class AuthService {
 
   // Sign in with Google
   Future<void> signInWithGoogle() async {
-    await _supabase.auth.signInWithOAuth(OAuthProvider.google);
+    // Determine the redirect URL based on current environment
+    // This helps when testing on mobile devices via IP address
+    final String? redirectTo = Uri.base.hasScheme ? Uri.base.origin : null;
+    
+    await _supabase.auth.signInWithOAuth(
+      OAuthProvider.google,
+      redirectTo: redirectTo,
+    );
   }
 
   // Sign in with Email and Password

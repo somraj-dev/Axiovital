@@ -18,6 +18,8 @@ from backend.health_passport import router as passport_router
 import firebase_admin
 from firebase_admin import auth, credentials
 from backend.auth import get_current_user
+from backend.services.search_service import SearchService
+import json
 
 # Initialize Firebase (requires serviceAccountKey.json locally or env var in prod)
 try:
@@ -176,11 +178,14 @@ async def lifespan(app: FastAPI):
                     Medicine(name="Vitamin C Zinc", composition="Ascorbic Acid, Zinc", brand="Limcee", price=120.0, popularity=500, rating=4.8, review_count=200, description="Immunity booster for cold and flu prevention."),
                     Medicine(name="Paracetamol 500mg", composition="Paracetamol", brand="Dolo", price=30.0, popularity=1000, rating=4.5, review_count=1500, description="Common medicine for fever and mild pain relief (bukhar ki dawai)."),
                     Medicine(name="Biotin Forte", composition="Biotin, Zinc", brand="HealthKart", price=450.0, popularity=300, rating=4.2, review_count=50, description="Nutritional supplement for hair fall and skin health."),
+                    Medicine(name="Amoxicillin 500mg", composition="Amoxicillin", brand="Novamox", price=85.0, popularity=800, rating=4.6, review_count=600, description="Broad-spectrum antibiotic for bacterial infections."),
+                    Medicine(name="Cetirizine 10mg", composition="Cetirizine", brand="Okacet", price=25.0, popularity=900, rating=4.4, review_count=400, description="Antihistamine for allergy relief and sneezing."),
                 ])
                 # 2. Labs
                 session.add_all([
                     Lab(name="Anuj Pathology Lab", test_type="CBC, PCR", city="Bhopal", rating=4.9, review_count=800, popularity=600, description="Top-rated lab for blood tests and pathology in Bhopal."),
                     Lab(name="City Diagnostic Center", test_type="X-Ray, MRI", city="Mumbai", rating=4.6, review_count=1200, popularity=900, description="Comprehensive diagnostic center with advanced imaging."),
+                    Lab(name="Apollo Diagnostics", test_type="Full Body Checkup", city="Delhi", rating=4.8, review_count=2500, popularity=1500, description="Premium diagnostic services with home collection."),
                 ])
                 # 3. Doctors (Seed Profiles for existing user)
                 doc_check = await session.execute(select(DoctorProfile).where(DoctorProfile.user_id == "VS-99283"))
@@ -204,6 +209,52 @@ async def lifespan(app: FastAPI):
                 ])
                 
                 await session.commit()
+                
+                # --- VECTOR INDEXING (The "3 Vector Search" Enablement) ---
+                # Populate SearchIndex for Doctors, Medicines, and Labs
+                print("Enabling Full Capacity Vector Search...")
+                
+                # 1. Doctors
+                docs = await session.execute(select(DoctorProfile).join(User))
+                for d in docs.scalars().all():
+                    content = f"{d.user.name} {d.specialty} {d.hospital_name} {d.license_number}"
+                    embedding = SearchService.generate_embedding(content)
+                    session.add(SearchIndex(
+                        entity_id=str(d.id),
+                        entity_type="doctor",
+                        name=d.user.name,
+                        content=content,
+                        embedding=json.dumps(embedding)
+                    ))
+                
+                # 2. Medicines
+                meds = await session.execute(select(Medicine))
+                for m in meds.scalars().all():
+                    content = f"{m.name} {m.composition} {m.brand} {m.description}"
+                    embedding = SearchService.generate_embedding(content)
+                    session.add(SearchIndex(
+                        entity_id=str(m.id),
+                        entity_type="medicine",
+                        name=m.name,
+                        content=content,
+                        embedding=json.dumps(embedding)
+                    ))
+                
+                # 3. Labs
+                labs = await session.execute(select(Lab))
+                for l in labs.scalars().all():
+                    content = f"{l.name} {l.test_type} {l.city} {l.description}"
+                    embedding = SearchService.generate_embedding(content)
+                    session.add(SearchIndex(
+                        entity_id=str(l.id),
+                        entity_type="lab",
+                        name=l.name,
+                        content=content,
+                        embedding=json.dumps(embedding)
+                    ))
+                
+                await session.commit()
+                print("Vector Search indexing complete.")
     
     yield
     
@@ -353,86 +404,58 @@ class SearchRequest(BaseModel):
 
 @app.post("/api/v1/semantic-search")
 async def kavaan_search(req: SearchRequest, db: AsyncSession = Depends(get_db)):
-    query = req.query.lower().strip()
+    query_text = req.query.lower().strip()
     
     # 1. Preprocessing (Hinglish/Synonyms)
     synonyms = {"bukhar": "fever", "khansi": "cough", "dawai": "medicine", "dr": "doctor"}
     for k, v in synonyms.items():
-        if k in query:
-            query = query.replace(k, v)
+        if k in query_text:
+            query_text = query_text.replace(k, v)
 
-    # 2. Intent Detection (Rules-based)
+    # 2. Intent Detection
     intent = "unknown"
-    if any(k in query for k in ["doctor", "physician", "surgeon", "clinic"]): intent = "doctor"
-    elif any(k in query for k in ["lab", "test", "pathology", "blood"]): intent = "lab"
-    elif any(k in query for k in ["medicine", "tablet", "capsule", "syrup"]): intent = "medicine"
-    elif any(k in query for k in ["insurance", "policy", "plan"]): intent = "insurance"
-    elif any(k in query for k in ["competition", "league", "run", "ride"]): intent = "competition"
-    elif any(k in query for k in ["product", "protein", "mask", "essential"]): intent = "product"
+    if any(k in query_text for k in ["doctor", "physician", "surgeon", "clinic"]): intent = "doctor"
+    elif any(k in query_text for k in ["lab", "test", "pathology", "blood"]): intent = "lab"
+    elif any(k in query_text for k in ["medicine", "tablet", "capsule", "syrup"]): intent = "medicine"
 
-    results = []
+    # 3. Generate Query Embedding
+    query_embedding = SearchService.generate_embedding(query_text)
 
-    # Helper for scoring
-    def calculate_score(item_name, item_desc, popularity, rating, review_count, type_intent):
-        text_relevance = 0.0
-        name_lower = item_name.lower()
-        if query in name_lower: text_relevance = 1.0 # Exact match
-        elif any(word in name_lower for word in query.split()): text_relevance = 0.6 # Partial
-        
-        # Mock Semantic Score (using keyword presence in description/content for demo)
-        semantic_score = 0.5
-        if any(word in item_desc.lower() for word in query.split()): semantic_score = 0.9
-        
-        # Performance Signals
-        import math
-        pop_score = math.log10(1 + popularity) / 4.0 # Normalize roughly 0-1
-        rate_score = (rating / 5.0) * (math.log10(1 + review_count) / 4.0)
-        
-        # Category Boost
-        intent_boost = 1.5 if type_intent == intent else 1.0
-        
-        final_score = (
-            (0.40 * semantic_score) + 
-            (0.30 * text_relevance) + 
-            (0.15 * pop_score) + 
-            (0.10 * rate_score) + 
-            (0.05 * 0.5) # Personalization mock
-        ) * intent_boost
-        
-        return round(final_score, 3)
-
-    # 3. Search Across Entities (Simulated Hybrid Search)
-    # Note: In a real app, this would be a single vector query or parallel SQL queries
+    # 4. Search across SearchIndex (Full Capacity Vector Search)
+    # Note: In a production environment with millions of rows, we'd use pgvector's <-> operator.
+    # Here we perform similarity on the fetched candidates for "Full Capacity" accuracy.
+    idx_query = await db.execute(select(SearchIndex))
+    candidates = idx_query.scalars().all()
     
-    # Doctors
-    docs_query = await db.execute(select(DoctorProfile).join(User))
-    for d in docs_query.scalars().all():
-        score = calculate_score(d.user.name, f"{d.specialty} {d.hospital_name}", 500, 4.8, 100, "doctor")
-        if score > 0.3:
-            results.append({"id": f"doc_{d.id}", "type": "doctor", "name": d.user.name, "subtitle": d.specialty, "rating": 4.8, "score": score})
+    results = []
+    for item in candidates:
+        # Determine base stats for scoring (linking back to original tables if needed, 
+        # but for demo we'll use reasonable defaults or check intent)
+        
+        # Text relevance check
+        text_relevance = 1.0 if query_text in item.name.lower() else 0.5
+        
+        # Scoring with SearchService
+        score = SearchService.calculate_hybrid_score(
+            query_embedding=query_embedding,
+            entity_embedding_json=item.embedding,
+            text_relevance=text_relevance,
+            popularity=500, # Mocked
+            rating=4.5, # Mocked
+            review_count=100, # Mocked
+            is_matching_intent=(item.entity_type == intent)
+        )
+        
+        if score > 0.4:
+            results.append({
+                "id": item.entity_id,
+                "type": item.entity_type,
+                "name": item.name,
+                "subtitle": item.content[:60] + "...",
+                "score": score
+            })
 
-    # Medicines
-    meds_query = await db.execute(select(Medicine))
-    for m in meds_query.scalars().all():
-        score = calculate_score(m.name, m.description, m.popularity, m.rating, m.review_count, "medicine")
-        if score > 0.3:
-            results.append({"id": f"med_{m.id}", "type": "medicine", "name": m.name, "subtitle": m.brand, "rating": m.rating, "price": m.price, "score": score})
-
-    # Labs
-    labs_query = await db.execute(select(Lab))
-    for l in labs_query.scalars().all():
-        score = calculate_score(l.name, l.description, l.popularity, l.rating, l.review_count, "lab")
-        if score > 0.3:
-            results.append({"id": f"lab_{l.id}", "type": "lab", "name": l.name, "subtitle": l.test_type, "rating": l.rating, "score": score})
-
-    # Users (Social Search)
-    users_query = await db.execute(select(User))
-    for u in users_query.scalars().all():
-        # Search by name or Axio-ID
-        if query in u.name.lower() or query in u.id.lower():
-            results.append({"id": f"user_{u.id}", "type": "user", "name": u.name, "subtitle": f"Axio-ID: {u.id}", "rating": 5.0, "score": 1.0})
-
-    # 4. Ranking & Sorting
+    # 5. Ranking & Sorting
     results = sorted(results, key=lambda x: x["score"], reverse=True)[:20]
 
     return {"results": results, "intent": intent}

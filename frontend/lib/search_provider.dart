@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'services/supabase_service.dart';
 
 class SearchResult {
@@ -75,22 +77,28 @@ class SearchProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      // Invoke the Supabase Edge Function "hyper-function"
-      final response = await SupabaseService.client.functions.invoke(
-        'hyper-function',
-        body: {'query': query, 'location': 'bhopal'},
+      // POINTING TO LOCAL FASTAPI BACKEND (The Real Vector Search Implementation)
+      // Using 10.0.2.2 for Android Emulator, localhost for iOS/Web
+      final baseUrl = 'http://localhost:8000'; 
+      
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/v1/semantic-search'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'query': query, 'location': 'bhopal'}),
       );
-
-      if (response.status == 200) {
-        final List<dynamic> jsonResults = response.data['results'] ?? [];
+      
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final List<dynamic> jsonResults = data['results'] ?? [];
         _results = jsonResults.map((item) => SearchResult.fromMap(item)).toList();
-        _intent = response.data['intent'];
+        _intent = data['intent'];
       } else {
-        debugPrint('Cloud Search failed: ${response.status}');
+        debugPrint('FastAPI Search failed: ${response.statusCode}');
+        _results = [];
       }
     } catch (e) {
-      debugPrint('Error during Cloud Search: $e');
-      _results = []; // Ensure clear on error before adding mocks
+      debugPrint('Error during FastAPI Search: $e');
+      _results = []; 
     } finally {
       // Add mock users for verification (always add for testing, filtered by query)
       final allMocks = [

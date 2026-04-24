@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'appointment_provider.dart';
 import 'lab_booking_provider.dart';
 import 'appointment_slip_page.dart';
+import 'invoice_page.dart';
 
 class MyBookingsPage extends StatefulWidget {
   final int initialTab;
@@ -264,7 +265,34 @@ class _AppointmentCard extends StatelessWidget {
                         );
                       },
                       icon: const Icon(Icons.receipt_long, size: 16, color: Color(0xFF1570EF)),
-                      label: const Text('View Slip', style: TextStyle(color: Color(0xFF1570EF), fontSize: 13, fontWeight: FontWeight.bold)),
+                      label: const Text('Slip', style: TextStyle(color: Color(0xFF1570EF), fontSize: 13, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  Container(width: 1, height: 24, color: const Color(0xFFF2F4F7)),
+                  Expanded(
+                    child: TextButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => InvoicePage(
+                              invoiceData: {
+                                'invoiceNumber': 'AX-INV-${appointment.confirmationCode}',
+                                'items': [{
+                                  'name': 'Appointment with ${appointment.doctorName}',
+                                  'qty': 1,
+                                  'cost': appointment.amount,
+                                  'total': appointment.amount,
+                                }],
+                                'subtotal': appointment.amount,
+                                'tax': appointment.amount * 0.1,
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.description_outlined, size: 16, color: Color(0xFF1570EF)),
+                      label: const Text('Invoice', style: TextStyle(color: Color(0xFF1570EF), fontSize: 13, fontWeight: FontWeight.bold)),
                     ),
                   ),
                   Container(width: 1, height: 24, color: const Color(0xFFF2F4F7)),
@@ -469,16 +497,66 @@ class _LabBookingCard extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(booking.confirmationCode, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF344054))),
                 const Spacer(),
-                if (isUpcoming && booking.status != 'cancelled')
+                if (isUpcoming && booking.status != 'cancelled') ...[
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InvoicePage(
+                            invoiceData: {
+                              'invoiceNumber': 'AX-INV-${booking.confirmationCode}',
+                              'items': [{
+                                'name': booking.packageName,
+                                'qty': 1,
+                                'cost': booking.amount,
+                                'total': booking.amount,
+                              }],
+                              'subtotal': booking.amount,
+                              'tax': booking.amount * 0.1,
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text('Invoice', style: TextStyle(color: Color(0xFF1570EF), fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                  const SizedBox(width: 12),
                   GestureDetector(
                     onTap: () => _showCancelDialog(context, booking),
                     child: const Text('Cancel', style: TextStyle(color: Color(0xFFD92D20), fontSize: 12, fontWeight: FontWeight.bold)),
                   ),
-                if (booking.status == 'report_ready')
+                ],
+                if (booking.status == 'report_ready') ...[
+                  GestureDetector(
+                    onTap: () {
+                       Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InvoicePage(
+                            invoiceData: {
+                              'invoiceNumber': 'AX-INV-${booking.confirmationCode}',
+                              'items': [{
+                                'name': booking.packageName,
+                                'qty': 1,
+                                'cost': booking.amount,
+                                'total': booking.amount,
+                              }],
+                              'subtotal': booking.amount,
+                              'tax': booking.amount * 0.1,
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text('Invoice', style: TextStyle(color: Color(0xFF1570EF), fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                  const SizedBox(width: 12),
                   GestureDetector(
                     onTap: () {},
                     child: const Text('View Report', style: TextStyle(color: Color(0xFF6941C6), fontSize: 12, fontWeight: FontWeight.bold)),
                   ),
+                ],
               ],
             ),
           ),

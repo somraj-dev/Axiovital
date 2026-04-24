@@ -30,7 +30,6 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildHeader(context),
                       if (_showWelcome) _buildWelcomeBanner(context),
                       _buildActiveContactsList(communityProvider),
                       const Padding(

@@ -8,3 +8,8 @@ boto3
 firebase-admin
 websockets
 python-multipart
+sentence-transformers
+numpy
+cryptography
+web3
+httpx

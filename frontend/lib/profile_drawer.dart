@@ -3,10 +3,10 @@ import 'package:provider/provider.dart';
 import 'user_provider.dart';
 import 'profile_page.dart';
 import 'habit_tracker_page.dart';
-import 'consultations_page.dart';
 import 'test_bookings_page.dart';
 import 'my_bookings_page.dart';
 import 'orders_page.dart';
+import 'cart_page.dart';
 import 'help_center_page.dart';
 import 'communities_page.dart';
 import 'read_about_health_page.dart';
@@ -189,14 +189,14 @@ class ProfileDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     context,
-                    Icons.chat_bubble_outline, 
-                    'Consultations', 
+                    Icons.shopping_cart_outlined, 
+                    'Cart', 
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const ConsultationsPage()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const CartPage()));
                     },
                   ),
-                  _buildDrawerItem(context, Icons.person_pin_outlined, 'My Doctors'),
+                  _buildDrawerItem(context, Icons.person_pin_outlined, 'Health Partner'),
                   _buildDrawerItem(
                     context,
                     Icons.people_alt_outlined, 

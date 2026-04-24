@@ -6,6 +6,7 @@ import 'create_profile_page.dart';
 import 'login_page.dart';
 import 'main_screen.dart';
 import 'main.dart'; // To access kIsAuthBypass
+import 'pin_entry_page.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -27,19 +28,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
     Timer(const Duration(milliseconds: 3000), () {
       if (mounted) {
-        if (kIsAuthBypass) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const MainScreen()),
-          );
-        } else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => isOnboarded ? const LoginPage() : const CreateProfilePage(),
-            ),
-          );
-        }
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const PinEntryPage()),
+        );
       }
     });
   }

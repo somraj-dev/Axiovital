@@ -47,7 +47,7 @@ class UserProvider with ChangeNotifier {
   void _loadMockDeveloperData() {
     _name = 'Somraj Dev';
     _avatarUrl = 'https://api.dicebear.com/7.x/avataaars/svg?seed=Somraj';
-    _clinicalId = 'AX-DEBUG-001';
+    _clinicalId = 'AX04SL-X7K9ZP2';
     _age = '28';
     _gender = 'Male';
     _membershipType = 'GOLD MEMBER';

@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'notification_settings_page.dart';
 import 'notification_provider.dart';
 import 'appointment_slip_page.dart';
+import 'reschedule_appointment_page.dart';
+import 'invoice_page.dart';
 import 'package:intl/intl.dart';
 
 class NotificationPage extends StatelessWidget {
@@ -122,6 +124,27 @@ class NotificationPage extends StatelessWidget {
                     time: 'Yesterday',
                     description: 'Monthly VitalSync AI premium subscription statement.',
                     link: 'View Statement',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InvoicePage(
+                            invoiceData: {
+                              'invoiceNumber': 'AX-INV-SUB-9942',
+                              'items': [{
+                                'name': 'VitalSync AI Premium Subscription',
+                                'qty': 1,
+                                'cost': 1999.0,
+                                'total': 1999.0,
+                              }],
+                              'subtotal': 1999.0,
+                              'tax': 199.9,
+                              'total': 2198.9,
+                            },
+                          ),
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 40),
                 ],
@@ -204,6 +227,12 @@ class NotificationPage extends StatelessWidget {
                       child: OutlinedButton(
                         onPressed: () {
                           provider.markAsRead(notif.id);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RescheduleAppointmentPage(appointmentData: notif.metaData),
+                            ),
+                          );
                         },
                         style: OutlinedButton.styleFrom(
                           side: BorderSide(color: Colors.grey.shade200),
@@ -404,6 +433,7 @@ class NotificationPage extends StatelessWidget {
     required String time,
     required String description,
     String? link,
+    VoidCallback? onTap,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -446,7 +476,7 @@ class NotificationPage extends StatelessWidget {
           if (link != null) ...[
             const SizedBox(height: 16),
             TextButton(
-              onPressed: () {},
+              onPressed: onTap,
               style: TextButton.styleFrom(padding: EdgeInsets.zero),
               child: Row(
                 children: [
