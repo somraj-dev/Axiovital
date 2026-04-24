@@ -10,6 +10,8 @@ import 'permission_service.dart';
 import 'lab_tests_page.dart';
 import 'widgets/axio_avatar.dart';
 import 'theme_provider.dart';
+import 'orders_page.dart';
+import 'partner_hospitals_page.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -20,6 +22,8 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+  bool _inSubNav = false;
+  int _subSelectedIndex = 1;
 
   @override
   void initState() {
@@ -37,10 +41,37 @@ class _MainScreenState extends State<MainScreen> {
     const ProfilePage(key: ValueKey('ProfilePage')),
   ];
 
+  final List<Widget> _subPages = [
+    const SizedBox.shrink(),
+    const FindDoctorPage(key: ValueKey('FindDoctorSub')),
+    const PartnerHospitalsPage(key: ValueKey('PartnerHospitalsSub')),
+    const Scaffold(body: Center(child: Text('Clinic Coming Soon', style: TextStyle(fontSize: 20)))),
+    const OrdersPage(key: ValueKey('OrdersSub')),
+  ];
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      if (index == 1) {
+        _inSubNav = true;
+        _subSelectedIndex = 1;
+      } else {
+        _inSubNav = false;
+      }
     });
+  }
+
+  void _onSubItemTapped(int index) {
+    if (index == 0) {
+      setState(() {
+        _inSubNav = false;
+        _selectedIndex = 0;
+      });
+    } else {
+      setState(() {
+        _subSelectedIndex = index;
+      });
+    }
   }
 
   @override
@@ -48,6 +79,7 @@ class _MainScreenState extends State<MainScreen> {
     final theme = Theme.of(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isTransparent = themeProvider.isBottomBarTransparent;
+    final showSubNav = _selectedIndex == 1 || _inSubNav;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -58,9 +90,9 @@ class _MainScreenState extends State<MainScreen> {
             duration: const Duration(milliseconds: 300),
             switchInCurve: Curves.easeIn,
             switchOutCurve: Curves.easeOut,
-            child: _pages[_selectedIndex],
+            child: showSubNav ? _subPages[_subSelectedIndex] : _pages[_selectedIndex],
           ),
-          if (isTransparent)
+          if (isTransparent && !showSubNav)
             Positioned(
               left: 24,
               right: 24,
@@ -75,7 +107,9 @@ class _MainScreenState extends State<MainScreen> {
             ),
         ],
       ),
-      bottomNavigationBar: isTransparent ? null : _buildNavBar(isTransparent: false),
+      bottomNavigationBar: showSubNav 
+          ? _buildSubNavBar() 
+          : (isTransparent ? null : _buildNavBar(isTransparent: false)),
     );
   }
 
@@ -198,6 +232,127 @@ class _MainScreenState extends State<MainScreen> {
               fontSize: 10,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               color: isSelected ? theme.primaryColor : theme.colorScheme.onSurface.withOpacity(0.6),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubNavBar() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          top: BorderSide(color: Colors.grey.shade200, width: 1),
+        ),
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildSubNavItem(
+                iconWidget: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.black, width: 2),
+                  ),
+                  child: const Icon(Icons.arrow_back, size: 16, color: Colors.black),
+                ),
+                label: 'Home',
+                isSelected: false,
+                onTap: () => _onSubItemTapped(0),
+              ),
+              _buildSubNavItem(
+                iconWidget: Icon(
+                  Icons.medical_services,
+                  size: 24,
+                  color: _subSelectedIndex == 1 ? Colors.black : Colors.black87,
+                ),
+                label: 'Doctor',
+                isSelected: _subSelectedIndex == 1,
+                onTap: () => _onSubItemTapped(1),
+              ),
+              _buildSubNavItem(
+                iconWidget: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Icon(
+                      Icons.local_hospital,
+                      size: 24,
+                      color: _subSelectedIndex == 2 ? Colors.black : Colors.black87,
+                    ),
+                    Positioned(
+                      top: -6,
+                      right: -12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF5247),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          'NEW',
+                          style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                label: 'Hospitals',
+                isSelected: _subSelectedIndex == 2,
+                onTap: () => _onSubItemTapped(2),
+              ),
+              _buildSubNavItem(
+                iconWidget: Icon(
+                  Icons.healing,
+                  size: 24,
+                  color: _subSelectedIndex == 3 ? Colors.black : Colors.black87,
+                ),
+                label: 'Clinic',
+                isSelected: _subSelectedIndex == 3,
+                onTap: () => _onSubItemTapped(3),
+              ),
+              _buildSubNavItem(
+                iconWidget: Icon(
+                  Icons.receipt_long,
+                  size: 24,
+                  color: _subSelectedIndex == 4 ? Colors.black : Colors.black87,
+                ),
+                label: 'My Orders',
+                isSelected: _subSelectedIndex == 4,
+                onTap: () => _onSubItemTapped(4),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubNavItem({
+    required Widget iconWidget,
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          iconWidget,
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              color: isSelected ? Colors.black : Colors.black87,
             ),
           ),
         ],

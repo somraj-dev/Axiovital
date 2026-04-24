@@ -75,6 +75,15 @@ class _CartPageState extends State<CartPage> {
                                 const Divider(height: 32, thickness: 1, color: Color(0xFFF2F4F7)),
                               ],
 
+                              // Hospital & Beds Section
+                              if (cartProvider.hospitalBeds.isNotEmpty) ...[
+                                _buildSectionHeader('Hospital & Beds'),
+                                ...cartProvider.hospitalBeds
+                                    .map((item) => _buildCartItemCard(item, cartProvider))
+                                    .toList(),
+                                const Divider(height: 32, thickness: 1, color: Color(0xFFF2F4F7)),
+                              ],
+
                               // Lab Tests Section
                               if (cartProvider.labTests.isNotEmpty) ...[
                                 _buildSectionHeader('Test added'),

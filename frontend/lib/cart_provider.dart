@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum CartItemType { labTest, appointment, essential, insurance, subscription }
+enum CartItemType { labTest, appointment, essential, insurance, subscription, hospitalBed }
 
 class CartItem {
   final String id;
@@ -155,4 +155,5 @@ class CartProvider extends ChangeNotifier {
   List<CartItem> get essentials => _items.values.where((i) => i.type == CartItemType.essential).toList();
   List<CartItem> get subscriptions => _items.values.where((i) => i.type == CartItemType.subscription).toList();
   List<CartItem> get insuranceItems => _items.values.where((i) => i.type == CartItemType.insurance).toList();
+  List<CartItem> get hospitalBeds => _items.values.where((i) => i.type == CartItemType.hospitalBed).toList();
 }
