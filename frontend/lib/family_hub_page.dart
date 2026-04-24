@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'add_member_sheet.dart';
 
 class FamilyHubPage extends StatefulWidget {
   const FamilyHubPage({super.key});
@@ -306,22 +307,32 @@ class _FamilyHubPageState extends State<FamilyHubPage> {
                   child: _buildFamilyMemberAvatar('Somraj', 'https://ui-avatars.com/api/?name=Somraj&background=random', _selectedMember == 'Somraj'),
                 ),
                 const SizedBox(width: 32),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.grey.shade300, width: 1),
-                      ),
-                      child: const Icon(Icons.add, color: Colors.grey, size: 26),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text('Add\nmember', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: Colors.black54)),
-                  ],
-                ),
+                 GestureDetector(
+                   onTap: () {
+                     showModalBottomSheet(
+                       context: context,
+                       isScrollControlled: true,
+                       backgroundColor: Colors.transparent,
+                       builder: (context) => AddMemberSheet(),
+                     );
+                   },
+                   child: Column(
+                     mainAxisSize: MainAxisSize.min,
+                     children: [
+                       Container(
+                         padding: const EdgeInsets.all(12),
+                         decoration: BoxDecoration(
+                           color: Colors.grey.shade100,
+                           shape: BoxShape.circle,
+                           border: Border.all(color: Colors.grey.shade300, width: 1),
+                         ),
+                         child: const Icon(Icons.add, color: Colors.grey, size: 26),
+                       ),
+                       const SizedBox(height: 8),
+                       const Text('Add\nmember', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: Colors.black54)),
+                     ],
+                   ),
+                 ),
               ],
             ),
           )
@@ -604,57 +615,67 @@ class _FamilyHubPageState extends State<FamilyHubPage> {
   }
 
   Widget _buildAddMemberCard() {
-     return Container(
-      width: 160,
-      height: 255, // Exact match height footprint to side cards
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-         children: [
-          Stack(
-            clipBehavior: Clip.none,
+      return GestureDetector(
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => AddMemberSheet(),
+          );
+        },
+        child: Container(
+         width: 160,
+         height: 255, // Exact match height footprint to side cards
+         decoration: BoxDecoration(
+           color: Colors.white,
+           borderRadius: BorderRadius.circular(16),
+           border: Border.all(color: Colors.grey.shade200),
+         ),
+         child: Column(
+           mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.grey.shade200,
-                child: const Icon(Icons.person, color: Colors.grey, size: 40),
-              ),
-              Positioned(
-                bottom: -4,
-                right: -4,
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF6B4EE6),
-                     shape: BoxShape.circle,
-                     border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: const Icon(Icons.lock, size: 14, color: Colors.white),
-                ),
-              )
+             Stack(
+               clipBehavior: Clip.none,
+               children: [
+                 CircleAvatar(
+                   radius: 30,
+                   backgroundColor: Colors.grey.shade200,
+                   child: const Icon(Icons.person, color: Colors.grey, size: 40),
+                 ),
+                 Positioned(
+                   bottom: -4,
+                   right: -4,
+                   child: Container(
+                     padding: const EdgeInsets.all(6),
+                     decoration: BoxDecoration(
+                       color: const Color(0xFF6B4EE6),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                     ),
+                     child: const Icon(Icons.lock, size: 14, color: Colors.white),
+                   ),
+                 )
+               ],
+             ),
+             const SizedBox(height: 24),
+             Row(
+               mainAxisAlignment: MainAxisAlignment.center,
+               children: const [
+                 Text('Add member', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                 SizedBox(width: 4),
+                 Icon(Icons.chevron_right, size: 16, color: Colors.black54),
+               ],
+             ),
+             const SizedBox(height: 16),
+             const Padding(
+               padding: EdgeInsets.symmetric(horizontal: 16.0),
+               child: Text('Create a new member in health insights', textAlign: TextAlign.center, style: TextStyle(color: Colors.black45, fontSize: 12)),
+             ),
             ],
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Text('Add member', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              SizedBox(width: 4),
-              Icon(Icons.chevron_right, size: 16, color: Colors.black54),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text('Create a new member in health insights', textAlign: TextAlign.center, style: TextStyle(color: Colors.black45, fontSize: 12)),
-          ),
-         ],
-      ),
-    );
+         ),
+        ),
+      );
   }
 
   Widget _buildBodySystemSection() {

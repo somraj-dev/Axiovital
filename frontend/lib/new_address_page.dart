@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import 'cart_provider.dart';
 
 class NewAddressPage extends StatefulWidget {
-  const NewAddressPage({super.key});
+  final String? preFilledAddress;
+  final Address? editAddress;
+  const NewAddressPage({super.key, this.preFilledAddress, this.editAddress});
 
   @override
   State<NewAddressPage> createState() => _NewAddressPageState();
@@ -15,6 +17,19 @@ class _NewAddressPageState extends State<NewAddressPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   String _selectedType = 'Home';
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.editAddress != null) {
+      _detailController.text = widget.editAddress!.fullAddress;
+      _nameController.text = widget.editAddress!.recipientName;
+      _phoneController.text = widget.editAddress!.phone;
+      _selectedType = widget.editAddress!.type;
+    } else if (widget.preFilledAddress != null) {
+      _detailController.text = widget.preFilledAddress!;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,9 +105,31 @@ class _NewAddressPageState extends State<NewAddressPage> {
               height: 52,
               child: ElevatedButton(
                 onPressed: () {
-                  if (_pincodeController.text.isNotEmpty && _nameController.text.isNotEmpty) {
-                    cartProvider.setAddress(_selectedType, '${_detailController.text}, ${_pincodeController.text}');
-                    Navigator.pop(context);
+                  if (_nameController.text.isNotEmpty) {
+                    final newAddr = Address(
+                      id: widget.editAddress?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+                      name: _selectedType,
+                      fullAddress: _detailController.text,
+                      type: _selectedType,
+                      recipientName: _nameController.text,
+                      phone: _phoneController.text,
+                    );
+                    
+                    if (widget.editAddress != null) {
+                      cartProvider.updateAddress(widget.editAddress!.id, newAddr);
+                    } else {
+                      cartProvider.addAddress(newAddr);
+                    }
+                    
+                    // Navigate back to ChooseAddressPage (pop NewAddress, ConfirmLocation, SearchLocality)
+                    Navigator.of(context).popUntil((route) => route.isFirst || route.settings.name == 'ChooseAddressPage');
+                    // Actually, if we don't have named routes, we might need a better way. 
+                    // Let's just pop twice or use a specific pop logic.
+                    Navigator.pop(context); // Pop NewAddress
+                    if (widget.preFilledAddress != null) {
+                       Navigator.pop(context); // Pop ConfirmLocation
+                       Navigator.pop(context); // Pop SearchLocality
+                    }
                   }
                 },
                 style: ElevatedButton.styleFrom(

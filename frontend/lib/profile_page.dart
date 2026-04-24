@@ -15,6 +15,7 @@ import 'widgets/axio_card.dart';
 import 'widgets/axio_button.dart';
 import 'theme.dart';
 import 'theme_provider.dart';
+import 'choose_address_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -230,6 +231,31 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
                 ],
+              ),
+            ),
+            
+            const SizedBox(height: 32),
+            
+            // Saved Addresses
+            _buildSectionHeader('SAVED ADDRESSES', theme: theme),
+            const SizedBox(height: 12),
+            AxioCard(
+              padding: EdgeInsets.zero,
+              child: ListTile(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ChooseAddressPage()),
+                  );
+                },
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(color: theme.primaryColor.withOpacity(0.1), shape: BoxShape.circle),
+                  child: Icon(Icons.location_on_outlined, color: theme.primaryColor, size: 20),
+                ),
+                title: Text('Manage Delivery Addresses', style: TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
+                subtitle: Text('Home, Office, and other locations', style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.5), fontSize: 12)),
+                trailing: Icon(Icons.chevron_right, color: theme.colorScheme.onSurface.withOpacity(0.3)),
               ),
             ),
             

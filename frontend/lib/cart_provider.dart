@@ -26,6 +26,24 @@ class CartItem {
   });
 }
 
+class Address {
+  final String id;
+  final String name;
+  final String fullAddress;
+  final String type; // Home, Office, etc.
+  final String recipientName;
+  final String phone;
+
+  Address({
+    required this.id,
+    required this.name,
+    required this.fullAddress,
+    required this.type,
+    required this.recipientName,
+    required this.phone,
+  });
+}
+
 class CartProvider extends ChangeNotifier {
   final Map<String, CartItem> _items = {};
   String _address = 'Gwalior';
@@ -33,11 +51,54 @@ class CartProvider extends ChangeNotifier {
   String? _appliedCoupon;
   double _couponDiscount = 0.0;
   
+  final List<Address> _recentAddresses = [
+    Address(
+      id: '1',
+      name: 'Home',
+      fullAddress: 'M 02 DD Nagar Gwalior, Deen Dayal Nagar Gwalior, Madhya Pradesh (474005)',
+      type: 'Home',
+      recipientName: 'somraj',
+      phone: '9243657795',
+    ),
+  ];
+  
+  int _selectedAddressIndex = 0;
+  
   Map<String, CartItem> get items => {..._items};
   int get itemCount => _items.length;
   String get address => _address;
   String? get fullAddress => _fullAddress;
   String? get appliedCoupon => _appliedCoupon;
+  List<Address> get recentAddresses => _recentAddresses;
+  int get selectedAddressIndex => _selectedAddressIndex;
+  Address? get selectedAddress => _recentAddresses.isNotEmpty ? _recentAddresses[_selectedAddressIndex] : null;
+
+  void selectAddress(int index) {
+    _selectedAddressIndex = index;
+    notifyListeners();
+  }
+
+  void addAddress(Address address) {
+    _recentAddresses.insert(0, address);
+    _selectedAddressIndex = 0;
+    notifyListeners();
+  }
+
+  void updateAddress(String id, Address updated) {
+    int idx = _recentAddresses.indexWhere((a) => a.id == id);
+    if (idx != -1) {
+      _recentAddresses[idx] = updated;
+      notifyListeners();
+    }
+  }
+
+  void removeAddress(String id) {
+    _recentAddresses.removeWhere((a) => a.id == id);
+    if (_selectedAddressIndex >= _recentAddresses.length) {
+      _selectedAddressIndex = 0;
+    }
+    notifyListeners();
+  }
 
   double get totalMRP {
     double total = 0.0;

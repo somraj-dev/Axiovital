@@ -4,6 +4,8 @@ import 'checkout_provider.dart';
 import 'cart_provider.dart';
 import 'payment_options_page.dart';
 import 'appointment_provider.dart';
+import 'choose_address_page.dart';
+import 'add_member_sheet.dart';
 
 
 class CheckoutFlow {
@@ -41,13 +43,19 @@ class _SheetWrapper extends StatelessWidget {
           child: Container(color: Colors.black54),
         ),
         Positioned(
-          top: 60,
-          right: 20,
+          top: MediaQuery.of(context).size.height * 0.15 - 70, // Adjust to be clearly visible above the sheet
+          right: 24,
           child: GestureDetector(
             onTap: () => Navigator.pop(context),
             child: Container(
               padding: const EdgeInsets.all(12),
-              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
+                ],
+              ),
               child: const Icon(Icons.close, color: Colors.black, size: 24),
             ),
           ),
@@ -142,9 +150,25 @@ class PatientSelectionSheet extends StatelessWidget {
                   const Divider(height: 24),
                   ...checkout.availablePatients.map((p) => _buildPatientItem(context, p, checkout)),
                   const SizedBox(height: 12),
-                  GestureDetector(
-                    child: const Center(
-                      child: Text('+ Add new patient', style: TextStyle(color: Color(0xFFFF5247), fontWeight: FontWeight.bold, fontSize: 15)),
+                  TextButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) => AddMemberSheet(),
+                      );
+                    },
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text(
+                      '+ Add new patient',
+                      style: TextStyle(
+                        color: Color(0xFFFF5247),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
                     ),
                   ),
                 ],
@@ -198,7 +222,7 @@ class PatientSelectionSheet extends StatelessWidget {
               context: context,
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
-              builder: (context) => const SlotSelectionSheet(),
+              builder: (context) => SlotSelectionSheet(),
             );
           },
           style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF5247), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), elevation: 0),
@@ -255,10 +279,27 @@ class _SlotSelectionSheetState extends State<SlotSelectionSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Address Section
-            _buildSummaryRow('Sample collection address', 'Home (M 02 DD Nagar G...', Icons.home_outlined, context),
+            Consumer<CartProvider>(
+              builder: (context, cart, _) => _buildSummaryRow(
+                'Sample collection address',
+                cart.selectedAddress?.fullAddress ?? 'Add Address',
+                Icons.home_outlined,
+                context,
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ChooseAddressPage())),
+              ),
+            ),
             const SizedBox(height: 12),
             // Patient Section
-            _buildSummaryRow('Patient(s)', checkout.selectedPatients.map((p) => p.name).join(', '), Icons.person_outline, context),
+            _buildSummaryRow(
+              'Patient(s)',
+              checkout.selectedPatients.map((p) => p.name).join(', '),
+              Icons.person_outline,
+              context,
+              onTap: () {
+                Navigator.pop(context);
+                showModalBottomSheet(context: context, isScrollControlled: true, backgroundColor: Colors.transparent, builder: (_) => const PatientSelectionSheet());
+              },
+            ),
             const SizedBox(height: 24),
             
             Row(
@@ -354,21 +395,24 @@ class _SlotSelectionSheetState extends State<SlotSelectionSheet> {
     );
   }
 
-  Widget _buildSummaryRow(String title, String val, IconData icon, BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(border: Border.all(color: const Color(0xFFEAECF0)), borderRadius: BorderRadius.circular(16)),
-      child: Row(
-        children: [
-          Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: Colors.pink.shade50, shape: BoxShape.circle), child: Icon(icon, color: Colors.pink, size: 20)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: TextStyle(fontSize: 12, color: Colors.grey.shade500)), Text(val, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis)]),
-          ),
-          const SizedBox(width: 8),
-          const Text('Change', style: TextStyle(color: Color(0xFFFF5247), fontWeight: FontWeight.bold, fontSize: 14)),
-          const Icon(Icons.chevron_right, color: Color(0xFFFF5247), size: 18),
-        ],
+  Widget _buildSummaryRow(String title, String val, IconData icon, BuildContext context, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(border: Border.all(color: const Color(0xFFEAECF0)), borderRadius: BorderRadius.circular(16)),
+        child: Row(
+          children: [
+            Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: Colors.pink.shade50, shape: BoxShape.circle), child: Icon(icon, color: Colors.pink, size: 20)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: TextStyle(fontSize: 12, color: Colors.grey.shade500)), Text(val, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis)]),
+            ),
+            const SizedBox(width: 8),
+            const Text('Change', style: TextStyle(color: Color(0xFFFF5247), fontWeight: FontWeight.bold, fontSize: 14)),
+            const Icon(Icons.chevron_right, color: Color(0xFFFF5247), size: 18),
+          ],
+        ),
       ),
     );
   }

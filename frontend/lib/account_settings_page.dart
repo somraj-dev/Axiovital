@@ -8,6 +8,7 @@ import 'widgets/appearance_popup.dart';
 import 'update_profile_page.dart';
 import 'language_page.dart';
 import 'about_me_page.dart';
+import 'choose_address_page.dart';
 
 class AccountSettingsPage extends StatelessWidget {
   const AccountSettingsPage({super.key});
@@ -116,6 +117,18 @@ class AccountSettingsPage extends StatelessWidget {
                   icon: Icons.notifications_none_outlined,
                   title: userProvider.translate('notifications'),
                   theme: theme,
+                ),
+                _buildDivider(theme),
+                _buildSettingsItem(
+                  icon: Icons.location_on_outlined,
+                  title: 'Saved Addresses',
+                  theme: theme,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ChooseAddressPage()),
+                    );
+                  },
                 ),
                 _buildDivider(theme),
                 _buildSettingsItem(

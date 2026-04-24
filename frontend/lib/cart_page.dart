@@ -7,6 +7,7 @@ import 'new_address_page.dart';
 import 'checkout_sheets.dart';
 import 'payment_options_page.dart';
 import 'search_page.dart';
+import 'choose_address_page.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -1005,8 +1006,11 @@ class _CartPageState extends State<CartPage> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const NewAddressPage())),
-                  child: const Text('Add Address', style: TextStyle(color: Color(0xFFFF5247), fontWeight: FontWeight.bold, fontSize: 14)),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ChooseAddressPage())),
+                  child: Text(
+                    cartProvider.selectedAddress != null ? 'Change' : 'Add Address', 
+                    style: const TextStyle(color: Color(0xFFFF5247), fontWeight: FontWeight.bold, fontSize: 14)
+                  ),
                 ),
               ],
             ),
