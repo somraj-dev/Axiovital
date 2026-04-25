@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'services/supabase_service.dart';
 
@@ -29,8 +28,8 @@ class SearchResult {
   factory SearchResult.fromMap(Map<String, dynamic> map) {
     return SearchResult(
       id: map['entity_id'] ?? map['id'].toString(),
-      type: map['type'],
-      name: map['name'],
+      type: map['type'] ?? 'unknown',
+      name: map['name'] ?? 'Unknown',
       subtitle: map['subtitle'] ?? '',
       rating: (map['rating'] as num?)?.toDouble() ?? 5.0,
       score: (map['score'] as num?)?.toDouble() ?? 0.0,
@@ -77,30 +76,38 @@ class SearchProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      // POINTING TO LOCAL FASTAPI BACKEND (The Real Vector Search Implementation)
-      // Using 10.0.2.2 for Android Emulator, localhost for iOS/Web
-      final baseUrl = 'http://localhost:8000'; 
-      
-      final response = await http.post(
-        Uri.parse('$baseUrl/api/v1/semantic-search'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'query': query, 'location': 'bhopal'}),
+      // 🚀 SUPABASE EDGE FUNCTIONS (Cloud-Native Vector Search)
+      final supabase = Supabase.instance.client;
+      final response = await supabase.functions.invoke(
+        'semantic-search',
+        body: {'query': query},
       );
-      
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+
+      if (response.status == 200) {
+        final data = response.data;
         final List<dynamic> jsonResults = data['results'] ?? [];
-        _results = jsonResults.map((item) => SearchResult.fromMap(item)).toList();
+        
+        // Convert Supabase results (doctor objects) into SearchResult objects
+        _results = jsonResults.map((item) => SearchResult(
+          id: item['id'].toString(),
+          type: 'doctor', 
+          name: item['name'] ?? 'Unknown Doctor',
+          subtitle: item['specialty'] ?? 'Specialist',
+          rating: 4.5, // Standard rating display
+          score: (item['similarity'] as num? ?? 0.0).toDouble(),
+          avatarUrl: item['image_url'],
+        )).toList();
+        
         _intent = data['intent'];
       } else {
-        debugPrint('FastAPI Search failed: ${response.statusCode}');
+        debugPrint('Supabase Edge Search failed: ${response.status}');
         _results = [];
       }
     } catch (e) {
-      debugPrint('Error during FastAPI Search: $e');
+      debugPrint('Error during Supabase Edge Search: $e');
       _results = []; 
     } finally {
-      // Add mock users for verification (always add for testing, filtered by query)
+      // Add mock users for community search verification
       final allMocks = [
         SearchResult(
           id: 'mock-user-1',
@@ -120,36 +127,8 @@ class SearchProvider with ChangeNotifier {
           rating: 4.8,
           score: 0.95,
         ),
-        SearchResult(
-          id: 'mock-user-3',
-          type: 'user',
-          name: 'guillermo.rauch',
-          subtitle: 'Guillermo Rauch • Followed by vercel_fans + 8 more',
-          avatarUrl: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=1000&auto=format&fit=crop',
-          rating: 5.0,
-          score: 0.9,
-        ),
-        SearchResult(
-          id: 'mock-user-4',
-          type: 'user',
-          name: 'naval',
-          subtitle: 'Naval Ravikant • Followed by airbnb_ceo + 20 more',
-          avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=1000&auto=format&fit=crop',
-          rating: 4.7,
-          score: 0.85,
-        ),
-        SearchResult(
-          id: 'mock-user-5',
-          type: 'user',
-          name: 'lexfridman',
-          subtitle: 'Lex Fridman • Followed by joe_rogan + 15 more',
-          avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop',
-          rating: 4.9,
-          score: 0.8,
-        ),
       ];
 
-      // Filter mocks based on query
       final filteredMocks = allMocks.where((m) => 
         m.name.toLowerCase().contains(query.toLowerCase()) || 
         m.subtitle.toLowerCase().contains(query.toLowerCase())

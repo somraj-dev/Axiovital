@@ -16,7 +16,7 @@ class UserProvider with ChangeNotifier {
   String _weight = '--';
   String _bloodGroup = '--';
   String _dob = '--';
-  String _email = '';
+  String _email = 'user@example.com';
   String _phone = '';
   String _address = '';
   String _height = '--';
@@ -45,8 +45,9 @@ class UserProvider with ChangeNotifier {
   }
 
   void _loadMockDeveloperData() {
-    _name = 'Somraj Dev';
-    _avatarUrl = 'https://api.dicebear.com/7.x/avataaars/svg?seed=Somraj';
+    _name = 'Somraj Lodhi';
+    _avatarUrl = 'https://api.dicebear.com/7.x/avataaars/png?seed=Somraj';
+    _email = 'iitainsomraj701@gmail.com';
     _clinicalId = 'AX04SL-X7K9ZP2';
     _age = '28';
     _gender = 'Male';
@@ -174,7 +175,6 @@ class UserProvider with ChangeNotifier {
   bool get isLoadingConditions => false;
 
   Future<void> fetchConditions() async {
-    // Mock or implement if needed
     notifyListeners();
   }
 
@@ -184,10 +184,9 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Mock translation method
   String translate(String key) => key;
 
-  // Persistence (same as before)
+  // Persistence
   Future<void> _loadFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     _name = prefs.getString('user_name') ?? _name;
