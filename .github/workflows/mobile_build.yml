@@ -42,6 +42,10 @@ jobs:
           fi
         working-directory: frontend
 
+      - name: Generate App Launcher Icons
+        run: dart run flutter_launcher_icons
+        working-directory: frontend
+
       - name: Fix Kotlin and Gradle Versions
         run: |
           # 1. Update Kotlin version in build.gradle
