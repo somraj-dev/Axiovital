@@ -82,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message), 
-        backgroundColor: Colors.redAccent.withValues(alpha: 0.9),
+        backgroundColor: Colors.redAccent.withOpacity(0.9),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
@@ -93,7 +93,7 @@ class _LoginPageState extends State<LoginPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message), 
-        backgroundColor: Colors.green.withValues(alpha: 0.9),
+        backgroundColor: Colors.green.withOpacity(0.9),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
@@ -121,7 +121,7 @@ class _LoginPageState extends State<LoginPage> {
               height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFF00D09C).withValues(alpha: 0.1),
+                color: const Color(0xFF00D09C).withOpacity(0.1),
               ),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
@@ -144,8 +144,8 @@ class _LoginPageState extends State<LoginPage> {
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white.withValues(alpha: 0.05),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                          color: Colors.white.withOpacity(0.05),
+                          border: Border.all(color: Colors.white.withOpacity(0.1)),
                         ),
                         child: const Icon(Icons.health_and_safety_rounded, color: Color(0xFF00D09C), size: 48),
                       ),
@@ -170,7 +170,7 @@ class _LoginPageState extends State<LoginPage> {
                       textAlign: TextAlign.center,
                       style: GoogleFonts.inter(
                         fontSize: 16,
-                        color: Colors.white.withValues(alpha: 0.6),
+                        color: Colors.white.withOpacity(0.6),
                       ),
                     ),
                     const SizedBox(height: 48),
@@ -184,8 +184,8 @@ class _LoginPageState extends State<LoginPage> {
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            Colors.white.withValues(alpha: 0.15),
-                            Colors.white.withValues(alpha: 0.05),
+                            Colors.white.withOpacity(0.15),
+                            Colors.white.withOpacity(0.05),
                           ],
                         ),
                       ),
@@ -268,7 +268,7 @@ class _LoginPageState extends State<LoginPage> {
                     // Social Divider
                     Row(
                       children: [
-                        Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.1))),
+                        Expanded(child: Divider(color: Colors.white.withOpacity(0.1))),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
@@ -276,7 +276,7 @@ class _LoginPageState extends State<LoginPage> {
                             style: GoogleFonts.inter(color: Colors.white30, fontSize: 12, fontWeight: FontWeight.w600),
                           ),
                         ),
-                        Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.1))),
+                        Expanded(child: Divider(color: Colors.white.withOpacity(0.1))),
                       ],
                     ),
                     const SizedBox(height: 32),
@@ -326,14 +326,14 @@ class _LoginPageState extends State<LoginPage> {
         contentPadding: const EdgeInsets.symmetric(vertical: 18),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: Color(0xFF00D09C), width: 1.5),
         ),
         filled: true,
-        fillColor: Colors.black.withValues(alpha: 0.2),
+        fillColor: Colors.black.withOpacity(0.2),
       ),
     );
   }
@@ -343,7 +343,7 @@ class _LoginPageState extends State<LoginPage> {
       height: 56,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
       ),
       child: Material(
         color: Colors.transparent,

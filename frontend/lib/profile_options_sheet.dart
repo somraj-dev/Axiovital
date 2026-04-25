@@ -28,7 +28,7 @@ class ProfileOptionsSheet extends StatelessWidget {
             height: 84,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 1.5),
+              border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5),
               image: DecorationImage(
                 image: NetworkImage(userProvider.avatarUrl),
                 fit: BoxFit.cover,
@@ -54,7 +54,7 @@ class ProfileOptionsSheet extends StatelessWidget {
             userProvider.email,
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.6),
+              color: Colors.white.withOpacity(0.6),
               fontWeight: FontWeight.w400,
             ),
           ),
@@ -80,7 +80,7 @@ class ProfileOptionsSheet extends StatelessWidget {
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: Colors.white.withValues(alpha: 0.15), width: 1.5),
+                  side: BorderSide(color: Colors.white.withOpacity(0.15), width: 1.5),
                 ),
               ),
               child: Text(
@@ -107,7 +107,7 @@ class ProfileOptionsSheet extends StatelessWidget {
                 'Dismiss',
                 style: GoogleFonts.inter(
                   fontSize: 15,
-                  color: Colors.white.withValues(alpha: 0.5),
+                  color: Colors.white.withOpacity(0.5),
                   fontWeight: FontWeight.w500,
                 ),
               ),

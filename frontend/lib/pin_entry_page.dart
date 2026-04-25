@@ -218,7 +218,7 @@ class _PinEntryPageState extends State<PinEntryPage> {
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('Cancel', style: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.4))),
+                child: Text('Cancel', style: GoogleFonts.inter(color: Colors.white.withOpacity(0.4))),
               ),
             ],
           ),
@@ -270,7 +270,7 @@ class _PinEntryPageState extends State<PinEntryPage> {
                       child: Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 1),
+                          border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
                         ),
                         child: CircleAvatar(
                           radius: 20,
@@ -292,7 +292,7 @@ class _PinEntryPageState extends State<PinEntryPage> {
               const SizedBox(height: 10),
               Text(
                 'Enter your Axio PIN',
-                style: GoogleFonts.inter(fontSize: 14, color: Colors.white.withValues(alpha: 0.4), fontWeight: FontWeight.w400),
+                style: GoogleFonts.inter(fontSize: 14, color: Colors.white.withOpacity(0.4), fontWeight: FontWeight.w400),
               ),
               
               const SizedBox(height: 48),
@@ -308,7 +308,7 @@ class _PinEntryPageState extends State<PinEntryPage> {
                       color: Colors.transparent,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isFilled ? Colors.white : Colors.white.withValues(alpha: 0.2),
+                        color: isFilled ? Colors.white : Colors.white.withOpacity(0.2),
                         width: 1.5,
                       ),
                     ),
