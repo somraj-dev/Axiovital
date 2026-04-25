@@ -124,6 +124,21 @@ class UserProvider with ChangeNotifier {
     String? bloodGroup,
     String? avatarUrl,
   }) async {
+    // Update local state immediately
+    if (name != null) _name = name;
+    if (dob != null) _dob = dob;
+    if (gender != null) _gender = gender;
+    if (email != null) _email = email;
+    if (phone != null) _phone = phone;
+    if (address != null) _address = address;
+    if (height != null) _height = height;
+    if (weight != null) _weight = weight;
+    if (bloodGroup != null) _bloodGroup = bloodGroup;
+    if (avatarUrl != null) _avatarUrl = avatarUrl;
+    
+    await _saveToPrefs();
+    notifyListeners();
+
     final user = _supabase.auth.currentUser;
     if (user == null) return;
 

@@ -149,82 +149,43 @@ class _PinEntryPageState extends State<PinEntryPage> {
   }
 
   Future<void> _authenticateBiometric() async {
-    try {
-      if (kIsWeb) {
-        // Mock for Web since real biometric sensors aren't always exposed to browsers
-        _showMockBiometricDialog();
-        return;
-      }
+    // Biometrics are not available on web — just let the user type their PIN
+    if (kIsWeb) return;
 
+    try {
       final bool canAuthenticateWithBiometrics = await auth.canCheckBiometrics;
       final bool canAuthenticate = canAuthenticateWithBiometrics || await auth.isDeviceSupported();
 
-      if (canAuthenticate) {
-        final bool didAuthenticate = await auth.authenticate(
-          localizedReason: 'Please authenticate to access AxioVital',
-          options: const AuthenticationOptions(
-            stickyAuth: true,
-            biometricOnly: true,
-          ),
-        );
+      if (!canAuthenticate) {
+        // Device doesn't support biometrics — user can still enter PIN manually
+        debugPrint('Biometrics not available on this device');
+        return;
+      }
 
-        if (didAuthenticate) {
-          _navigateToNext();
-        }
-      } else {
-        _showMockBiometricDialog();
+      // Check which biometric types are enrolled
+      final List<BiometricType> availableBiometrics = await auth.getAvailableBiometrics();
+      if (availableBiometrics.isEmpty) {
+        // No biometrics enrolled — user can still enter PIN manually
+        debugPrint('No biometrics enrolled');
+        return;
+      }
+
+      // Use real device biometric sensor (fingerprint, face, iris)
+      final bool didAuthenticate = await auth.authenticate(
+        localizedReason: 'Authenticate to access AxioVital',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: false, // Allow device PIN/pattern as system-level fallback
+        ),
+      );
+
+      if (didAuthenticate && mounted) {
+        _navigateToNext();
       }
     } catch (e) {
-      debugPrint('Biometric error: $e');
-      _showMockBiometricDialog();
+      // If biometric auth fails/errors, silently fall back to PIN entry
+      debugPrint('Biometric auth error: $e');
     }
-  }
-
-  void _showMockBiometricDialog() {
-    // Show a high-fidelity mock dialog that looks like a system scan
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => Center(
-        child: Container(
-          width: 280,
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1E1E1E),
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 20)],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.fingerprint, color: Color(0xFF00D09C), size: 64),
-              const SizedBox(height: 20),
-              Text(
-                'Biometric Authentication',
-                style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Touch the fingerprint sensor',
-                style: GoogleFonts.inter(color: Colors.white.withOpacity(0.6), fontSize: 14),
-              ),
-              const SizedBox(height: 32),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _navigateToNext(); // Simulate success on tap
-                },
-                child: Text('Simulate Success', style: GoogleFonts.inter(color: const Color(0xFF00D09C))),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('Cancel', style: GoogleFonts.inter(color: Colors.white.withOpacity(0.4))),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   @override

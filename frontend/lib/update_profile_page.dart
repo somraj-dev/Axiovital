@@ -111,15 +111,22 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                     right: 4,
                     child: GestureDetector(
                       onTap: () async {
-                        final permissionGranted = await PermissionService().requestFilePermission(context);
-                        if (!permissionGranted) return;
-                        
-                        final picker = ImagePicker();
+                        // Skip manual permission checks. image_picker handles it natively on modern OS.
+                        try {
+                          final picker = ImagePicker();
                         final XFile? image = await picker.pickImage(source: ImageSource.gallery);
                         if (image != null) {
                           setState(() {
                             _avatarUrl = image.path;
                           });
+                        }
+                        } catch (e) {
+                          debugPrint('Error picking image: $e');
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Could not access gallery: $e')),
+                            );
+                          }
                         }
                       },
                       child: Container(

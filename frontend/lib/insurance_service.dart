@@ -42,7 +42,7 @@ class InsuranceService {
           id: r['id'],
           name: r['name'],
           description: r['description'],
-          premium: (r['premium'] as num).toDouble(),
+          premium: (r['premium'] as num?)?.toDouble() ?? 0.0,
           isMustHave: r['isMustHave'] ?? false,
         )).toList();
 
@@ -51,9 +51,9 @@ class InsuranceService {
           insurerName: json['insurer_name'],
           insurerLogo: json['insurer_logo'],
           planName: json['plan_name'],
-          monthlyPremium: (json['monthly_premium'] as num).toDouble(),
-          oldPremium: (json['old_premium'] as num).toDouble(),
-          discountPercent: (json['discount_percent'] as num).toDouble(),
+          monthlyPremium: (json['monthly_premium'] as num?)?.toDouble() ?? 0.0,
+          oldPremium: (json['old_premium'] as num?)?.toDouble() ?? 0.0,
+          discountPercent: (json['discount_percent'] as num?)?.toDouble() ?? 0.0,
           tagBadges: List<String>.from(json['tags'] ?? []),
           highlights: highlights,
           groupedFeatures: groupedFeatures,

@@ -38,7 +38,31 @@ jobs:
           MANIFEST="android/app/src/main/AndroidManifest.xml"
           if [ -f "$MANIFEST" ]; then
             sed -i 's/android:label=".*"/android:label="AxioVital"/' "$MANIFEST"
-            echo "Updated Android label to AxioVital"
+            sed -i 's/<application/<application android:usesCleartextTraffic="true"/' "$MANIFEST"
+            echo "Updated Android label to AxioVital and added cleartext traffic support"
+            # Add INTERNET permission (required for NetworkImage to work in release APK)
+            if ! grep -q "android.permission.INTERNET" "$MANIFEST"; then
+              sed -i '/<manifest/a\    <uses-permission android:name="android.permission.INTERNET"/>' "$MANIFEST"
+              echo "Added INTERNET permission to AndroidManifest"
+            fi
+            
+            # Add biometric permissions for local_auth (real fingerprint/face sensor)
+            if ! grep -q "USE_BIOMETRIC" "$MANIFEST"; then
+              sed -i '/<manifest/a\    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>\n    <uses-permission android:name="android.permission.USE_FINGERPRINT"/>' "$MANIFEST"
+              echo "Added biometric permissions to AndroidManifest"
+            fi
+          fi
+        working-directory: frontend
+
+      - name: Fix MainActivity for Biometric Auth
+        run: |
+          # local_auth requires FlutterFragmentActivity instead of FlutterActivity
+          MAIN_ACTIVITY=$(find android -name "MainActivity.kt" -type f 2>/dev/null | head -1)
+          if [ -n "$MAIN_ACTIVITY" ] && [ -f "$MAIN_ACTIVITY" ]; then
+            sed -i 's/import io.flutter.embedding.android.FlutterActivity/import io.flutter.embedding.android.FlutterFragmentActivity/' "$MAIN_ACTIVITY"
+            sed -i 's/class MainActivity: FlutterActivity/class MainActivity: FlutterFragmentActivity/' "$MAIN_ACTIVITY"
+            echo "Updated MainActivity to FlutterFragmentActivity for biometric support"
+            cat "$MAIN_ACTIVITY"
           fi
         working-directory: frontend
 
