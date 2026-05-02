@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   db:
     image: postgres:16-alpine
@@ -40,6 +38,9 @@ services:
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-axiovital}
       - REDIS_URL=redis://redis:6379/0
       - AI_SERVICE_URL=http://ai_service:8001
+    volumes:
+      - ./backend:/app/backend
+    command: ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     depends_on:
       db:
         condition: service_healthy
@@ -56,6 +57,9 @@ services:
     restart: always
     ports:
       - "8001:8001"
+    volumes:
+      - ./ai_service:/app/ai_service
+    command: ["uvicorn", "ai_service.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
 
   frontend:
     build:
@@ -68,6 +72,20 @@ services:
     depends_on:
       backend:
         condition: service_started
+
+  semantic_search:
+    image: denoland/deno:alpine-1.37.0
+    container_name: axiovital_semantic_search
+    restart: always
+    ports:
+      - "9000:8000"
+    volumes:
+      - ./supabase/functions/semantic-search:/app
+    working_dir: /app
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL:-http://host.docker.internal:54321}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-dummy_key_for_local_dev}
+    command: ["run", "--allow-net", "--allow-env", "--watch", "index.ts"]
 
 volumes:
   postgres_data:

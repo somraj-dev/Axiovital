@@ -9,6 +9,8 @@ import 'user_clubs_page.dart';
 import 'health_feed_provider.dart';
 import 'read_about_health_page.dart'; // Assuming PostDetailScreen might be here or similar
 import 'choose_address_page.dart';
+import 'account_settings_page.dart';
+
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -86,21 +88,12 @@ class _ProfilePageState extends State<ProfilePage> {
       pinned: true,
       backgroundColor: theme.scaffoldBackgroundColor,
       elevation: 0,
-      leading: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: CircleAvatar(
-          backgroundColor: Colors.black.withOpacity(0.3),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ),
-      ),
+      automaticallyImplyLeading: false,
       actions: [
         _buildCircleIconButton(Icons.ios_share, () {}),
         const SizedBox(width: 8),
         _buildCircleIconButton(Icons.settings, () {
-          Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const AccountSettingsPage()));
         }),
         const SizedBox(width: 8),
         Center(

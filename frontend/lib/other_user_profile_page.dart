@@ -63,16 +63,7 @@ class OtherUserProfilePage extends StatelessWidget {
       pinned: true,
       backgroundColor: theme.scaffoldBackgroundColor,
       elevation: 0,
-      leading: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: CircleAvatar(
-          backgroundColor: Colors.black.withOpacity(0.3),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ),
-      ),
+      automaticallyImplyLeading: false,
       actions: [
         Padding(
           padding: const EdgeInsets.all(8.0),
