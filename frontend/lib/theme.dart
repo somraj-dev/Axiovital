@@ -83,7 +83,7 @@ class AppTheme {
         titleTextStyle: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold),
       ),
       dividerTheme: DividerThemeData(color: borderColor, thickness: 1),
-      cardTheme: CardThemeData(
+      cardTheme: ThemeData.light().cardTheme.copyWith(
         color: surfaceColor,
         elevation: 0,
         shape: RoundedRectangleBorder(
