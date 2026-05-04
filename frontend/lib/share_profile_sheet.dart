@@ -93,7 +93,7 @@ class _ShareProfileSheetState extends State<ShareProfileSheet>
 
     final cardColor = isDark ? const Color(0xFF1E2024) : Colors.white;
     final subtitleColor = isDark ? Colors.white54 : const Color(0xFF8A8A8E);
-    final fieldBg = isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFF5F5F7);
+    final fieldBg = isDark ? Colors.white.withOpacity(0.06) : const Color(0xFFF5F5F7);
     final fieldBorder = isDark ? Colors.white12 : const Color(0xFFE8E8ED);
     final labelColor = isDark ? Colors.white70 : const Color(0xFF6E6E73);
 
@@ -113,7 +113,7 @@ class _ShareProfileSheetState extends State<ShareProfileSheet>
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.12),
+                    color: Colors.black.withOpacity(isDark ? 0.4 : 0.12),
                     blurRadius: 40,
                     offset: const Offset(0, 12),
                   ),
@@ -149,7 +149,7 @@ class _ShareProfileSheetState extends State<ShareProfileSheet>
                     width: 56,
                     height: 56,
                     decoration: BoxDecoration(
-                      color: isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFF0F0F2),
+                      color: isDark ? Colors.white.withOpacity(0.08) : const Color(0xFFF0F0F2),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -210,12 +210,12 @@ class _ShareProfileSheetState extends State<ShareProfileSheet>
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       decoration: BoxDecoration(
                         color: _linkCopied
-                            ? const Color(0xFF10B981).withValues(alpha: 0.08)
+                            ? const Color(0xFF10B981).withOpacity(0.08)
                             : fieldBg,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: _linkCopied
-                              ? const Color(0xFF10B981).withValues(alpha: 0.4)
+                              ? const Color(0xFF10B981).withOpacity(0.4)
                               : fieldBorder,
                         ),
                       ),
