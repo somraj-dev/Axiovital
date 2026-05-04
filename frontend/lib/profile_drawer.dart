@@ -11,7 +11,7 @@ import 'help_center_page.dart';
 import 'communities_page.dart';
 import 'read_about_health_page.dart';
 import 'health_passport_page.dart';
-import 'emergency_card_page.dart';
+import 'axio_card_page.dart';
 import 'trackcoins_page.dart';
 import 'trackcoins_landing_page.dart';
 import 'trackcoins_provider.dart';
@@ -235,13 +235,13 @@ class ProfileDrawer extends StatelessWidget {
                   ),
                   _buildDrawerItem(
                     context,
-                    Icons.contact_emergency_outlined, 
-                    'Emergency Card', 
+                    Icons.credit_card_outlined, 
+                    'Axio-Card', 
                     iconColor: theme.primaryColor,
                     textColor: theme.primaryColor,
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const EmergencyCardPage()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const AxioCardPage()));
                     },
                   ),
                   _buildDrawerItem(

@@ -6,7 +6,7 @@ import 'report_vault_page.dart';
 import 'doctor_access_page.dart';
 import 'consent_manager_page.dart';
 import 'health_timeline_page.dart';
-import 'emergency_card_page.dart';
+import 'axio_card_page.dart';
 import 'access_history_page.dart';
 
 class HealthPassportPage extends StatelessWidget {
@@ -40,7 +40,7 @@ class HealthPassportPage extends StatelessWidget {
                   _buildNavCard(context, 'Doctor Access', 'Manage requests', Icons.medical_services, const DoctorAccessPage(), const Color(0xFFF3E5F5), const Color(0xFF7B1FA2)),
                   _buildNavCard(context, 'Consent Hub', 'Revoke/Grant', Icons.privacy_tip, const ConsentManagerPage(), const Color(0xFFE8F5E9), const Color(0xFF2E7D32)),
                   _buildNavCard(context, 'Health Timeline', 'Chronological view', Icons.timeline, const HealthTimelinePage(), const Color(0xFFFFF3E0), const Color(0xFFEF6C00)),
-                  _buildNavCard(context, 'Emergency Card', 'SOS profile', Icons.contact_emergency, const EmergencyCardPage(), const Color(0xFFFFEBEE), const Color(0xFFC62828)),
+                  _buildNavCard(context, 'AxioCard', 'Your health card', Icons.credit_card, const AxioCardPage(), const Color(0xFFEDE7F6), const Color(0xFF6B46C1)),
                   _buildNavCard(context, 'Audit History', 'Immutable logs', Icons.history, const AccessHistoryPage(), const Color(0xFFECEFF1), const Color(0xFF455A64)),
                 ],
               ),

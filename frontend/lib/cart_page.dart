@@ -504,27 +504,32 @@ class _CartPageState extends State<CartPage> {
                     decoration: BoxDecoration(
                       color: const Color(0xFF222222),
                       borderRadius: BorderRadius.circular(6),
+                      image: item.imagePath.isNotEmpty ? DecorationImage(
+                        image: NetworkImage(item.imagePath),
+                        fit: BoxFit.cover,
+                      ) : null,
                     ),
-                    child: const Center(
+                    child: item.imagePath.isEmpty ? const Center(
                       child: Icon(Icons.badge_outlined, color: Colors.white24, size: 28),
-                    ),
+                    ) : null,
                   ),
                   const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(4),
+                  if (item.id != 'axio_card_001')
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('Qty: ${item.quantity}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1D2939))),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.arrow_drop_down, color: Color(0xFF1D2939), size: 18),
+                        ],
+                      ),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('Qty: ${item.quantity}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1D2939))),
-                        const SizedBox(width: 4),
-                        const Icon(Icons.arrow_drop_down, color: Color(0xFF1D2939), size: 18),
-                      ],
-                    ),
-                  ),
                 ],
               ),
               const SizedBox(width: 16),

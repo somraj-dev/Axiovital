@@ -10,6 +10,7 @@ import 'health_feed_provider.dart';
 import 'read_about_health_page.dart'; // Assuming PostDetailScreen might be here or similar
 import 'choose_address_page.dart';
 import 'account_settings_page.dart';
+import 'share_profile_sheet.dart';
 
 
 class ProfilePage extends StatefulWidget {
@@ -90,7 +91,13 @@ class _ProfilePageState extends State<ProfilePage> {
       elevation: 0,
       automaticallyImplyLeading: false,
       actions: [
-        _buildCircleIconButton(Icons.ios_share, () {}),
+        _buildCircleIconButton(Icons.ios_share, () {
+          showDialog(
+            context: context,
+            barrierColor: Colors.black54,
+            builder: (context) => const ShareProfileSheet(),
+          );
+        }),
         const SizedBox(width: 8),
         _buildCircleIconButton(Icons.settings, () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const AccountSettingsPage()));

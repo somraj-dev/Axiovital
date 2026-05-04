@@ -156,7 +156,7 @@ class CartProvider extends ChangeNotifier {
           name: existing.name,
           price: existing.price,
           imagePath: existing.imagePath,
-          type: existing.type,
+          type: type, // Use the NEW type
           subtitle: existing.subtitle,
           timing: existing.timing,
           fulfilledBy: existing.fulfilledBy,
