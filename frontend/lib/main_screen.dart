@@ -4,7 +4,8 @@ import 'package:provider/provider.dart';
 import 'profile_page.dart';
 import 'vitalsync_dashboard.dart';
 import 'find_doctor_page.dart';
-import 'health_insights_page.dart';
+import 'my_visits_page.dart';
+import 'balance_history_page.dart';
 import 'user_provider.dart';
 import 'permission_service.dart';
 import 'lab_tests_page.dart';
@@ -37,7 +38,7 @@ class _MainScreenState extends State<MainScreen> {
     const VitalSyncDashboard(key: ValueKey('HomePage')),
     const FindDoctorPage(key: ValueKey('FindDoctor')),
     const LabTestsPage(key: ValueKey('LabTests')),
-    const HealthInsightsPage(key: ValueKey('HealthInsights')),
+    const BalanceHistoryPage(key: ValueKey('BalanceHistoryPage')),
     const ProfilePage(key: ValueKey('ProfilePage')),
   ];
 
@@ -164,8 +165,8 @@ class _MainScreenState extends State<MainScreen> {
                 onTap: () => _onItemTapped(2),
               ),
               _buildNavItem(
-                icon: _selectedIndex == 3 ? Icons.insights : Icons.insights_outlined,
-                label: userProvider.translate('insights'),
+                icon: _selectedIndex == 3 ? Icons.calendar_month : Icons.calendar_month_outlined,
+                label: 'My Visits',
                 isSelected: _selectedIndex == 3,
                 onTap: () => _onItemTapped(3),
               ),
