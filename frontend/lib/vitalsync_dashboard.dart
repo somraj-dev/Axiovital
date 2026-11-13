@@ -27,14 +27,14 @@ class _VitalSyncDashboardState extends State<VitalSyncDashboard> {
       backgroundColor: const Color(0xFF000000),
       drawer: const ProfileDrawer(),
       body: SafeArea(
-        top: false,
         bottom: false,
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16.0, 14.0, 16.0, 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 6),
               // 1. Top Bar: Profile Avatar, Search Bar, Gift Icon, Bell Icon
               _buildTopBar(context),
               const SizedBox(height: 18),
